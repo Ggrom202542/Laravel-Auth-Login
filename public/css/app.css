@@ -22,7 +22,7 @@
     --color-confirm: #70e000;
     --color-warning: #ff9900;
     --color-deleted: #f8312f;
-    --color-bg: #eef6fc;
+    --color-bg: #F8FAFC;
 
     --box-shadow-1: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
     --box-shadow-2: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
@@ -44,4 +44,70 @@ hr {
 
 p {
     font-size: 1rem;
+}
+
+nav {
+    background-color: var(--color-7);
+    box-shadow: var(--box-shadow-1);
+}
+
+/* button */
+.btn-checked {
+    padding: 5px 15px;
+    border: none;
+    border-radius: 3px;
+    background-color: var(--color-warning);
+    color: var(--color-7);
+}
+
+.btn-deleted {
+    padding: 5px 15px;
+    border: none;
+    border-radius: 3px;
+    background-color: var(--color-deleted);
+    color: var(--color-7);
+}
+
+.btn-confirmed {
+    padding: 5px 15px;
+    border: none;
+    border-radius: 3px;
+    background-color: var(--color-confirm);
+    color: var(--color-7);
+    margin-top: 15px;
+    width: var(--webkit-fill-available);
+}
+
+.btn-confirmed:hover {
+    background-color: var(--color-7);
+    color: var(--color-confirm);
+    border: 1px solid var(--color-confirm);
+}
+
+.btn-confirmed:hover i {
+    color: var(--color-confirm);
+}
+
+.btn-checked i,
+.btn-deleted i,
+.btn-confirmed i {
+    color: var(--color-7);
+}
+
+.btn-insert {
+    background-color: var(--color-7);
+    border: 1px solid var(--color-1);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--color-1);
+    margin: 0 5px;
+}
+
+.btn-insert:active {
+    background-color: var(--color-3);
+    color: var(--color-7);
+}
+
+.btn-insert:active i {
+    color: var(--color-7);
 }
