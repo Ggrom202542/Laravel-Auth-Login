@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@100..900&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Noto Serif Thai', serif;
+    text-decoration: none;
+    list-style: none;
+}
+
+:root {
+    --color-1: #00296B;
+    --color-2: #003F88;
+    --color-3: #00509D;
+    --color-4: #FDC500;
+    --color-5: #FFD500;
+    --color-6: #000000;
+    --color-7: #FFFFFF;
+    --color-8: #808080;
+    --color-9: #353535;
+    --color-confirm: #70e000;
+    --color-warning: #ff9900;
+    --color-deleted: #f8312f;
+    --color-bg: #eef6fc;
+
+    --box-shadow-1: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    --box-shadow-2: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    --box-shadow-3: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+
+    --webkit-fill-available: -webkit-fill-available;
+}
+
+i {
+    margin: 0 10px 0 10px;
+    /* color: var(--color-1); */
+    font-size: 1.5rem;
+}
+
+hr {
+    margin: 10px 0;
+    color: var(--color-1);
+}
+
+p {
+    font-size: 1rem;
+}

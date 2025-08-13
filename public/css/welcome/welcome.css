@@ -1,0 +1,94 @@
+body {
+	background: var(--color-bg);
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: 'Noto Serif Thai', serif;
+	color: var(--color-1);
+}
+
+.welcome-container {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.welcome-card {
+	background: var(--color-bg);
+	box-shadow: var(--box-shadow-1);
+	border-radius: 20px;
+	padding: 40px 28px;
+	text-align: center;
+	z-index: 2;
+	min-width: 320px;
+	max-width: 90vw;
+	animation: fadeInUp 1s ease;
+	border: 1px solid var(--color-1);
+}
+
+.welcome-title {
+	color: var(--color-1);
+	font-size: 2.2rem;
+	font-weight: 700;
+	margin-bottom: 0.5em;
+	letter-spacing: 1px;
+}
+
+.welcome-app {
+	color: var(--color-4);
+	font-size: 1.2rem;
+	font-weight: 500;
+	margin-bottom: 1em;
+}
+
+.welcome-desc {
+	color: var(--color-2);
+	font-size: 1rem;
+	margin-bottom: 2em;
+}
+
+.welcome-btn {
+	display: inline-block;
+	background: var(--color-1);
+	color: var(--color-7);
+	padding: 0.7em 2em;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-weight: 500;
+	box-shadow: var(--box-shadow-1);
+	transition: background 0.2s, transform 0.2s;
+	text-decoration: none;
+	border: none;
+}
+.welcome-btn:hover {
+	background: var(--color-4);
+	color: var(--color-1);
+	transform: translateY(-2px) scale(1.04);
+}
+
+.welcome-bg-anim {
+	position: absolute;
+	top: 0; left: 0; width: 100%; height: 100%;
+	z-index: 1;
+	pointer-events: none;
+	background: linear-gradient(120deg, var(--color-bg) 60%, var(--color-9) 100%);
+	opacity: 0.7;
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(40px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+
