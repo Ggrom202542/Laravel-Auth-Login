@@ -19,11 +19,20 @@ Route::get('/logout', function () {
     return redirect()->route('login');
 })->name('logout');
 
+// เคลียร์ log
+Route::get('/clear-log', function () {
+    $logPath = storage_path('logs/laravel.log');
+    if (file_exists($logPath)) {
+        file_put_contents($logPath, '');
+    }
+    return 'Log cleared!';
+})->middleware('auth');
+
+Auth::routes();
+
 Route::get('/', function () {
     return view('welcome');
 });
-
-Auth::routes();
 
 // สำหรับ user
 Route::group(['middleware' => ['auth', 'user_type:user']], function () {
@@ -33,6 +42,7 @@ Route::group(['middleware' => ['auth', 'user_type:user']], function () {
     Route::get('user/information', [UserController::class, 'information'])->name('user.information');
     Route::post('user/information/update', [UserController::class, 'updateInformation'])->name('user.updateInformation');
     Route::get('user/account-settings', [UserController::class, 'accountSettings'])->name('user.accountSettings');
+    Route::post('user/account-settings/update', [UserController::class, 'updateAccountSettings'])->name('user.updateAccountSettings');
 });
 
 // สำหรับ admin
@@ -43,6 +53,7 @@ Route::group(['middleware' => ['auth', 'user_type:admin']], function () {
     Route::get('admin/information', [AdminController::class, 'information'])->name('admin.information');
     Route::post('admin/information/update', [AdminController::class, 'updateInformation'])->name('admin.updateInformation');
     Route::get('admin/account-settings', [AdminController::class, 'accountSettings'])->name('admin.accountSettings');
+    Route::post('admin/account-settings/update', [AdminController::class, 'updateAccountSettings'])->name('admin.updateAccountSettings');
 });
 
 // สำหรับ super admin
@@ -53,4 +64,5 @@ Route::group(['middleware' => ['auth', 'user_type:super_admin']], function () {
     Route::get('super_admin/information', [SuperAdminController::class, 'information'])->name('super_admin.information');
     Route::post('super_admin/information/update', [SuperAdminController::class, 'updateInformation'])->name('super_admin.updateInformation');
     Route::get('super_admin/account-settings', [SuperAdminController::class, 'accountSettings'])->name('super_admin.accountSettings');
+    Route::post('super_admin/account-settings/update', [SuperAdminController::class, 'updateAccountSettings'])->name('super_admin.updateAccountSettings');
 });

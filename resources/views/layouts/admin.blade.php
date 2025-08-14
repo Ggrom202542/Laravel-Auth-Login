@@ -19,7 +19,6 @@
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
 </head>
 <body>
     <nav class="navbar bg-body-tertiary fixed-top p-3">
@@ -70,7 +69,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('admin.information') }}"><i class="bi bi-gear"></i>ข้อมูลส่วนตัว</a></li>
-                                <li><a class="dropdown-item" href="{{ route('admin.accountSettings') }}"><i class="bi bi-gear"></i>บัญชีผู้ใช้</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.accountSettings') }}"><i class="bi bi-gear"></i>การตั้งค่าบัญชี</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>

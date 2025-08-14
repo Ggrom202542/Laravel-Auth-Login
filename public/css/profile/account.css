@@ -1,0 +1,46 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.account-header {
+    background-color: var(--color-9);
+    padding: 20px;
+    border-radius: 10px;
+    width: 30%;
+    height: 75vh;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+.account-header img {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-top: 20px;
+}
+
+.account-body {
+    background-color: var(--color-7);
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    height: 75vh;
+    box-shadow: var(--box-shadow-1);
+}
+
+.account-body form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.body-title {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    text-align: center;
+}

@@ -81,4 +81,14 @@
         </div>
     </div>
 </div>
+@if (session('success'))
+    <script>
+        Swal.fire({
+            title: "สำเร็จ!",
+            icon: "success",
+            text: "{{ session('success') }}",
+            draggable: true
+        });
+    </script>
+@endif
 @endsection

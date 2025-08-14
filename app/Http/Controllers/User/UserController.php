@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -91,5 +92,39 @@ class UserController extends Controller
     public function accountSettings()
     {
         return view('user.profile.account');
+    }
+
+    public function updateAccountSettings(Request $request)
+    {
+        $request->validate(
+            [
+                'email' => 'required|email|max:50',
+                'username' => 'required|string|max:50|unique:users,username,' . auth()->user()->id,
+                'password' => 'nullable|string|min:8|confirmed',
+            ],
+            [
+                'email.required' => 'กรุณากรอกอีเมล',
+                'email.email' => 'รูปแบบอีเมลไม่ถูกต้อง',
+                'email.max' => 'อีเมลต้องไม่เกิน 50 ตัวอักษร',
+                'username.required' => 'กรุณากรอกบัญชีผู้ใช้',
+                'username.max' => 'บัญชีผู้ใช้ต้องไม่เกิน 50 ตัวอักษร',
+                'username.unique' => 'บัญชีผู้ใช้มีอยู่แล้ว',
+                'password.min' => 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร',
+                'password.confirmed' => 'ยืนยันรหัสผ่านไม่ตรงกัน',
+            ]
+        );
+
+        $data = [
+            'email' => $request->input('email'),
+            'username' => $request->input('username'),
+            'password' => Hash::make($request->input('password')),
+            'updated_at' => now(),
+        ];
+
+        // อัปเดตข้อมูลผู้ใช้
+        User::where('id', auth()->user()->id)->update($data);
+        // logout หลังอัปเดต
+        auth()->logout();
+        return redirect()->route('login')->with('success', 'การตั้งค่าบัญชีของคุณถูกอัปเดตแล้ว กรุณาเข้าสู่ระบบใหม่');
     }
 }

@@ -70,7 +70,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('super_admin.information') }}"><i class="bi bi-gear"></i>ข้อมูลส่วนตัว</a></li>
-                                <li><a class="dropdown-item" href="{{ route('super_admin.accountSettings') }}"><i class="bi bi-gear"></i>บัญชีผู้ใช้</a></li>
+                                <li><a class="dropdown-item" href="{{ route('super_admin.accountSettings') }}"><i class="bi bi-gear"></i>การตั้งค่าบัญชี</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
