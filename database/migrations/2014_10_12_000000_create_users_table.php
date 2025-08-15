@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('prefix')->comment('คำนำหน้า');
             $table->string('name')->comment('ชื่อ - นามสกุล');
             $table->string('phone')->comment('หมายเลขโทรศัพท์');
-            $table->string('email')->unique()->comment('อีเมล')->nullable();
+            $table->string('email')->comment('อีเมล')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('username')->unique()->comment('ชื่อผู้ใช้');
             $table->string('password')->comment('รหัสผ่าน');

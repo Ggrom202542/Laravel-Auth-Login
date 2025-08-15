@@ -54,6 +54,12 @@ Route::group(['middleware' => ['auth', 'user_type:admin']], function () {
     Route::post('admin/information/update', [AdminController::class, 'updateInformation'])->name('admin.updateInformation');
     Route::get('admin/account-settings', [AdminController::class, 'accountSettings'])->name('admin.accountSettings');
     Route::post('admin/account-settings/update', [AdminController::class, 'updateAccountSettings'])->name('admin.updateAccountSettings');
+
+    // data management
+    Route::get('admin/user-management', [AdminController::class, 'userManagement'])->name('admin.userManagement');
+    Route::get('admin/user-info/{id}', [AdminController::class, 'userInfo'])->name('admin.userInfo');
+    Route::post('admin/user-info/update/{id}', [AdminController::class, 'updateUserInfo'])->name('admin.updateUserInfo');
+    Route::get('admin/user-info/delete/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
 });
 
 // สำหรับ super admin

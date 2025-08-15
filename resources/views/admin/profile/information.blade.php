@@ -10,7 +10,7 @@
     <section class="mt-5">
         <div class="container">
             <div class="profile-header">
-                <img src="{{ auth()->user()->avatar ? asset('images/profile/' . auth()->user()->id . '/' . auth()->user()->avatar) : asset('images/profile/profile.jpg') }}"
+                <img src="{{ auth()->user()->avatar ? asset('images/profile/' . auth()->user()->id . '/' . auth()->user()->avatar) : asset('images/profile/profile.png') }}"
                     alt="profile">
                 <div class="mt-4">
                     <p>อีเมล : {{ auth()->user()->email }}</p>

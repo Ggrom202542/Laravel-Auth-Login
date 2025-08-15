@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Register;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -126,5 +127,72 @@ class AdminController extends Controller
         // logout หลังอัปเดต
         auth()->logout();
         return redirect()->route('login')->with('success', 'การตั้งค่าบัญชีของคุณถูกอัปเดตแล้ว กรุณาเข้าสู่ระบบใหม่');
+    }
+
+    public function userManagement()
+    {
+        $user = User::where('user_type', 'user')->get();
+        $registration = Register::all();
+
+        $count_user = $user->count();
+        $count_registration = $registration->count();
+
+        // แบ่งเพศ จาก นาย, นาง, นางสาว
+        $male_count = $user->where('prefix', 'นาย')->count();
+        $female_count = $user->whereIn('prefix', ['นาง', 'นางสาว'])->count();
+
+        return view(
+            'manage.user.user-manage',
+            compact('user', 'count_user', 'registration', 'count_registration', 'male_count', 'female_count')
+        );
+    }
+
+    public function userInfo($id)
+    {
+        $user = User::findOrFail($id);
+        return view('manage.user.user-info', compact('user'));
+    }
+
+    public function updateUserInfo(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate(
+            [
+                'prefix' => 'required|string|max:10',
+                'name' => 'required|string|max:100',
+                'email' => 'required|max:50',
+                'phone' => 'required|string|max:10|min:10|regex:/^[0-9]+$/',
+            ],
+            [
+                'prefix.required' => 'กรุณากรอกคำนำหน้า',
+                'name.required' => 'กรุณากรอกชื่อ',
+                'email.required' => 'กรุณากรอกอีเมล',
+                'phone.required' => 'กรุณากรอกเบอร์โทรศัพท์',
+                'phone.regex' => 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง',
+                'phone.min' => 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก',
+                'phone.max' => 'กรุณากรอกเบอร์โทรศัพท์ไม่เกิน 10 หลัก'
+            ]
+        );
+
+
+        $data = [
+            'prefix' => $request->input('prefix'),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'updated_at' => now(),
+        ];
+
+        $user->update($data);
+        return redirect()->route('admin.userInfo', $user->id)->with('success', 'ข้อมูลส่วนตัวของผู้ใช้งานถูกอัปเดตแล้ว');
+    }
+
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('admin.userManagement')->with('success', 'ลบบัญชีผู้ใช้งานเรียบร้อยแล้ว');
     }
 }

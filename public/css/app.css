@@ -54,15 +54,25 @@ nav {
 /* button */
 .btn-checked {
     padding: 5px 15px;
-    border: none;
+    border: 1px solid var(--color-warning);
     border-radius: 3px;
     background-color: var(--color-warning);
     color: var(--color-7);
 }
 
+.btn-checked:hover {
+    background-color: var(--color-7);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+}
+
+.btn-checked:hover i {
+    color: var(--color-warning);
+}
+
 .btn-deleted {
     padding: 5px 15px;
-    border: none;
+    border: 1px solid var(--color-deleted);
     border-radius: 3px;
     background-color: var(--color-deleted);
     color: var(--color-7);
@@ -70,7 +80,7 @@ nav {
 
 .btn-confirmed {
     padding: 5px 15px;
-    border: none;
+    border: 1px solid var(--color-confirm);
     border-radius: 3px;
     background-color: var(--color-confirm);
     color: var(--color-7);
@@ -110,4 +120,30 @@ nav {
 
 .btn-insert:active i {
     color: var(--color-7);
+}
+
+/* datatable */
+.dataTables_wrapper .dataTables_length select {
+    padding: 5px 10px;
+    margin: 15px 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 3px;
+    box-shadow: var(--box-shadow-1);
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    padding: 7px 10px;
+    margin: 15px 10px;
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    box-shadow: var(--box-shadow-1);
+}
+
+table th {
+    background-color: var(--color-9);
+    color: var(--color-7);
+    height: 35px;
+    text-align: center;
 }
