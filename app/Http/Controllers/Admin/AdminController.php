@@ -195,4 +195,41 @@ class AdminController extends Controller
 
         return redirect()->route('admin.userManagement')->with('success', 'ลบบัญชีผู้ใช้งานเรียบร้อยแล้ว');
     }
+
+    public function registerUser($id)
+    {
+        $registration = Register::findOrFail($id);
+        return view('manage.user.user-register', compact('registration'));
+    }
+
+    public function registerUserInsert(Request $request, $id)
+    {
+        $registration = Register::findOrFail($id);
+
+        User::create(
+            [
+                'prefix' => $registration->prefix,
+                'name' => $registration->name,
+                'phone' => $registration->phone,
+                'email' => $registration->email,
+                'username' => $registration->username,
+                'password' => $registration->password,
+                'user_type' => 'user',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        $registration->delete();
+
+        return redirect()->route('admin.userManagement')->with('success', 'ลงทะเบียนผู้ใช้งานเรียบร้อยแล้ว');
+    }
+
+    public function deleteRegisteredUser($id)
+    {
+        $registration = Register::findOrFail($id);
+        $registration->delete();
+
+        return redirect()->route('admin.userManagement')->with('success', 'ลบข้อมูลผู้ลงทะเบียนเรียบร้อยแล้ว');
+    }
 }

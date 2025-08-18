@@ -60,6 +60,9 @@ Route::group(['middleware' => ['auth', 'user_type:admin']], function () {
     Route::get('admin/user-info/{id}', [AdminController::class, 'userInfo'])->name('admin.userInfo');
     Route::post('admin/user-info/update/{id}', [AdminController::class, 'updateUserInfo'])->name('admin.updateUserInfo');
     Route::get('admin/user-info/delete/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
+    Route::get('admin/user-info/register/{id}', [AdminController::class, 'registerUser'])->name('admin.registerUser');
+    Route::post('admin/user-info/register/insert/{id}', [AdminController::class, 'registerUserInsert'])->name('admin.registerUserInsert');
+    Route::get('admin/user-info/register/delete/{id}', [AdminController::class, 'deleteRegisteredUser'])->name('admin.deleteRegisteredUser');
 });
 
 // สำหรับ super admin

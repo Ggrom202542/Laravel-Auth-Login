@@ -75,7 +75,7 @@
                                     <td style="text-align: center">{{ $item->phone }}</td>
                                     <td style="text-align: center">{{ $item->created_at }}</td>
                                     <td style="text-align: center">
-                                        <button type="button" class="btn-checked">
+                                        <button type="button" class="btn-checked" onclick="location.href='{{ route('admin.registerUser', $item->id) }}'">
                                             <i class="bi bi-pencil-square"></i>จัดการ
                                         </button>
                                     </td>
