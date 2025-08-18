@@ -232,4 +232,23 @@ class AdminController extends Controller
 
         return redirect()->route('admin.userManagement')->with('success', 'ลบข้อมูลผู้ลงทะเบียนเรียบร้อยแล้ว');
     }
+
+    public function adminManagement()
+    {
+        $admins = User::where('user_type', 'admin')->get();
+
+        $count_admin = $admins->count();
+
+        // แบ่งเพศ จาก นาย, นาง, นางสาว
+        $male_count = $admins->where('prefix', 'นาย')->count();
+        $female_count = $admins->whereIn('prefix', ['นาง', 'นางสาว'])->count();
+
+        return view('manage.admin.admin-manage', compact('admins', 'count_admin', 'male_count', 'female_count'));
+    }
+
+    public function adminInfo($id)
+    {
+        $admin = User::findOrFail($id);
+        return view('manage.admin.admin-info', compact('admin'));
+    }
 }

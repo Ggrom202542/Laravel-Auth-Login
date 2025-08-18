@@ -91,7 +91,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('admin.userManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ใช้งานทั่วไป</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบ</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.adminManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบ</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ลิงก์ 4-3</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ลิงก์ 4-4</a></li>
                                 <li>

@@ -8,6 +8,9 @@
 @section('content')
     <section class="mt-5">
         <article class="box-register">
+            <div style="float: left;position: fixed;">
+                <button type="button" class="btn-insert" onclick="location.href='{{ route('admin.userManagement') }}'"><i class="bi bi-arrow-left"></i>ย้อนกลับ</button>
+            </div>
             <div class="box-header">
                 <img src="{{ asset('images/profile/profile.png') }}" alt="profile default">
                 <h4>ผู้ลงทะเบียนเข้าใช้งาน</h4>
