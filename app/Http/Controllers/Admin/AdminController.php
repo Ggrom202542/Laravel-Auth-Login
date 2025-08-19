@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Register;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Register;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller

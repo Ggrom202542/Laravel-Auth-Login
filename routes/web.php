@@ -77,4 +77,17 @@ Route::group(['middleware' => ['auth', 'user_type:super_admin']], function () {
     Route::post('super_admin/information/update', [SuperAdminController::class, 'updateInformation'])->name('super_admin.updateInformation');
     Route::get('super_admin/account-settings', [SuperAdminController::class, 'accountSettings'])->name('super_admin.accountSettings');
     Route::post('super_admin/account-settings/update', [SuperAdminController::class, 'updateAccountSettings'])->name('super_admin.updateAccountSettings');
+
+    // data management
+    Route::get('super_admin/user-management', [SuperAdminController::class, 'userManagement'])->name('super_admin.userManagement');
+    Route::get('super_admin/user-info/{id}', [SuperAdminController::class, 'userInfo'])->name('super_admin.userInfo');
+    Route::post('super_admin/user-info/update/{id}', [SuperAdminController::class, 'updateUserInfo'])->name('super_admin.updateUserInfo');
+    Route::get('super_admin/user-info/delete/{id}', [SuperAdminController::class, 'deleteUser'])->name('super_admin.deleteUser');
+    Route::get('super_admin/user-info/register/{id}', [SuperAdminController::class, 'registerUser'])->name('super_admin.registerUser');
+    Route::post('super_admin/user-info/register/insert/{id}', [SuperAdminController::class, 'registerUserInsert'])->name('super_admin.registerUserInsert');
+    Route::get('super_admin/user-info/register/delete/{id}', [SuperAdminController::class, 'deleteRegisteredUser'])->name('super_admin.deleteRegisteredUser');
+
+    Route::get('super_admin/admin-management', [SuperAdminController::class, 'adminManagement'])->name('super_admin.adminManagement');
+    Route::get('super_admin/admin-info/{id}', [SuperAdminController::class, 'adminInfo'])->name('super_admin.adminInfo');
+    Route::post('super_admin/admin-info/update/{id}', [SuperAdminController::class, 'updateAdminInfo'])->name('super_admin.updateAdminInfo');
 });

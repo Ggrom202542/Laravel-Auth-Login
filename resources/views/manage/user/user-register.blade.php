@@ -1,4 +1,8 @@
-@extends('layouts.admin')
+@php
+    $userType = auth()->user()->user_type;
+    $layout = $userType === 'super_admin' ? 'layouts.super-admin' : 'layouts.admin';
+@endphp
+@extends($layout)
 
 @section('title', 'ลงทะเบียนผู้ใช้งาน')
 
@@ -9,7 +13,7 @@
     <section class="mt-5">
         <article class="box-register">
             <div style="float: left;position: fixed;">
-                <button type="button" class="btn-insert" onclick="location.href='{{ route('admin.userManagement') }}'"><i class="bi bi-arrow-left"></i>ย้อนกลับ</button>
+                <button type="button" class="btn-insert" onclick="window.history.back()"><i class="bi bi-arrow-left"></i>ย้อนกลับ</button>
             </div>
             <div class="box-header">
                 <img src="{{ asset('images/profile/profile.png') }}" alt="profile default">

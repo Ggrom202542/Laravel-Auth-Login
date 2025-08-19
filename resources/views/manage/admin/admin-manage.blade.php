@@ -1,4 +1,8 @@
-@extends('layouts.admin')
+@php
+    $userType = auth()->user()->user_type;
+    $layout = $userType === 'super_admin' ? 'layouts.super-admin' : 'layouts.admin';
+@endphp
+@extends($layout)
 
 @section('title', 'ข้อมูลผู้ดูแลระบบ')
 @push('styles')
@@ -61,8 +65,12 @@
                                         <td style="text-align: center">{{ $item->phone }}</td>
                                         <td style="text-align: center">{{ $item->created_at }}</td>
                                         <td style="text-align: center">
+                                            @php
+                                                $userType = auth()->user()->user_type;
+                                                $adminRoute = $userType === 'super_admin' ? 'super_admin.adminInfo' : 'admin.adminInfo';
+                                            @endphp
                                             <button type="button" class="btn-checked"
-                                                onclick="location.href='{{ route('admin.adminInfo', $item->id) }}'">
+                                                onclick="location.href='{{ route($adminRoute, $item->id) }}'">
                                                 <i class="bi bi-pencil-square"></i>ข้อมูล
                                             </button>
                                         </td>

@@ -19,6 +19,13 @@
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {{-- dataTable --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 
 </head>
 <body>
@@ -77,6 +84,18 @@
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-folder"></i>ประวัติการใช้งาน</a></li>
                             </ul>
                         </li><hr>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="bi bi-gear"></i>จัดการข้อมูลพื้นฐาน
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ route('super_admin.userManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ใช้งานทั่วไป</a></li>
+                                <li><a class="dropdown-item" href="{{ route('super_admin.adminManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบ</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบใหญ่</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ลิงก์ 4-4</a></li>
+                            </ul>
+                        </li><hr>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('logout') }}"><i class="bi bi-door-open"></i>ออกจากระบบ</a>
                         </li>
@@ -88,5 +107,6 @@
     <main class="px-5 p-5">
         @yield('content')
     </main>
+    @yield('scripts')
 </body>
 </html>

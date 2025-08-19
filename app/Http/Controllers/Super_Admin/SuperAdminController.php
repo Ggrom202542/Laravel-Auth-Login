@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Super_Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Register;
 use Illuminate\Support\Facades\Hash;
 
 class SuperAdminController extends Controller
@@ -126,5 +127,150 @@ class SuperAdminController extends Controller
         // logout หลังอัปเดต
         auth()->logout();
         return redirect()->route('login')->with('success', 'การตั้งค่าบัญชีของคุณถูกอัปเดตแล้ว กรุณาเข้าสู่ระบบใหม่');
+    }
+
+    public function userManagement()
+    {
+        $user = User::where('user_type', 'user')->get();
+        $registration = Register::all();
+
+        $count_user = $user->count();
+        $count_registration = $registration->count();
+
+        // แบ่งเพศ จาก นาย, นาง, นางสาว
+        $male_count = $user->where('prefix', 'นาย')->count();
+        $female_count = $user->whereIn('prefix', ['นาง', 'นางสาว'])->count();
+
+        return view(
+            'manage.user.user-manage',
+            compact('user', 'count_user', 'registration', 'count_registration', 'male_count', 'female_count')
+        );
+    }
+
+    public function userInfo($id)
+    {
+        $user = User::findOrFail($id);
+        return view('manage.user.user-info', compact('user'));
+    }
+
+    public function updateUserInfo(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate(
+            [
+                'prefix' => 'required|string|max:10',
+                'name' => 'required|string|max:100',
+                'email' => 'required|max:50',
+                'phone' => 'required|string|max:10|min:10|regex:/^[0-9]+$/',
+            ],
+            [
+                'prefix.required' => 'กรุณากรอกคำนำหน้า',
+                'name.required' => 'กรุณากรอกชื่อ',
+                'email.required' => 'กรุณากรอกอีเมล',
+                'phone.required' => 'กรุณากรอกเบอร์โทรศัพท์',
+                'phone.regex' => 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง',
+                'phone.min' => 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก',
+                'phone.max' => 'กรุณากรอกเบอร์โทรศัพท์ไม่เกิน 10 หลัก'
+            ]
+        );
+
+
+        $data = [
+            'prefix' => $request->input('prefix'),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'updated_at' => now(),
+        ];
+
+        $user->update($data);
+        return redirect()->route('super_admin.userInfo', $user->id)->with('success', 'ข้อมูลส่วนตัวของผู้ใช้งานถูกอัปเดตแล้ว');
+    }
+
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('super_admin.userManagement')->with('success', 'ลบบัญชีผู้ใช้งานเรียบร้อยแล้ว');
+    }
+
+    public function registerUser($id)
+    {
+        $registration = Register::findOrFail($id);
+        return view('manage.user.user-register', compact('registration'));
+    }
+
+    public function registerUserInsert(Request $request, $id)
+    {
+        $registration = Register::findOrFail($id);
+
+        User::create(
+            [
+                'prefix' => $registration->prefix,
+                'name' => $registration->name,
+                'phone' => $registration->phone,
+                'email' => $registration->email,
+                'username' => $registration->username,
+                'password' => $registration->password,
+                'user_type' => 'user',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        $registration->delete();
+
+        return redirect()->route('super_admin.userManagement')->with('success', 'ลงทะเบียนผู้ใช้งานเรียบร้อยแล้ว');
+    }
+
+    public function deleteRegisteredUser($id)
+    {
+        $registration = Register::findOrFail($id);
+        $registration->delete();
+
+        return redirect()->route('super_admin.userManagement')->with('success', 'ลบข้อมูลผู้ลงทะเบียนเรียบร้อยแล้ว');
+    }
+
+    public function adminManagement()
+    {
+        $admins = User::where('user_type', 'admin')->get();
+
+        $count_admin = $admins->count();
+
+        // แบ่งเพศ จาก นาย, นาง, นางสาว
+        $male_count = $admins->where('prefix', 'นาย')->count();
+        $female_count = $admins->whereIn('prefix', ['นาง', 'นางสาว'])->count();
+
+        return view('manage.admin.admin-manage', compact('admins', 'count_admin', 'male_count', 'female_count'));
+    }
+
+    public function adminInfo($id)
+    {
+        $admin = User::findOrFail($id);
+        return view('manage.admin.admin-info', compact('admin'));
+    }
+
+    public function updateAdminInfo(Request $request, $id)
+    {
+        $admin = User::findOrFail($id);
+
+        $request->validate(
+            [
+                'usertype' => 'string|in:user,admin,super_admin',
+            ],
+            [
+                'usertype.in' => 'ประเภทผู้ใช้งานไม่ถูกต้อง'
+            ]
+        );
+
+        $data = [
+            'user_type' => $request->usertype ? $request->usertype : $admin->user_type,
+        ];
+
+        $admin->update($data);
+
+        return redirect()->route('super_admin.adminManagement', $admin->id)->with('success', 'ข้อมูลผู้ดูแลระบบถูกอัปเดตแล้ว');
     }
 }

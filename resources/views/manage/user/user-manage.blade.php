@@ -1,4 +1,8 @@
-@extends('layouts.admin')
+@php
+    $userType = auth()->user()->user_type;
+    $layout = $userType === 'super_admin' ? 'layouts.super-admin' : 'layouts.admin';
+@endphp
+@extends($layout)
 
 @section('title', 'จัดการผู้ใช้งาน')
 
@@ -6,7 +10,6 @@
     <link rel="stylesheet" href="{{ asset('css/chart/chart.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manage/manage.css') }}">
 @endpush
-
 @section('content')
     <section class="mt-5">
         <div class="box-user-management">
@@ -75,8 +78,12 @@
                                         <td style="text-align: center">{{ $item->phone }}</td>
                                         <td style="text-align: center">{{ $item->created_at }}</td>
                                         <td style="text-align: center">
+                                            @php
+                                                $userType = auth()->user()->user_type;
+                                                $registerRoute = $userType === 'super_admin' ? 'super_admin.registerUser' : 'admin.registerUser';
+                                            @endphp
                                             <button type="button" class="btn-checked"
-                                                onclick="location.href='{{ route('admin.registerUser', $item->id) }}'">
+                                                onclick="location.href='{{ route($registerRoute, $item->id) }}'">
                                                 <i class="bi bi-pencil-square"></i>จัดการ
                                             </button>
                                         </td>
@@ -106,8 +113,12 @@
                                         <td style="text-align: center">{{ $item->phone }}</td>
                                         <td style="text-align: center">{{ $item->created_at }}</td>
                                         <td style="text-align: center">
+                                            @php
+                                                $userType = auth()->user()->user_type;
+                                                $userRoute = $userType === 'super_admin' ? 'super_admin.userInfo' : 'admin.userInfo';
+                                            @endphp
                                             <button type="button" class="btn-checked"
-                                                onclick="location.href='{{ route('admin.userInfo', $item->id) }}'">
+                                                onclick="location.href='{{ route($userRoute, $item->id) }}'">
                                                 <i class="bi bi-pencil-square"></i>จัดการ
                                             </button>
                                         </td>
