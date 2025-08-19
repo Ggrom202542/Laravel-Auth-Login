@@ -94,6 +94,10 @@
                                 <li><a class="dropdown-item" href="{{ route('super_admin.adminManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบ</a></li>
                                 <li><a class="dropdown-item" href="{{ route('super_admin.superAdminManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบใหญ่</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ลิงก์ 4-4</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{{ url('/clear-log') }}" target="_blank"><i class="bi bi-gear"></i>เคลียร์ Log</a></li>
                             </ul>
                         </li><hr>
                         <li class="nav-item">
