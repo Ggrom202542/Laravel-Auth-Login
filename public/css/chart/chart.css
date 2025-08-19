@@ -19,6 +19,9 @@
     box-shadow: var(--box-shadow-1);
     width: 15%;
     text-align: center;
+    border: none;
+    border-radius: 6px;
+    background: var(--color-7);
 }
 
 .person-info img {

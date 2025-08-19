@@ -29,11 +29,11 @@
 
 </head>
 <body>
-    <nav class="navbar bg-body-tertiary fixed-top p-3">
+    <nav class="navbar fixed-top p-3">
         <div class="container-fluid">
-            <a class="navbar-brand" href="">{{ config('app.name', 'Laravel') }}</a>
+            <a class="navbar-brand" href="" style="color: #FFF">{{ config('app.name', 'Laravel') }}</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-                aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                aria-controls="offcanvasNavbar" aria-label="Toggle navigation" style="background-color: #FFF;">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
@@ -92,7 +92,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('super_admin.userManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ใช้งานทั่วไป</a></li>
                                 <li><a class="dropdown-item" href="{{ route('super_admin.adminManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบ</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบใหญ่</a></li>
+                                <li><a class="dropdown-item" href="{{ route('super_admin.superAdminManagement') }}"><i class="bi bi-gear"></i>ข้อมูลผู้ดูแลระบบใหญ่</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i>ลิงก์ 4-4</a></li>
                             </ul>
                         </li><hr>
@@ -108,5 +108,8 @@
         @yield('content')
     </main>
     @yield('scripts')
+    <footer>
+        <p>&copy; {{ date('Y') }} Laravel Auth Login. All rights reserved.</p>
+    </footer>
 </body>
 </html>

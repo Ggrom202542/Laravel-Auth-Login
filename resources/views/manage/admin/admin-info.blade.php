@@ -7,21 +7,30 @@
 @section('title', 'ข้อมูลผู้ดูแลระบบ')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/manage/manage.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/profile/information.css') }}">
 @endpush
 @section('content')
     <section class="mt-5">
-        <article class="box-register">
-            <div style="float: left;position: fixed;">
-                <button type="button" class="btn-insert" onclick="window.history.back()"><i
-                        class="bi bi-arrow-left"></i>ย้อนกลับ</button>
+        <div class="container">
+            <div class="profile-header">
+                <img src="{{ $admin->avatar ? asset('images/profile/' . $admin->id . '/' . $admin->avatar) : asset('images/profile/profile.png') }}"
+                    alt="profile">
+                <div class="mt-4">
+                    <p>อีเมล : {{ $admin->email }}</p>
+                    <p>เบอร์โทร : {{ $admin->phone }}</p>
+                </div>
+                <div>
+                    <button type="button" class="btn-insert" onclick="window.history.back()"><i class="bi bi-arrow-left"></i>ย้อนกลับ</button>
+                    <button type="button" class="btn-insert"><i class="bi bi-bell"></i>แจ้งปัญหา</button>
+                </div>
             </div>
-            <div class="box-header">
-                <img src="{{ asset('images/profile/profile.png') }}" alt="profile default">
-                <h4>ข้อมูลผู้ดูแลระบบ</h4>
-                <p style="color: var(--color-8)">โปรดตรวจสอบข้อมูลให้ถูกต้อง หากพบข้อผิดพลาดกรุณาแจ้งผู้ดูแลระบบใหญ่ Super
-                    Admin หรือแจ้งผู้เกี่ยวข้อง</p>
-            </div>
-            <div class="box-form">
+            <div class="profile-info">
+                <div class="mt-4 info-title">
+                    <h2>ตรวจสอบข้อมูลส่วนตัว</h2>
+                    <p class="text-muted">การอัพเดท แก้ไขข้อมูลส่วนตัวของบุคคลอื่น ๆ
+                        ต้องได้รับอนุญาตจากเจ้าของข้อมูลก่อนทุกครั้ง เพื่อความถูกต้องในการใช้งานระบบ</p>
+                    <hr>
+                </div>
                 @if($userType === 'super_admin')
                     <form action="{{ route('super_admin.updateAdminInfo', $admin->id) }}" method="post">
                         @csrf
@@ -59,15 +68,15 @@
                                     ผู้ดูแลระบบใหญ่</option>
                             </select>
                         </div>
-                        <div style="margin-top: 20px; text-align: right;">
+                        <div style="text-align: right;">
                             <button type="submit" class="btn-confirmed"><i class="bi bi-save"></i> อัพเดทข้อมูล</button>
                         </div>
-                        <div style="text-align: center; margin-top: 20px;">
-                            <a href="javascript:void(0);" class="text-danger">ลบข้อมูลผู้ใช้งาน</a>
+                        <div style="text-align: center; margin-top: 10px;">
+                            <a href="javascript:void(0);" class="text-danger" onclick="confirmDelete('{{ route('super_admin.deleteAdmin', $admin->id) }}')">ลบข้อมูลผู้ใช้งาน</a>
                         </div>
                     </form>
                 @else
-                    <form>
+                    <form action="{{ route('admin.updateUserInfo', $admin->id) }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div>
                             <label for="prefix">คำนำหน้า</label>
@@ -99,7 +108,7 @@
                     </form>
                 @endif
             </div>
-        </article>
+        </div>
     </section>
     <script src="{{ asset('js/button/button.js') }}"></script>
     @if (session('success'))

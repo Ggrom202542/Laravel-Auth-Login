@@ -52,7 +52,7 @@
                     </div>
                 </form>
                 <div style="text-align: center; margin-top: 20px;">
-                    <a href="javascript:void(0);"  class="text-danger" onclick="confirmDelete('{{ route('admin.deleteRegisteredUser', $registration->id) }}')">ลบข้อมูลผู้ลงทะเบียน</a>
+                    <a href="javascript:void(0);" class="text-danger" onclick="confirmDelete('{{ route('admin.deleteRegisteredUser', $registration->id) }}')">ลบข้อมูลผู้ลงทะเบียน</a>
                 </div>
             </div>
         </article>

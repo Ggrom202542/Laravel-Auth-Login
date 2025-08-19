@@ -29,11 +29,11 @@
 
 </head>
 <body>
-    <nav class="navbar bg-body-tertiary fixed-top p-3">
+    <nav class="navbar fixed-top p-3">
         <div class="container-fluid">
-            <a class="navbar-brand" href="">{{ config('app.name', 'Laravel') }}</a>
+            <a class="navbar-brand" href="" style="color: #FFF;">{{ config('app.name', 'Laravel') }}</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-                aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                aria-controls="offcanvasNavbar" aria-label="Toggle navigation" style="background-color: #FFF;">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
@@ -118,5 +118,8 @@
         @yield('content')
     </main>
     @yield('scripts')
+    <footer>
+        <p>&copy; {{ date('Y') }} Laravel Auth Login. All rights reserved.</p>
+    </footer>
 </body>
 </html>

@@ -90,4 +90,9 @@ Route::group(['middleware' => ['auth', 'user_type:super_admin']], function () {
     Route::get('super_admin/admin-management', [SuperAdminController::class, 'adminManagement'])->name('super_admin.adminManagement');
     Route::get('super_admin/admin-info/{id}', [SuperAdminController::class, 'adminInfo'])->name('super_admin.adminInfo');
     Route::post('super_admin/admin-info/update/{id}', [SuperAdminController::class, 'updateAdminInfo'])->name('super_admin.updateAdminInfo');
+    Route::get('super_admin/admin-info/delete/{id}', [SuperAdminController::class, 'deleteAdmin'])->name('super_admin.deleteAdmin');
+
+    Route::get('super_admin/super-admin-management', [SuperAdminController::class, 'superAdminManagement'])->name('super_admin.superAdminManagement');
+    Route::get('super_admin/super-admin-info/{id}', [SuperAdminController::class, 'superAdminInfo'])->name('super_admin.superAdminInfo');
+    Route::post('super_admin/super-admin-info/update/{id}', [SuperAdminController::class, 'updateSuperAdminInfo'])->name('super_admin.updateSuperAdminInfo');
 });

@@ -163,6 +163,7 @@ class SuperAdminController extends Controller
                 'name' => 'required|string|max:100',
                 'email' => 'required|max:50',
                 'phone' => 'required|string|max:10|min:10|regex:/^[0-9]+$/',
+                'user_type' => 'string|in:user,admin'
             ],
             [
                 'prefix.required' => 'กรุณากรอกคำนำหน้า',
@@ -171,7 +172,8 @@ class SuperAdminController extends Controller
                 'phone.required' => 'กรุณากรอกเบอร์โทรศัพท์',
                 'phone.regex' => 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง',
                 'phone.min' => 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก',
-                'phone.max' => 'กรุณากรอกเบอร์โทรศัพท์ไม่เกิน 10 หลัก'
+                'phone.max' => 'กรุณากรอกเบอร์โทรศัพท์ไม่เกิน 10 หลัก',
+                'user_type.in' => 'ประเภทผู้ใช้งานไม่ถูกต้อง'
             ]
         );
 
@@ -181,11 +183,12 @@ class SuperAdminController extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'phone' => $request->input('phone'),
+            'user_type' => $request->input('user_type'),
             'updated_at' => now(),
         ];
 
         $user->update($data);
-        return redirect()->route('super_admin.userInfo', $user->id)->with('success', 'ข้อมูลส่วนตัวของผู้ใช้งานถูกอัปเดตแล้ว');
+        return redirect()->route('super_admin.userManagement', $user->id)->with('success', 'ข้อมูลส่วนตัวของผู้ใช้งานถูกอัปเดตแล้ว');
     }
 
     public function deleteUser($id)
@@ -272,5 +275,30 @@ class SuperAdminController extends Controller
         $admin->update($data);
 
         return redirect()->route('super_admin.adminManagement', $admin->id)->with('success', 'ข้อมูลผู้ดูแลระบบถูกอัปเดตแล้ว');
+    }
+
+    public function deleteAdmin($id)
+    {
+        $admin = User::findOrFail($id);
+        $admin->delete();
+
+        return redirect()->route('super_admin.adminManagement')->with('success', 'ลบข้อมูลผู้ดูแลระบบเรียบร้อยแล้ว');
+    }
+
+    public function superAdminManagement()
+    {
+        $superAdmins = User::where('user_type', 'super_admin')->get();
+
+        $count_super_admin = $superAdmins->count();
+        $male_count = $superAdmins->where('prefix', 'นาย')->count();
+        $female_count = $superAdmins->whereIn('prefix', ['นาง', 'นางสาว'])->count();
+
+        return view('manage.super_admin.super-admin-manage', compact('superAdmins', 'count_super_admin', 'male_count', 'female_count'));
+    }
+
+    public function superAdminInfo($id)
+    {
+        $superAdmin = User::findOrFail($id);
+        return view('manage.super_admin.super-admin-info', compact('superAdmin'));
     }
 }

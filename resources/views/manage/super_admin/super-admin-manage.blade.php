@@ -4,10 +4,11 @@
 @endphp
 @extends($layout)
 
-@section('title', 'ข้อมูลผู้ดูแลระบบ')
+@section('title', 'ข้อมูลผู้ดูแลระบบใหญ่ Super Admin')
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/chart/chart.css') }}">
     <link rel="stylesheet" href="{{ asset('css/manage/manage.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/welcome/effect.css') }}">
 @endpush
 @section('content')
     <section class="mt-5">
@@ -20,8 +21,8 @@
                 <div class="person-info">
                     <img src="{{ asset('images/icon/man.png') }}" alt="icon">
                     <div>
-                        <h5>จำนวนแอดมิน</h5>
-                        <h1>{{ $count_admin }}</h1>
+                        <h5>จำนวนแอดมินใหญ่</h5>
+                        <h1>{{ $count_super_admin }}</h1>
                     </div>
                     <p style="color: var(--color-8); margin-top: 15px;"></p>
                 </div>
@@ -33,7 +34,7 @@
                     </div>
                 </div>
             </article><br>
-            <h5><i class="bi bi-person-circle"></i>ข้อมูลแอดมิน</h5>
+            <h5><i class="bi bi-person-circle"></i>ข้อมูลแอดมินใหญ่</h5>
             <article class="tab-user-management">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -42,7 +43,7 @@
                             aria-controls="admins-tab-pane" aria-selected="true">ผู้ลงทะเบียนเข้าใช้งาน</button>
                     </li>
                 </ul>
-                <div class="tab-content p-4" id="myTabContent">
+                <div class="tab-content p-4" id="myTabContent" style="background: #FFF; box-shadow: var(--box-shadow-1);">
                     <div class="tab-pane fade show active" id="admins-tab-pane" role="tabpanel"
                         aria-labelledby="admins-tab" tabindex="0">
                         <table id="admins-table" class="display">
@@ -57,7 +58,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($admins as $item)
+                                @foreach ($superAdmins as $item)
                                     <tr>
                                         <td style="text-align: center">{{ $item->id }}</td>
                                         <td>{{ $item->name }}</td>
@@ -65,12 +66,7 @@
                                         <td style="text-align: center">{{ $item->phone }}</td>
                                         <td style="text-align: center">{{ $item->created_at }}</td>
                                         <td style="text-align: center">
-                                            @php
-                                                $userType = auth()->user()->user_type;
-                                                $adminRoute = $userType === 'super_admin' ? 'super_admin.adminInfo' : 'admin.adminInfo';
-                                            @endphp
-                                            <button type="button" class="btn-checked"
-                                                onclick="location.href='{{ route($adminRoute, $item->id) }}'">
+                                            <button type="button" class="btn-checked" onclick="location.href='{{ route('super_admin.superAdminInfo', $item->id) }}'">
                                                 <i class="bi bi-pencil-square"></i>ข้อมูล
                                             </button>
                                         </td>

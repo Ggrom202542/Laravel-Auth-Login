@@ -47,8 +47,12 @@ p {
 }
 
 nav {
-    background-color: var(--color-7);
+    background-color: var(--color-9);
     box-shadow: var(--box-shadow-1);
+}
+
+main {
+    min-height: 100vh;
 }
 
 /* button */
@@ -146,4 +150,13 @@ table th {
     color: var(--color-7);
     height: 35px;
     text-align: center;
+}
+
+/* footer */
+footer {
+    background-color: var(--color-9);
+    height: 200px;
+    width: var(--webkit-fill-available);
+    padding: 20px 40px;
+    color: var(--color-7);
 }
