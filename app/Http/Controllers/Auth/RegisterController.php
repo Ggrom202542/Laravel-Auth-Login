@@ -40,6 +40,7 @@ class RegisterController extends Controller
                 'username.unique' => 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว',
                 'password.required' => 'กรุณากรอกรหัสผ่าน',
                 'password.confirmed' => 'รหัสผ่านไม่ตรงกัน',
+                'password.min' => 'รหัสผ่านต้องมีอย่างน้อย 8 หลัก',
             ]
         );
 
