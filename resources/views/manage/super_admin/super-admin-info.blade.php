@@ -33,22 +33,30 @@
                     <div>
                         <label for="prefix">คำนำหน้า</label>
                         <input type="text" id="prefix" name="prefix" class="form-control" value="{{ $superAdmin->prefix }}" required>
+                        @error('prefix')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label for="name">ชื่อ - นามสกุล</label>
                         <input type="text" id="name" name="name" class="form-control" value="{{ $superAdmin->name }}" required>
+                        @error('name')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label for="email">อีเมล</label>
                         <input type="email" id="email" name="email" class="form-control" value="{{ $superAdmin->email }}" required>
+                        @error('email')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label for="phone">เบอร์โทร</label>
                         <input type="text" id="phone" name="phone" class="form-control" value="{{ $superAdmin->phone }}" required>
-                    </div>
-                    <div>
-                        <label for="username">บัญชีผู้ใช้งาน</label>
-                        <input type="text" id="username" name="username" class="form-control" value="{{ $superAdmin->username }}" required>
+                        @error('phone')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label for="user_type">ประเภทผู้ใช้งาน</label>
@@ -57,6 +65,16 @@
                             <option value="admin" {{ $superAdmin->user_type == 'admin' ? 'selected' : '' }}>ผู้ดูแลระบบ</option>
                             <option value="user" {{ $superAdmin->user_type == 'user' ? 'selected' : '' }}>ผู้ใช้งานทั่วไป</option>
                         </select>
+                        @error('user_type')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="username">บัญชีผู้ใช้งาน</label>
+                        <input type="text" id="username" name="username" class="form-control" value="{{ $superAdmin->username }}" required>
+                        @error('username')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <button type="submit" class="btn-confirmed"><i class="bi bi-floppy"></i>บันทึกข้อมูล</button>

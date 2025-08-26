@@ -16,20 +16,20 @@
                 @csrf
                 <div class="mb-3">
                     <label for="username" class="form-label">บัญชีผู้ใช้งาน</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" value="{{ old('username') }}" required>
                     @error('username')
-                        <span class="invalid-feedback" role="alert">
+                        <div class="invalid-feedback d-block" role="alert">
                             <strong>{{ $message }}</strong>
-                        </span>
+                        </div>
                     @enderror
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">รหัสผ่าน</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
                     @error('password')
-                        <span class="invalid-feedback" role="alert">
+                        <div class="invalid-feedback d-block" role="alert">
                             <strong>{{ $message }}</strong>
-                        </span>
+                        </div>
                     @enderror
                 </div>
                 <button type="submit" class="btn-login"><i class="bi bi-box-arrow-in-right"></i>เข้าสู่ระบบ</button>

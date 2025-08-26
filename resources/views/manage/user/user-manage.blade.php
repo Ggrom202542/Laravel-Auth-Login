@@ -23,6 +23,7 @@
                     <div>
                         <h5>จำนวนผู้ใช้งานทั่วไป</h5>
                         <h1>{{ $count_user }}</h1>
+                        <p style="color: var(--color-8);">คน</p>
                     </div>
                     <p style="color: var(--color-8); margin-top: 15px;"></p>
                 </div>
@@ -31,6 +32,7 @@
                     <div>
                         <h5>จำนวนผู้ลงทะเบียน</h5>
                         <h1>{{ $count_registration }}</h1>
+                        <p style="color: var(--color-8);">คน</p>
                     </div>
                 </div>
                 <div class="person-info">
@@ -38,6 +40,7 @@
                     <div style="color: var(--color-8);">
                         <h5>เพิ่มข้อมูล</h5>
                         <h1>-</h1>
+                        <p style="color: var(--color-8);"></p>
                     </div>
                 </div>
             </article><br>
@@ -163,7 +166,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'สัดส่วนผู้ใช้งานระบบ',
+                        text: ['สัดส่วนผู้ใช้งาน', '(ชาย : {{ $male_count }} คน, หญิง : {{ $female_count }} คน)'],
                         font: {
                             size: 20,
                             weight: 'normal',

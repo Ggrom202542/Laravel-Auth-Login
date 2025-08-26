@@ -71,6 +71,17 @@
                                 <option value="admin" {{ $user->user_type === 'admin' ? 'selected' : '' }}>ผู้ดูแลระบบ</option>
                             </select>
                         </div>
+                        <div>
+                            <label for="username">บัญชีผู้ใช้งาน</label>
+                            <input type="text" name="username" id="username" class="form-control" value="{{ $user->username }}">
+                            @error('username')
+                                <div class="text-danger m-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="password">รหัสผ่าน (เว้นว่างไว้หากไม่ต้องการเปลี่ยนแปลง)</label>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="กรุณากรอกรหัสผ่านใหม่ หากต้องการเปลี่ยนแปลง">
+                        </div>
                         <button type="submit" class="btn-confirmed"><i class="bi bi-floppy"></i>บันทึก</button>
                     </form>
                 @elseif(Auth::user()->user_type === 'admin')

@@ -41,23 +41,30 @@
                                 <option value="นาง" {{ $admin->prefix == 'นาง' ? 'selected' : '' }}>นาง</option>
                                 <option value="นางสาว" {{ $admin->prefix == 'นางสาว' ? 'selected' : '' }}>นางสาว</option>
                             </select>
+                            @error('prefix')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="name">ชื่อผู้ใช้งาน</label>
                             <input type="text" id="name" name="name" value="{{ $admin->name }}" class="form-control">
+                            @error('name')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="phone">เบอร์โทรศัพท์</label>
                             <input type="text" id="phone" name="phone" value="{{ $admin->phone }}" class="form-control">
+                            @error('phone')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="email">อีเมล</label>
                             <input type="text" id="email" name="email" value="{{ $admin->email }}" class="form-control">
-                        </div>
-                        <div>
-                            <label for="username">บัญชีผู้ใช้งาน</label>
-                            <input type="text" id="username" name="username" value="{{ $admin->username }}"
-                                class="form-control">
+                            @error('email')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="usertype">ประเภทผู้ใช้งาน</label>
@@ -67,6 +74,24 @@
                                 <option value="super_admin" {{ $admin->user_type == 'super_admin' ? 'selected' : '' }}>
                                     ผู้ดูแลระบบใหญ่</option>
                             </select>
+                            @error('usertype')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="username">บัญชีผู้ใช้งาน</label>
+                            <input type="text" id="username" name="username" value="{{ $admin->username }}"
+                                class="form-control">
+                            @error('username')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="password">รหัสผ่าน (เว้นว่างไว้หากไม่ต้องการเปลี่ยนแปลง)</label>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="กรุณากรอกรหัสผ่านใหม่ หากต้องการเปลี่ยนแปลง">
+                            @error('password')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div style="text-align: right;">
                             <button type="submit" class="btn-confirmed"><i class="bi bi-save"></i> อัพเดทข้อมูล</button>
@@ -85,25 +110,40 @@
                                 <option value="นาง" {{ $admin->prefix == 'นาง' ? 'selected' : '' }}>นาง</option>
                                 <option value="นางสาว" {{ $admin->prefix == 'นางสาว' ? 'selected' : '' }}>นางสาว</option>
                             </select>
+                            @error('prefix')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="name">ชื่อผู้ใช้งาน</label>
                             <input type="text" id="name" name="name" value="{{ $admin->name }}" class="form-control" readonly>
+                            @error('name')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="phone">เบอร์โทรศัพท์</label>
                             <input type="text" id="phone" name="phone" value="{{ $admin->phone }}" class="form-control"
                                 readonly>
+                            @error('phone')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="email">อีเมล</label>
                             <input type="text" id="email" name="email" value="{{ $admin->email }}" class="form-control"
                                 readonly>
+                            @error('email')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="username">บัญชีผู้ใช้งาน</label>
                             <input type="text" id="username" name="username" value="{{ $admin->username }}" class="form-control"
                                 readonly>
+                            @error('username')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                     </form>
                 @endif

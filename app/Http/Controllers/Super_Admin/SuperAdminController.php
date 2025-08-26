@@ -163,7 +163,9 @@ class SuperAdminController extends Controller
                 'name' => 'required|string|max:100',
                 'email' => 'required|max:50',
                 'phone' => 'required|string|max:10|min:10|regex:/^[0-9]+$/',
-                'user_type' => 'string|in:user,admin'
+                'user_type' => 'string|in:user,admin',
+                'username' => 'required|string|max:50|unique:users,username,' . $user->id,
+                'password' => 'nullable|string|min:8',
             ],
             [
                 'prefix.required' => 'กรุณากรอกคำนำหน้า',
@@ -173,10 +175,13 @@ class SuperAdminController extends Controller
                 'phone.regex' => 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง',
                 'phone.min' => 'กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก',
                 'phone.max' => 'กรุณากรอกเบอร์โทรศัพท์ไม่เกิน 10 หลัก',
-                'user_type.in' => 'ประเภทผู้ใช้งานไม่ถูกต้อง'
+                'user_type.in' => 'ประเภทผู้ใช้งานไม่ถูกต้อง',
+                'username.required' => 'กรุณากรอกบัญชีผู้ใช้งาน',
+                'username.max' => 'บัญชีผู้ใช้งานต้องไม่เกิน 50 ตัวอักษร',
+                'username.unique' => 'บัญชีผู้ใช้งานมีอยู่แล้ว',
+                'password.min' => 'กรุณากรอกรหัสผ่านให้ครบ 8 หลัก',
             ]
         );
-
 
         $data = [
             'prefix' => $request->input('prefix'),
@@ -184,6 +189,8 @@ class SuperAdminController extends Controller
             'email' => $request->input('email'),
             'phone' => $request->input('phone'),
             'user_type' => $request->input('user_type'),
+            'username' => $request->input('username'),
+            'password' => $request->input('password') ? Hash::make($request->input('password')) : $user->password,
             'updated_at' => now(),
         ];
 
@@ -261,15 +268,38 @@ class SuperAdminController extends Controller
 
         $request->validate(
             [
+                'prefix' => 'required|string|max:10',
+                'name' => 'required|string|max:50',
+                'phone' => 'required|string|max:10',
+                'email' => 'required|string|max:100',
                 'usertype' => 'string|in:user,admin,super_admin',
+                'username' => 'required|string|max:50|unique:users,username,' . $admin->id,
+                'password' => 'nullable|string|min:8'
             ],
             [
-                'usertype.in' => 'ประเภทผู้ใช้งานไม่ถูกต้อง'
+                'prefix.required' => 'กรุณากรอกคำนำหน้า',
+                'name.required' => 'กรุณากรอกชื่อ',
+                'name.max' => 'ชื่อผู้ใช้งานต้องไม่เกิน 50 ตัวอักษร',
+                'phone.required' => 'กรุณากรอกเบอร์โทรศัพท์',
+                'phone.max' => 'เบอร์โทรศัพท์ต้องไม่เกิน 10 ตัวอักษร',
+                'email.required' => 'กรุณากรอกอีเมล',
+                'usertype.in' => 'ประเภทผู้ใช้งานไม่ถูกต้อง',
+                'username.required' => 'กรุณากรอกบัญชีผู้ใช้งาน',
+                'username.max' => 'บัญชีผู้ใช้งานต้องไม่เกิน 50 ตัวอักษร',
+                'username.unique' => 'บัญชีผู้ใช้งานมีอยู่แล้ว',
+                'password.min' => 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'
             ]
         );
 
         $data = [
+            'prefix' => $request->prefix,
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'username' => $request->username,
+            'password' => $request->password ? Hash::make($request->password) : $admin->password,
             'user_type' => $request->usertype ? $request->usertype : $admin->user_type,
+            'updated_at' => now(),
         ];
 
         $admin->update($data);

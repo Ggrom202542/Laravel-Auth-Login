@@ -23,6 +23,7 @@
                     <div>
                         <h5>จำนวนแอดมินใหญ่</h5>
                         <h1>{{ $count_super_admin }}</h1>
+                        <p style="color: var(--color-8);">คน</p>
                     </div>
                     <p style="color: var(--color-8); margin-top: 15px;"></p>
                 </div>
@@ -31,6 +32,7 @@
                     <div style="color: var(--color-8);">
                         <h5>เพิ่มข้อมูล</h5>
                         <h1>-</h1>
+                        <p style="color: var(--color-8);"></p>
                     </div>
                 </div>
             </article><br>
@@ -101,7 +103,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'สัดส่วนแอดมิน',
+                        text: ['สัดส่วนแอดมิน', '(ชาย : {{ $male_count }}, หญิง : {{ $female_count }})'],
                         font: {
                             size: 20,
                             weight: 'normal',
