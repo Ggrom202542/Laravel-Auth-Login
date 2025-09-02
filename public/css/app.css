@@ -46,11 +46,6 @@ p {
     font-size: 1rem;
 }
 
-nav {
-    background-color: var(--color-9);
-    box-shadow: var(--box-shadow-1);
-}
-
 main {
     min-height: 100vh;
 }

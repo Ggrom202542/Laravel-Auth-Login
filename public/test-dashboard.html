@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard CSS Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/dashboard/dashboard.css">
+    <link rel="stylesheet" href="css/dashboard/components.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Dashboard CSS Test</h1>
+        
+        <!-- Test Sidebar Colors -->
+        <div class="row">
+            <div class="col-md-3">
+                <div style="background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); height: 200px; border-radius: 10px;" class="p-3">
+                    <p class="text-white">Sidebar Gradient Test</p>
+                    <button class="btn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">Test Button</button>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="bi bi-speedometer2 me-2"></i>Dashboard Components</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>การทดสอบ CSS components ต่างๆ</p>
+                        <button class="btn btn-gradient-primary me-2">Primary Button</button>
+                        <button class="btn btn-gradient-success me-2">Success Button</button>
+                        <button class="btn btn-gradient-warning me-2">Warning Button</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Icons -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <h3>Bootstrap Icons Test</h3>
+                <p>
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                    <i class="bi bi-people ms-3"></i> Users
+                    <i class="bi bi-gear ms-3"></i> Settings
+                    <i class="bi bi-shield-lock ms-3"></i> Security
+                    <i class="bi bi-bell ms-3"></i> Notifications
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
