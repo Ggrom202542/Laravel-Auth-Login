@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'User Dashboard')
+@section('title', 'หน้าหลักผู้ใช้ทั่วไป')
 
 @section('content')
 <div class="container-fluid">
@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="h3 mb-0 text-gray-800">
                     <i class="fas fa-user-circle me-2"></i>
-                    User Dashboard
+                    Dashboard
                 </h1>
                 <div class="text-end">
                     <small class="text-muted">
