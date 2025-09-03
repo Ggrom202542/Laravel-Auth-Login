@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\{Route, Auth, Http, Log, DB};
 use App\Http\Controllers\Auth\{LoginController, RegisterController};
 use App\Http\Controllers\User\DashboardController as UserDashboard;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\UserManagementController as AdminUserManagement;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
@@ -125,7 +126,20 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity']
     });
     
     // User Management Routes สำหรับ Admin
-    // จะเพิ่มใน Phase ต่อไป
+    Route::group(['prefix' => 'users', 'as' => 'users.'], function () {
+        // Main CRUD routes
+        Route::get('/', [AdminUserManagement::class, 'index'])->name('index');
+        Route::get('/{user}', [AdminUserManagement::class, 'show'])->name('show');
+        Route::get('/{user}/edit', [AdminUserManagement::class, 'edit'])->name('edit');
+        Route::put('/{user}', [AdminUserManagement::class, 'update'])->name('update');
+        
+        // AJAX routes for status management
+        Route::patch('/{user}/toggle-status', [AdminUserManagement::class, 'toggleStatus'])->name('toggle-status');
+        Route::patch('/{user}/reset-password', [AdminUserManagement::class, 'resetPassword'])->name('reset-password');
+        
+        // Statistics API route
+        Route::get('/api/statistics', [AdminUserManagement::class, 'getUserStatistics'])->name('statistics');
+    });
 });
 
 /*
@@ -133,7 +147,7 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity']
 | Super Admin Routes (บทบาท: super_admin)
 |--------------------------------------------------------------------------
 */
-Route::group(['middleware' => ['auth', 'role:super_admin', 'log.activity'], 'prefix' => 'super-admin', 'as' => 'super-admin.'], function () {
+Route::group(['middleware' => ['auth', 'super.admin', 'log.activity'], 'prefix' => 'super-admin', 'as' => 'super-admin.'], function () {
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])->name('dashboard');
     
     // Registration Approval Routes (Super Admin สามารถเข้าถึงได้เหมือน Admin)
@@ -144,6 +158,27 @@ Route::group(['middleware' => ['auth', 'role:super_admin', 'log.activity'], 'pre
         Route::post('/{approval}/reject', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'reject'])->name('reject');
         Route::post('/bulk-action', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'bulkAction'])->name('bulk-action');
         Route::delete('/{approval}', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'destroy'])->name('destroy');
+    });
+    
+    // Super Admin User Management Routes
+    Route::group(['prefix' => 'users', 'as' => 'users.'], function () {
+        // Main CRUD routes
+        Route::get('/', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'store'])->name('store');
+        Route::get('/{id}', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'destroy'])->name('destroy');
+        
+        // AJAX routes for advanced user management
+        Route::post('/{id}/reset-password', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'resetPassword'])->name('reset-password');
+        Route::post('/{id}/toggle-status', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/{id}/promote-role', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'promoteRole'])->name('promote-role');
+        Route::post('/{id}/terminate-sessions', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'terminateSessions'])->name('terminate-sessions');
+        
+        // Session management routes
+        Route::get('/sessions', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'sessions'])->name('sessions');
     });
     
     // System Management Routes สำหรับ Super Admin

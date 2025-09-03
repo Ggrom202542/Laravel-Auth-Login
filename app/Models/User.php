@@ -71,6 +71,16 @@ class User extends Authenticatable
         'login_history',
         'profile_completed',
         'profile_completed_at',
+        // Super Admin fields
+        'two_fa_enabled',
+        'two_fa_secret',
+        'two_fa_recovery_codes',
+        'ip_restrictions',
+        'session_timeout',
+        'allowed_login_methods',
+        'created_by_admin',
+        'updated_by_admin',
+        'name', // Add name field for compatibility
     ];
 
     /**
@@ -81,6 +91,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_fa_secret',
+        'two_fa_recovery_codes',
     ];
 
     /**
@@ -102,6 +114,10 @@ class User extends Authenticatable
         'profile_completed' => 'boolean',
         'profile_completed_at' => 'datetime',
         'login_history' => 'array',
+        // Super Admin fields
+        'two_fa_enabled' => 'boolean',
+        'two_fa_recovery_codes' => 'array',
+        'allowed_login_methods' => 'array',
     ];
 
     /**
@@ -136,6 +152,44 @@ class User extends Authenticatable
     public function activities()
     {
         return $this->hasMany(UserActivity::class);
+    }
+
+    /**
+     * Get the admin sessions for this user.
+     */
+    public function adminSessions()
+    {
+        return $this->hasMany(AdminSession::class);
+    }
+
+    /**
+     * Get the security policies created by this user.
+     */
+    public function createdSecurityPolicies()
+    {
+        return $this->hasMany(SecurityPolicy::class, 'created_by');
+    }
+
+    /**
+     * Get the security policies that apply to this user.
+     */
+    public function applicableSecurityPolicies()
+    {
+        return SecurityPolicy::effective()
+                            ->forUser($this->id, $this->role)
+                            ->orderBy('priority_order');
+    }
+
+    /**
+     * Get user's full name
+     */
+    public function getNameAttribute()
+    {
+        if ($this->attributes['name'] ?? false) {
+            return $this->attributes['name'];
+        }
+        
+        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
     }
 
     /**

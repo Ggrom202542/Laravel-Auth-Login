@@ -285,7 +285,7 @@
                         <i class="bi bi-people-fill me-2"></i>
                         การจัดการผู้ใช้งานขั้นสูง
                     </h6>
-                    <a href="#" class="btn btn-danger btn-sm">
+                    <a href="{{ route('super-admin.users.index') }}" class="btn btn-danger btn-sm">
                         <i class="bi bi-plus me-1"></i>
                         จัดการทั้งหมด
                     </a>
@@ -434,7 +434,7 @@
                         <!-- User Management -->
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
-                                <a href="#" class="btn btn-outline-primary">
+                                <a href="{{ route('super-admin.users.index') }}" class="btn btn-outline-primary">
                                     <i class="bi bi-people me-2"></i>
                                     จัดการผู้ใช้
                                 </a>

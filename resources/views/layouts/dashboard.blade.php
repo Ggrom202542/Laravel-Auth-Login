@@ -129,14 +129,14 @@
                     <div id="collapseUsers" class="collapse" data-bs-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">การจัดการผู้ใช้:</h6>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('admin.users.index') }}">
                                 <i class="bi bi-list-ul me-2"></i>รายการผู้ใช้
                             </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-person-plus me-2"></i>เพิ่มผู้ใช้ใหม่
+                            <a class="collapse-item" href="{{ route('admin.users.index', ['status' => 'active']) }}">
+                                <i class="bi bi-person-check me-2"></i>ผู้ใช้ที่ใช้งานได้
                             </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-person-lock me-2"></i>ผู้ใช้ถูกล็อค
+                            <a class="collapse-item" href="{{ route('admin.users.index', ['status' => 'inactive']) }}">
+                                <i class="bi bi-person-x me-2"></i>ผู้ใช้ไม่ใช้งาน
                             </a>
                         </div>
                     </div>
@@ -221,11 +221,14 @@
                     <div id="collapseSystem" class="collapse" data-bs-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">การจัดการระบบ:</h6>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('super-admin.users.index') }}">
                                 <i class="bi bi-people me-2"></i>ผู้ใช้งาน (ทั้งหมด)
                             </a>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('super-admin.users.index', ['role' => 'admin']) }}">
                                 <i class="bi bi-person-badge me-2"></i>จัดการ Admin
+                            </a>
+                            <a class="collapse-item" href="{{ route('super-admin.users.sessions') }}">
+                                <i class="bi bi-people-fill me-2"></i>Active Sessions
                             </a>
                             <a class="collapse-item" href="#">
                                 <i class="bi bi-shield-check me-2"></i>บทบาท & สิทธิ์
@@ -556,6 +559,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
+            crossorigin="anonymous"></script>
+    
+    <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" 
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
             crossorigin="anonymous"></script>
 
     <script src="{{ asset('js/dashboard.js') }}"></script>

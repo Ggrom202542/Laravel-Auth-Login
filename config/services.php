@@ -31,4 +31,31 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | SMS Services Configuration
+    |--------------------------------------------------------------------------
+    */
+    'sms' => [
+        'provider' => env('SMS_PROVIDER', 'log'), // log, twilio, aws, thai_bulk_sms
+        
+        'twilio' => [
+            'sid' => env('TWILIO_SID'),
+            'token' => env('TWILIO_TOKEN'),
+            'from' => env('TWILIO_FROM'),
+        ],
+        
+        'aws' => [
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        ],
+        
+        'thai_provider' => [
+            'api_key' => env('THAI_SMS_API_KEY'),
+            'sender' => env('THAI_SMS_SENDER'),
+            'url' => env('THAI_SMS_URL', 'https://api.thaibulksms.com/v2/send'),
+        ],
+    ],
+
 ];
