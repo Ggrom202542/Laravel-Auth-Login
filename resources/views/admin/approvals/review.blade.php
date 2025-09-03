@@ -176,16 +176,34 @@
                         </div>
                     </div>
 
-                    @if($approval->additional_data)
+                    @php
+                        $additionalData = null;
+                        if ($approval->additional_data) {
+                            if (is_string($approval->additional_data)) {
+                                $additionalData = json_decode($approval->additional_data, true);
+                            } elseif (is_array($approval->additional_data)) {
+                                $additionalData = $approval->additional_data;
+                            }
+                        }
+                    @endphp
+
+                    @if($additionalData && is_array($additionalData) && count($additionalData) > 0)
                         <hr>
                         <h6 class="fw-bold">ข้อมูลเพิ่มเติม:</h6>
                         <div class="row">
-                            @foreach($approval->additional_data as $key => $value)
+                            @foreach($additionalData as $key => $value)
                                 <div class="col-md-6 mb-2">
                                     <strong>{{ ucwords(str_replace('_', ' ', $key)) }}:</strong>
-                                    <span class="ms-2">{{ $value }}</span>
+                                    <span class="ms-2">{{ is_array($value) ? json_encode($value) : $value }}</span>
                                 </div>
                             @endforeach
+                        </div>
+                    @elseif($approval->additional_data)
+                        <hr>
+                        <h6 class="fw-bold">ข้อมูลเพิ่มเติม:</h6>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <pre class="mb-0">{{ is_string($approval->additional_data) ? $approval->additional_data : json_encode($approval->additional_data, JSON_PRETTY_PRINT) }}</pre>
                         </div>
                     @endif
                 </div>
@@ -416,20 +434,5 @@
 @endpush
 
 @push('scripts')
-<script>
-function deleteModal(id, name) {
-    if(confirm(`คุณต้องการลบข้อมูลการสมัครของ ${name} หรือไม่?`)) {
-        // Create form and submit
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/approvals/${id}`;
-        form.innerHTML = `
-            @csrf
-            @method('DELETE')
-        `;
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-</script>
+{{-- Delete modal function is included from admin.approvals.modals.delete --}}
 @endpush

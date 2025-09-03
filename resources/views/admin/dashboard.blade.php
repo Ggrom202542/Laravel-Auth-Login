@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="h3 mb-0 text-gray-800">
-                    <i class="fas fa-user-shield me-2"></i>
+                    <i class="bi bi-person-badge me-2"></i>
                     Admin Dashboard
                 </h1>
                 <div class="text-end">
@@ -37,7 +37,7 @@
                             </p>
                         </div>
                         <div class="col-md-4 text-end d-none d-md-block">
-                            <i class="fas fa-user-shield fa-3x opacity-75"></i>
+                            <i class="bi bi-person-badge opacity-75" style="font-size: 3rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                            <i class="bi bi-people" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-plus" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-clock fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-check" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            <i class="bi bi-activity" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -135,12 +135,12 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-line me-2"></i>
+                        <i class="bi bi-graph-up me-2"></i>
                         กราฟการสมัครสมาชิกรายวัน (30 วันที่ผ่านมา)
                     </h6>
                     <div class="dropdown no-arrow">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v fa-sm"></i>
+                            <i class="bi bi-list-ul"></i>
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">ดูรายละเอียด</a></li>
@@ -161,7 +161,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-pie me-2"></i>
+                        <i class="bi bi-pie-chart me-2"></i>
                         การกระจายบทบาท
                     </h6>
                 </div>
@@ -173,7 +173,7 @@
                         @if(isset($roleStats))
                             @foreach($roleStats as $role => $count)
                             <span class="mr-2">
-                                <i class="fas fa-circle text-{{ $loop->index == 0 ? 'primary' : ($loop->index == 1 ? 'success' : 'info') }}"></i> 
+                                <i class="bi bi-circle-fill text-{{ $loop->index == 0 ? 'primary' : ($loop->index == 1 ? 'success' : 'info') }}"></i> 
                                 {{ ucfirst($role) }} ({{ $count }})
                             </span>
                             @endforeach
@@ -191,11 +191,11 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-users me-2"></i>
+                        <i class="bi bi-people me-2"></i>
                         ผู้ใช้งานล่าสุด
                     </h6>
                     <a href="#" class="btn btn-primary btn-sm">
-                        <i class="fas fa-user-plus me-1"></i>
+                        <i class="bi bi-person-plus me-1"></i>
                         จัดการผู้ใช้
                     </a>
                 </div>
@@ -247,7 +247,7 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="fas fa-users fa-3x text-gray-300 mb-3"></i>
+                            <i class="bi bi-people mb-3" style="font-size: 3rem; color: #dddfeb;"></i>
                             <p class="text-muted">ยังไม่มีผู้ใช้งานใหม่</p>
                         </div>
                     @endif
@@ -260,7 +260,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-list-alt me-2"></i>
+                        <i class="bi bi-list-check me-2"></i>
                         กิจกรรมระบบล่าสุด
                     </h6>
                 </div>
@@ -273,13 +273,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             @if($activity->action === 'login')
-                                                <i class="fas fa-sign-in-alt text-success"></i>
+                                                <i class="bi bi-box-arrow-in-right text-success"></i>
                                             @elseif($activity->action === 'logout')
-                                                <i class="fas fa-sign-out-alt text-warning"></i>
+                                                <i class="bi bi-box-arrow-right text-warning"></i>
                                             @elseif($activity->action === 'register')
-                                                <i class="fas fa-user-plus text-primary"></i>
+                                                <i class="bi bi-person-plus text-primary"></i>
                                             @else
-                                                <i class="fas fa-circle text-info"></i>
+                                                <i class="bi bi-circle-fill text-info"></i>
                                             @endif
                                         </div>
                                         <div>
@@ -300,7 +300,7 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+                            <i class="bi bi-inbox mb-3" style="font-size: 3rem; color: #dddfeb;"></i>
                             <p class="text-muted">ยังไม่มีกิจกรรมระบบ</p>
                         </div>
                     @endif
@@ -315,7 +315,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-tools me-2"></i>
+                        <i class="bi bi-tools me-2"></i>
                         การจัดการด่วน
                     </h6>
                 </div>
@@ -324,7 +324,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-primary">
-                                    <i class="fas fa-users me-2"></i>
+                                    <i class="bi bi-people me-2"></i>
                                     จัดการผู้ใช้
                                 </a>
                             </div>
@@ -332,7 +332,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-success">
-                                    <i class="fas fa-user-shield me-2"></i>
+                                    <i class="bi bi-person-badge me-2"></i>
                                     จัดการบทบาท
                                 </a>
                             </div>
@@ -340,7 +340,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-info">
-                                    <i class="fas fa-key me-2"></i>
+                                    <i class="bi bi-key me-2"></i>
                                     จัดการสิทธิ์
                                 </a>
                             </div>
@@ -348,7 +348,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-warning">
-                                    <i class="fas fa-history me-2"></i>
+                                    <i class="bi bi-clock-history me-2"></i>
                                     ตรวจสอบกิจกรรม
                                 </a>
                             </div>
@@ -356,7 +356,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-danger">
-                                    <i class="fas fa-ban me-2"></i>
+                                    <i class="bi bi-person-lock me-2"></i>
                                     ผู้ใช้ถูกล็อค
                                 </a>
                             </div>
@@ -364,7 +364,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-secondary">
-                                    <i class="fas fa-cog me-2"></i>
+                                    <i class="bi bi-gear me-2"></i>
                                     ตั้งค่าระบบ
                                 </a>
                             </div>

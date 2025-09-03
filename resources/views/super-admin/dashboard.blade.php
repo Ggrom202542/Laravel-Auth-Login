@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="h3 mb-0 text-gray-800">
-                    <i class="fas fa-crown me-2"></i>
+                    <i class="bi bi-shield-check me-2"></i>
                     Super Admin Dashboard
                 </h1>
                 <div class="text-end">
@@ -31,7 +31,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h4 class="card-title mb-2">
-                                <i class="fas fa-crown me-2"></i>
+                                <i class="bi bi-shield-check me-2"></i>
                                 ยินดีต้อนรับ, {{ auth()->user()->name }}!
                             </h4>
                             <p class="card-text mb-0">
@@ -43,7 +43,7 @@
                             </small>
                         </div>
                         <div class="col-md-4 text-end d-none d-md-block">
-                            <i class="fas fa-crown fa-3x opacity-75"></i>
+                            <i class="bi bi-shield-check opacity-75" style="font-size: 3rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                            <i class="bi bi-people" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-shield fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-badge" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-clock fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-check" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            <i class="bi bi-activity" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-lock fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-lock" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-tag fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-lines-fill" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -181,12 +181,12 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-area me-2"></i>
+                        <i class="bi bi-graph-up me-2"></i>
                         กิจกรรมระบบและประสิทธิภาพ (7 วันที่ผ่านมา)
                     </h6>
                     <div class="dropdown no-arrow">
                         <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v fa-sm"></i>
+                            <i class="bi bi-list-ul"></i>
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">ดูรายงานเต็ม</a></li>
@@ -208,7 +208,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-heartbeat me-2"></i>
+                        <i class="bi bi-heart-pulse me-2"></i>
                         สถานะระบบ
                     </h6>
                 </div>
@@ -265,7 +265,7 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="fas fa-server fa-3x text-gray-300 mb-3"></i>
+                            <i class="bi bi-server mb-3" style="font-size: 3rem; color: #dddfeb;"></i>
                             <p class="text-muted">ข้อมูลระบบไม่พร้อมใช้งาน</p>
                             <button class="btn btn-outline-primary btn-sm">รีเฟรชข้อมูล</button>
                         </div>
@@ -282,11 +282,11 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-users-cog me-2"></i>
+                        <i class="bi bi-people-fill me-2"></i>
                         การจัดการผู้ใช้งานขั้นสูง
                     </h6>
                     <a href="#" class="btn btn-danger btn-sm">
-                        <i class="fas fa-plus me-1"></i>
+                        <i class="bi bi-plus me-1"></i>
                         จัดการทั้งหมด
                     </a>
                 </div>
@@ -338,11 +338,11 @@
                                         <td>
                                             <div class="btn-group" role="group">
                                                 <button class="btn btn-outline-primary btn-sm" title="แก้ไข">
-                                                    <i class="fas fa-edit"></i>
+                                                    <i class="bi bi-pencil"></i>
                                                 </button>
                                                 @if($admin->id !== auth()->id())
                                                 <button class="btn btn-outline-warning btn-sm" title="ล็อค">
-                                                    <i class="fas fa-lock"></i>
+                                                    <i class="bi bi-lock"></i>
                                                 </button>
                                                 @endif
                                             </div>
@@ -354,7 +354,7 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="fas fa-user-shield fa-3x text-gray-300 mb-3"></i>
+                            <i class="bi bi-person-badge mb-3" style="font-size: 3rem; color: #dddfeb;"></i>
                             <p class="text-muted">ยังไม่มีผู้ดูแลระบบอื่น</p>
                         </div>
                     @endif
@@ -367,7 +367,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-shield-alt me-2"></i>
+                        <i class="bi bi-shield-exclamation me-2"></i>
                         Security & System Logs
                     </h6>
                 </div>
@@ -380,13 +380,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             @if(str_contains($log->action, 'failed'))
-                                                <i class="fas fa-exclamation-triangle text-danger"></i>
+                                                <i class="bi bi-exclamation-triangle text-danger"></i>
                                             @elseif(str_contains($log->action, 'login'))
-                                                <i class="fas fa-sign-in-alt text-success"></i>
+                                                <i class="bi bi-box-arrow-in-right text-success"></i>
                                             @elseif(str_contains($log->action, 'logout'))
-                                                <i class="fas fa-sign-out-alt text-warning"></i>
+                                                <i class="bi bi-box-arrow-right text-warning"></i>
                                             @else
-                                                <i class="fas fa-info-circle text-info"></i>
+                                                <i class="bi bi-info-circle text-info"></i>
                                             @endif
                                         </div>
                                         <div>
@@ -410,7 +410,7 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="fas fa-shield-alt fa-3x text-gray-300 mb-3"></i>
+                            <i class="bi bi-shield-check mb-3" style="font-size: 3rem; color: #dddfeb;"></i>
                             <p class="text-muted">ยังไม่มี Security Logs</p>
                         </div>
                     @endif
@@ -423,9 +423,9 @@
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm bg-light">
-                <div class="card-header bg-danger text-white py-3">
+                <div class="card-header bg-danger py-3">
                     <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-tools me-2"></i>
+                        <i class="bi bi-tools me-2"></i>
                         Super Admin Tools - ใช้ด้วยความระมัดระวัง
                     </h6>
                 </div>
@@ -435,7 +435,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-primary">
-                                    <i class="fas fa-users me-2"></i>
+                                    <i class="bi bi-people me-2"></i>
                                     จัดการผู้ใช้
                                 </a>
                             </div>
@@ -445,7 +445,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-success">
-                                    <i class="fas fa-user-shield me-2"></i>
+                                    <i class="bi bi-person-badge me-2"></i>
                                     บทบาท & สิทธิ์
                                 </a>
                             </div>
@@ -455,7 +455,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-info">
-                                    <i class="fas fa-cogs me-2"></i>
+                                    <i class="bi bi-gear me-2"></i>
                                     ตั้งค่าระบบ
                                 </a>
                             </div>
@@ -465,7 +465,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-warning">
-                                    <i class="fas fa-database me-2"></i>
+                                    <i class="bi bi-database me-2"></i>
                                     ฐานข้อมูล
                                 </a>
                             </div>
@@ -475,7 +475,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-secondary">
-                                    <i class="fas fa-archive me-2"></i>
+                                    <i class="bi bi-archive me-2"></i>
                                     สำรองข้อมูล
                                 </a>
                             </div>
@@ -485,7 +485,7 @@
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-danger" onclick="return confirm('คุณแน่ใจหรือไม่?')">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
                                     Emergency
                                 </a>
                             </div>
@@ -499,7 +499,7 @@
                         <div class="col-lg-3 col-md-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-dark">
-                                    <i class="fas fa-terminal me-2"></i>
+                                    <i class="bi bi-terminal me-2"></i>
                                     System Console
                                 </a>
                             </div>
@@ -508,7 +508,7 @@
                         <div class="col-lg-3 col-md-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-dark">
-                                    <i class="fas fa-bug me-2"></i>
+                                    <i class="bi bi-bug me-2"></i>
                                     Debug Tools
                                 </a>
                             </div>
@@ -517,7 +517,7 @@
                         <div class="col-lg-3 col-md-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-dark">
-                                    <i class="fas fa-chart-line me-2"></i>
+                                    <i class="bi bi-graph-up me-2"></i>
                                     Analytics
                                 </a>
                             </div>
@@ -526,7 +526,7 @@
                         <div class="col-lg-3 col-md-6 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-dark">
-                                    <i class="fas fa-file-export me-2"></i>
+                                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
                                     Export Data
                                 </a>
                             </div>

@@ -329,6 +329,7 @@
 @include('admin.approvals.single-approve')
 @include('admin.approvals.single-reject')
 @include('admin.approvals.bulk-modals')
+@include('admin.approvals.modals.delete')
 
 @endsection
 

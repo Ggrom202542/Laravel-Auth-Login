@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="h3 mb-0 text-gray-800">
-                    <i class="fas fa-user-circle me-2"></i>
+                    <i class="bi bi-person-circle me-2"></i>
                     User Dashboard
                 </h1>
                 <div class="text-end">
@@ -37,7 +37,7 @@
                             </p>
                         </div>
                         <div class="col-md-4 text-end d-none d-md-block">
-                            <i class="fas fa-user-check fa-3x opacity-75"></i>
+                            <i class="bi bi-person-check-fill opacity-75" style="font-size: 3rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-sign-in-alt fa-2x text-gray-300"></i>
+                            <i class="bi bi-box-arrow-in-right" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            <i class="bi bi-activity" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-check" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-user-tag fa-2x text-gray-300"></i>
+                            <i class="bi bi-person-vcard" style="font-size: 2rem; color: #dddfeb;"></i>
                         </div>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-area me-2"></i>
+                        <i class="bi bi-graph-up me-2"></i>
                         กราฟกิจกรรมรายวัน (7 วันที่ผ่านมา)
                     </h6>
                 </div>
@@ -156,7 +156,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-list me-2"></i>
+                        <i class="bi bi-list-check me-2"></i>
                         กิจกรรมล่าสุด
                     </h6>
                 </div>
@@ -183,7 +183,7 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+                            <i class="bi bi-inbox mb-3" style="font-size: 3rem; color: #dddfeb;"></i>
                             <p class="text-muted">ยังไม่มีกิจกรรมที่บันทึกไว้</p>
                         </div>
                     @endif
@@ -198,7 +198,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-cogs me-2"></i>
+                        <i class="bi bi-gear me-2"></i>
                         การดำเนินการด่วน
                     </h6>
                 </div>
@@ -207,7 +207,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
                                 <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">
-                                    <i class="fas fa-user-edit me-2"></i>
+                                    <i class="bi bi-person-gear me-2"></i>
                                     แก้ไขโปรไฟล์
                                 </a>
                             </div>
@@ -215,7 +215,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
                                 <a href="{{ route('profile.settings') }}" class="btn btn-outline-success">
-                                    <i class="fas fa-key me-2"></i>
+                                    <i class="bi bi-key me-2"></i>
                                     เปลี่ยนรหัสผ่าน
                                 </a>
                             </div>
@@ -223,7 +223,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
                                 <a href="#" class="btn btn-outline-info">
-                                    <i class="fas fa-history me-2"></i>
+                                    <i class="bi bi-clock-history me-2"></i>
                                     ประวัติกิจกรรม
                                 </a>
                             </div>
@@ -231,7 +231,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
                                 <a href="{{ route('profile.settings') }}" class="btn btn-outline-warning">
-                                    <i class="fas fa-cog me-2"></i>
+                                    <i class="bi bi-gear me-2"></i>
                                     ตั้งค่า
                                 </a>
                             </div>

@@ -33,6 +33,19 @@ class RegistrationRejected extends Mailable implements ShouldQueue
     }
 
     /**
+     * Get formatted rejection date safely
+     */
+    private function getFormattedRejectionDate(): string
+    {
+        if ($this->approval->reviewed_at) {
+            return $this->approval->reviewed_at->format('d/m/Y H:i:s');
+        }
+        
+        // Fallback to now if reviewed_at is null (shouldn't happen but safety first)
+        return now()->format('d/m/Y H:i:s');
+    }
+
+    /**
      * Build the message.
      *
      * @return $this
@@ -46,7 +59,7 @@ class RegistrationRejected extends Mailable implements ShouldQueue
                         'approval' => $this->approval,
                         'rejectionReason' => $this->rejectionReason,
                         'registerUrl' => $this->registerUrl,
-                        'rejectedDate' => $this->approval->rejected_at->format('d/m/Y H:i:s')
+                        'rejectedDate' => $this->getFormattedRejectionDate()
                     ]);
     }
 }

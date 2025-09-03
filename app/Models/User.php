@@ -10,6 +10,22 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Carbon\Carbon;
 
+/**
+ * Class User
+ * 
+ * @property int $id
+ * @property string $username
+ * @property string $email
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $role
+ * @property string $status
+ * @property string $approval_status
+ * 
+ * @method \Illuminate\Database\Eloquent\Collection notifications()
+ * @method \Illuminate\Database\Eloquent\Collection unreadNotifications()
+ * @method void notify(\Illuminate\Notifications\Notification $notification)
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;

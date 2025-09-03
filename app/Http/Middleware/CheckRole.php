@@ -38,19 +38,13 @@ class CheckRole
 
         // ตรวจสอบบทบาท
         foreach ($roles as $role) {
-            // ตรวจสอบผ่าน user_roles table
-            $hasRole = DB::table('user_roles')
-                ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-                ->where('user_roles.user_id', $user->id)
-                ->where('roles.name', $role)
-                ->exists();
-
-            if ($hasRole) {
+            // ตรวจสอบผ่าน role column ในตาราง users
+            if ($user->role === $role) {
                 return $next($request);
             }
         }
 
         // ไม่มีสิทธิ์เข้าถึง
-        abort(403, 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้');
+        abort(403, 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้ บทบาทของคุณ: ' . $user->role);
     }
 }

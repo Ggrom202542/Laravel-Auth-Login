@@ -151,6 +151,67 @@
 
             @elseif(auth()->user()->role == 'super_admin')
                 <!-- Super Admin Menu -->
+                
+                <!-- Registration Approval Management (สำคัญมาก!) -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseApprovals" 
+                       aria-expanded="false" aria-controls="collapseApprovals">
+                        <i class="bi bi-person-check"></i>
+                        <span>จัดการอนุมัติสมาชิก</span>
+                        <span class="badge bg-warning text-dark ms-auto">Super</span>
+                    </a>
+                    <div id="collapseApprovals" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">การอนุมัติสมาชิก:</h6>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index') }}">
+                                <i class="bi bi-list-ul me-2"></i>รายการทั้งหมด
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index', ['status' => 'pending']) }}">
+                                <i class="bi bi-hourglass-split me-2"></i>รอการอนุมัติ
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index', ['escalated' => '1']) }}">
+                                <i class="bi bi-exclamation-triangle me-2 text-warning"></i>รายการค้างนาน
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index', ['status' => 'approved']) }}">
+                                <i class="bi bi-check-circle me-2"></i>อนุมัติแล้ว
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index', ['status' => 'rejected']) }}">
+                                <i class="bi bi-x-circle me-2"></i>ปฏิเสธแล้ว
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Audit & Monitoring -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAudit" 
+                       aria-expanded="false" aria-controls="collapseAudit">
+                        <i class="bi bi-shield-exclamation"></i>
+                        <span>Audit & Monitoring</span>
+                    </a>
+                    <div id="collapseAudit" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">การติดตาม & ตรวจสอบ:</h6>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-clipboard-check me-2"></i>Approval Audit Logs
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-arrow-repeat me-2 text-warning"></i>Override History
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-graph-up me-2"></i>Approval Statistics
+                            </a>
+                            <a class="collapse-item" href="{{ route('notifications.index') }}">
+                                <i class="bi bi-bell me-2"></i>Notification Center
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-bell-slash me-2"></i>Notification Logs
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- System Management -->
                 <li class="nav-item">
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSystem" 
                        aria-expanded="false" aria-controls="collapseSystem">
@@ -161,13 +222,42 @@
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">การจัดการระบบ:</h6>
                             <a class="collapse-item" href="#">
-                                <i class="bi bi-people me-2"></i>ผู้ใช้งาน
+                                <i class="bi bi-people me-2"></i>ผู้ใช้งาน (ทั้งหมด)
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-person-badge me-2"></i>จัดการ Admin
                             </a>
                             <a class="collapse-item" href="#">
                                 <i class="bi bi-shield-check me-2"></i>บทบาท & สิทธิ์
                             </a>
                             <a class="collapse-item" href="#">
                                 <i class="bi bi-gear me-2"></i>ตั้งค่าระบบ
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Reports & Analytics -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports" 
+                       aria-expanded="false" aria-controls="collapseReports">
+                        <i class="bi bi-graph-up"></i>
+                        <span>รายงาน & วิเคราะห์</span>
+                    </a>
+                    <div id="collapseReports" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">รายงานและสถิติ:</h6>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-bar-chart me-2"></i>Dashboard Analytics
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-file-earmark-text me-2"></i>Approval Reports
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-clock-history me-2"></i>Performance Metrics
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-download me-2"></i>Export Data
                             </a>
                         </div>
                     </div>
@@ -193,6 +283,20 @@
             <div class="sidebar-heading">
                 อื่นๆ
             </div>
+
+            <!-- Notifications (All Users) -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('notifications.index') }}">
+                    <i class="bi bi-bell"></i>
+                    <span>การแจ้งเตือน</span>
+                    @php
+                        $unreadCount = auth()->user()->unreadNotifications()->count() ?? 0;
+                    @endphp
+                    @if($unreadCount > 0)
+                        <span class="badge bg-danger ms-auto">{{ $unreadCount }}</span>
+                    @endif
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('profile.settings') }}">
@@ -258,39 +362,66 @@
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" 
                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="bi bi-bell"></i>
-                                <span class="badge bg-danger badge-counter">3</span>
+                                @php
+                                    $unreadCount = auth()->user()->unreadNotifications()->count() ?? 0;
+                                @endphp
+                                @if($unreadCount > 0)
+                                    <span class="badge bg-danger badge-counter">{{ $unreadCount }}</span>
+                                @endif
                             </a>
                             <div class="dropdown-menu dropdown-menu-end shadow" 
                                  aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0">
                                     <i class="bi bi-bell me-2"></i>การแจ้งเตือน
+                                    @if($unreadCount > 0)
+                                        <span class="badge bg-light text-primary ms-2">{{ $unreadCount }}</span>
+                                    @endif
                                 </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="me-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="bi bi-file-text text-white"></i>
+                                
+                                @php
+                                    $notifications = auth()->user()->notifications()->limit(5)->get() ?? collect();
+                                @endphp
+                                
+                                @forelse($notifications as $notification)
+                                    <a class="dropdown-item d-flex align-items-center {{ $notification->read_at ? '' : 'bg-light' }}" href="#">
+                                        <div class="me-3">
+                                            @php
+                                                $notificationType = $notification->data['type'] ?? 'default';
+                                            @endphp
+                                            <div class="icon-circle {{ $notificationType == 'approval_override' ? 'bg-warning' : ($notificationType == 'approval_escalation' ? 'bg-danger' : 'bg-info') }}">
+                                                @if($notificationType == 'approval_override')
+                                                    <i class="bi bi-arrow-repeat text-white"></i>
+                                                @elseif($notificationType == 'approval_escalation')
+                                                    <i class="bi bi-exclamation-triangle text-white"></i>
+                                                @else
+                                                    <i class="bi bi-person-plus text-white"></i>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">{{ date('d M Y') }}</div>
-                                        <span class="font-weight-bold">มีรายงานใหม่พร้อมดาวน์โหลด!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="me-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="bi bi-person-check text-white"></i>
+                                        <div>
+                                            <div class="small text-gray-500">{{ $notification->created_at->diffForHumans() }}</div>
+                                            <span class="font-weight-bold">{{ $notification->data['message'] ?? 'การแจ้งเตือน' }}</span>
+                                            @if(!$notification->read_at)
+                                                <span class="badge bg-primary ms-1">ใหม่</span>
+                                            @endif
                                         </div>
+                                    </a>
+                                @empty
+                                    <div class="dropdown-item text-center py-3">
+                                        <i class="bi bi-bell-slash text-muted"></i>
+                                        <div class="small text-gray-500 mt-1">ไม่มีการแจ้งเตือน</div>
                                     </div>
-                                    <div>
-                                        <div class="small text-gray-500">{{ date('d M Y') }}</div>
-                                        <span class="font-weight-bold">ผู้ใช้ใหม่ลงทะเบียนเข้าระบบ</span>
-                                    </div>
-                                </a>
+                                @endforelse
+                                
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">
+                                <a class="dropdown-item text-center small text-gray-500" href="{{ route('notifications.index') }}">
                                     <i class="bi bi-eye me-1"></i>ดูการแจ้งเตือนทั้งหมด
                                 </a>
+                                @if($unreadCount > 0)
+                                    <a class="dropdown-item text-center small text-primary" href="#" onclick="markAllNotificationsRead()">
+                                        <i class="bi bi-check2-all me-1"></i>ทำเครื่องหมายอ่านทั้งหมด
+                                    </a>
+                                @endif
                             </div>
                         </li>
 
@@ -428,6 +559,49 @@
             crossorigin="anonymous"></script>
 
     <script src="{{ asset('js/dashboard.js') }}"></script>
+
+    <!-- Notification Management Script -->
+    <script>
+        function markAllNotificationsRead() {
+            fetch('{{ route("notifications.mark-all-read") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload page to update notification badge
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notifications as read:', error);
+            });
+        }
+
+        // Auto-refresh notifications every 5 minutes
+        setInterval(() => {
+            // You can implement AJAX refresh here if needed
+            // For now, we'll just show a subtle indicator
+        }, 300000);
+
+        // Add visual indicators for Super Admin features
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(auth()->user()->role === 'super_admin')
+                // Highlight Super Admin specific menu items
+                const superAdminItems = document.querySelectorAll('.collapse-item');
+                superAdminItems.forEach(item => {
+                    if (item.textContent.includes('Override') || item.textContent.includes('รายการค้างนาน')) {
+                        item.classList.add('text-warning');
+                        item.style.fontWeight = '500';
+                    }
+                });
+            @endif
+        });
+    </script>
 
     @stack('scripts')
 

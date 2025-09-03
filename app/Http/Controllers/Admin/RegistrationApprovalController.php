@@ -7,6 +7,7 @@ use App\Models\RegistrationApproval;
 use App\Models\User;
 use App\Mail\RegistrationApproved;
 use App\Mail\RegistrationRejected;
+use App\Services\ApprovalAuditService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -17,9 +18,12 @@ use Illuminate\Support\Facades\Log;
 
 class RegistrationApprovalController extends Controller
 {
-    public function __construct()
+    protected ApprovalAuditService $auditService;
+
+    public function __construct(ApprovalAuditService $auditService)
     {
         $this->middleware(['auth', 'role:admin,super_admin']);
+        $this->auditService = $auditService;
     }
 
     /**
@@ -27,8 +31,20 @@ class RegistrationApprovalController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = RegistrationApproval::with(['user', 'reviewer'])
+        $currentUser = Auth::user();
+        $isSuperAdmin = $currentUser->role === 'super_admin';
+        
+        $query = RegistrationApproval::with(['user', 'reviewer', 'auditLogs.user'])
                                    ->orderBy('created_at', 'desc');
+
+        // Role-based visibility
+        if (!$isSuperAdmin && !config('approval.admin.can_see_all_approvals', false)) {
+            // Admin เห็นเฉพาะที่ยังไม่มีคนดูแล หรือที่ตนเองเป็นคนดูแล
+            $query->where(function ($q) use ($currentUser) {
+                $q->where('reviewed_by', null) // ยังไม่มีคนดูแล
+                  ->orWhere('reviewed_by', $currentUser->id); // หรือตนเองเป็นคนดูแล
+            });
+        }
 
         // Filter by status
         if ($request->has('status') && $request->status !== '') {
@@ -56,18 +72,22 @@ class RegistrationApprovalController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $approvals = $query->paginate(20);
+        // Escalation filter (Super Admin เห็นรายการที่ค้างนานเป็นพิเศษ)
+        if ($request->has('escalated') && $request->escalated === '1' && $isSuperAdmin) {
+            $escalationDays = config('approval.workflow.escalation_days', 3);
+            $query->where('status', 'pending')
+                  ->where('created_at', '<=', now()->subDays($escalationDays));
+        }
 
-        // Statistics
-        $stats = [
-            'pending' => RegistrationApproval::where('status', 'pending')->count(),
-            'approved' => RegistrationApproval::where('status', 'approved')->count(),
-            'rejected' => RegistrationApproval::where('status', 'rejected')->count(),
-            'today' => RegistrationApproval::whereDate('created_at', today())->count(),
-            'total' => RegistrationApproval::count(),
-        ];
+        $approvals = $query->paginate(config('approval.ui.items_per_page', 20));
 
-        return view('admin.approvals.index', compact('approvals', 'stats'));
+        // Statistics - แตกต่างกันตาม Role
+        $stats = $this->getStatistics($currentUser);
+
+        // Recent override activities (สำหรับ Super Admin)
+        $recentOverrides = $isSuperAdmin ? $this->auditService->getRecentOverrides(5) : collect();
+
+        return view('admin.approvals.index', compact('approvals', 'stats', 'recentOverrides', 'isSuperAdmin'));
     }
 
     /**
@@ -77,7 +97,16 @@ class RegistrationApprovalController extends Controller
     {
         $approval->load(['user', 'reviewer']);
         
-        return view('admin.approvals.review', compact('approval'));
+        // Log view action
+        $this->auditService->logView($approval);
+        
+        // Get audit trail for timeline display
+        $auditTrail = $this->auditService->getApprovalTimeline($approval);
+        
+        // Check if current user can override decisions
+        $canOverride = $this->auditService->canOverride();
+        
+        return view('admin.approvals.review', compact('approval', 'auditTrail', 'canOverride'));
     }
 
     /**
@@ -90,9 +119,26 @@ class RegistrationApprovalController extends Controller
                            ->with('error', 'การอนุมัติดังกล่าวได้ถูกดำเนินการแล้ว');
         }
 
+        // Check for override scenario
+        $isOverride = $approval->reviewed_by && $approval->reviewed_by !== Auth::id();
+        $overrideReason = $request->input('override_reason');
+        
+        if ($isOverride) {
+            if (!$this->auditService->canOverride()) {
+                return redirect()->back()->with('error', 'คุณไม่มีสิทธิ์ Override การตัดสินใจ');
+            }
+            
+            if ($this->auditService->overrideRequiresReason() && !$overrideReason) {
+                return redirect()->back()->with('error', 'กรุณาระบุเหตุผลในการ Override');
+            }
+        }
+
         DB::beginTransaction();
 
         try {
+            $oldStatus = $approval->status;
+            $originalReviewer = $approval->reviewed_by;
+            
             // Update approval record
             $approval->update([
                 'status' => 'approved',
@@ -107,7 +153,18 @@ class RegistrationApprovalController extends Controller
                 'approved_at' => now(),
             ]);
 
+            // Log the approval action
+            $this->auditService->logApproval(
+                approval: $approval,
+                reason: $overrideReason,
+                isOverride: $isOverride,
+                overriddenBy: $originalReviewer
+            );
+
             DB::commit();
+
+            // Refresh the model to get updated timestamps
+            $approval->refresh();
 
             // Send approval email
             try {
@@ -117,8 +174,11 @@ class RegistrationApprovalController extends Controller
                 Log::error('Failed to send approval email: ' . $e->getMessage());
             }
 
-            return redirect()->route('admin.approvals.index')
-                           ->with('success', 'อนุมัติการสมัครสมาชิกเรียบร้อยแล้ว และส่งอีเมลแจ้งผู้สมัครแล้ว');
+            $message = $isOverride ? 
+                'Override: อนุมัติการสมัครสมาชิกเรียบร้อยแล้ว (แทนที่การตัดสินใจเดิม)' :
+                'อนุมัติการสมัครสมาชิกเรียบร้อยแล้ว และส่งอีเมลแจ้งผู้สมัครแล้ว';
+
+            return redirect()->route('admin.approvals.index')->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -161,6 +221,9 @@ class RegistrationApprovalController extends Controller
             ]);
 
             DB::commit();
+
+            // Refresh the model to get updated timestamps
+            $approval->refresh();
 
             // Send rejection email
             try {
@@ -227,6 +290,9 @@ class RegistrationApprovalController extends Controller
                         'approved_at' => now(),
                     ]);
 
+                    // Refresh model to get updated timestamps
+                    $approval->refresh();
+
                     // Send approval email
                     try {
                         Mail::to($approval->user->email)->send(new RegistrationApproved($approval->user, $approval));
@@ -248,6 +314,9 @@ class RegistrationApprovalController extends Controller
                     $approval->user->update([
                         'approval_status' => 'rejected',
                     ]);
+
+                    // Refresh model to get updated timestamps
+                    $approval->refresh();
 
                     // Send rejection email
                     try {
@@ -297,9 +366,17 @@ class RegistrationApprovalController extends Controller
      */
     public function destroy(RegistrationApproval $approval): RedirectResponse
     {
+        // Check permissions
+        if (!config('approval.super_admin.can_delete_approvals', true) && Auth::user()->role !== 'super_admin') {
+            return redirect()->back()->with('error', 'คุณไม่มีสิทธิ์ลบข้อมูลการสมัคร');
+        }
+        
         DB::beginTransaction();
         
         try {
+            // Log deletion action
+            $this->auditService->logDeletion($approval, 'Deleted by ' . Auth::user()->role);
+            
             // Delete the associated user if not approved
             if ($approval->status !== 'approved') {
                 $approval->user()->delete();
@@ -309,7 +386,12 @@ class RegistrationApprovalController extends Controller
             
             DB::commit();
             
-            return redirect()->route('admin.approvals.index')
+            // Redirect ตาม role ของผู้ใช้
+            $redirectRoute = Auth::user()->role === 'super_admin' 
+                ? 'super-admin.approvals.index' 
+                : 'admin.approvals.index';
+                
+            return redirect()->route($redirectRoute)
                            ->with('success', 'ลบข้อมูลการสมัครเรียบร้อยแล้ว');
                            
         } catch (\Exception $e) {
@@ -318,5 +400,34 @@ class RegistrationApprovalController extends Controller
             return redirect()->back()
                            ->with('error', 'เกิดข้อผิดพลาดในการลบข้อมูล: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get statistics based on user role
+     */
+    protected function getStatistics($currentUser): array
+    {
+        $baseQuery = RegistrationApproval::query();
+        
+        // สำหรับ Admin: เฉพาะที่ตนเองดูแล + pending ที่ยังไม่มีคนดูแล
+        if ($currentUser->role === 'admin' && !config('approval.admin.can_see_all_approvals', false)) {
+            $baseQuery->where(function ($q) use ($currentUser) {
+                $q->where('reviewed_by', null) // pending ที่ยังไม่มีคนดูแล
+                  ->orWhere('reviewed_by', $currentUser->id); // หรือที่ตนเองดูแล
+            });
+        }
+        
+        return [
+            'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
+            'approved' => (clone $baseQuery)->where('status', 'approved')->count(), 
+            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
+            'today' => (clone $baseQuery)->whereDate('created_at', today())->count(),
+            'total' => (clone $baseQuery)->count(),
+            'my_approvals' => RegistrationApproval::where('reviewed_by', $currentUser->id)->count(),
+            'escalated' => $currentUser->role === 'super_admin' ? 
+                RegistrationApproval::where('status', 'pending')
+                    ->where('created_at', '<=', now()->subDays(config('approval.workflow.escalation_days', 3)))
+                    ->count() : 0,
+        ];
     }
 }

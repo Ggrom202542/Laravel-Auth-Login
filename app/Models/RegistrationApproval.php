@@ -26,7 +26,7 @@ class RegistrationApproval extends Model
     protected $casts = [
         'reviewed_at' => 'datetime',
         'token_expires_at' => 'datetime',
-        'additional_data' => 'array',
+        'additional_data' => 'json',
     ];
 
     /**
@@ -43,6 +43,22 @@ class RegistrationApproval extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Get all audit logs for this approval
+     */
+    public function auditLogs()
+    {
+        return $this->hasMany(ApprovalAuditLog::class)->orderBy('performed_at', 'desc');
+    }
+
+    /**
+     * Get the latest audit log
+     */
+    public function latestAuditLog()
+    {
+        return $this->hasOne(ApprovalAuditLog::class)->latest('performed_at');
     }
 
     /**
