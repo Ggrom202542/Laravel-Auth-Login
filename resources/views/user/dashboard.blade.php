@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="h3 mb-0 text-gray-800">
                     <i class="fas fa-user-circle me-2"></i>
-                    Dashboard
+                    User Dashboard
                 </h1>
                 <div class="text-end">
                     <small class="text-muted">
@@ -163,7 +163,7 @@
                 <div class="card-body">
                     @if(isset($recentActivities) && $recentActivities->count() > 0)
                         <div class="list-group list-group-flush">
-                            @foreach($recentActivities as $activity)
+                            @foreach($recentActivities->take(5) as $activity)
                             <div class="list-group-item border-0 px-0">
                                 <div class="d-flex w-100 justify-content-between">
                                     <div>
@@ -176,6 +176,9 @@
                             @endforeach
                         </div>
                         <div class="text-center mt-3">
+                            @if($recentActivities->count() > 5)
+                                <small class="text-muted d-block mb-2">แสดง 5 รายการล่าสุด จากทั้งหมด {{ $recentActivities->count() }} รายการ</small>
+                            @endif
                             <a href="#" class="btn btn-outline-primary btn-sm">ดูกิจกรรมทั้งหมด</a>
                         </div>
                     @else
@@ -203,7 +206,7 @@
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
-                                <a href="#" class="btn btn-outline-primary">
+                                <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">
                                     <i class="fas fa-user-edit me-2"></i>
                                     แก้ไขโปรไฟล์
                                 </a>
@@ -211,7 +214,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
-                                <a href="#" class="btn btn-outline-success">
+                                <a href="{{ route('profile.settings') }}" class="btn btn-outline-success">
                                     <i class="fas fa-key me-2"></i>
                                     เปลี่ยนรหัสผ่าน
                                 </a>
@@ -227,7 +230,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
-                                <a href="#" class="btn btn-outline-warning">
+                                <a href="{{ route('profile.settings') }}" class="btn btn-outline-warning">
                                     <i class="fas fa-cog me-2"></i>
                                     ตั้งค่า
                                 </a>

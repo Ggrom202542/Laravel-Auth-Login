@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\{LoginController, RegisterController};
 use App\Http\Controllers\User\DashboardController as UserDashboard;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,24 @@ Route::group(['middleware' => 'guest'], function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Profile Routes (สำหรับผู้ใช้ที่เข้าสู่ระบบแล้ว)
+|--------------------------------------------------------------------------
+*/
+Route::group(['middleware' => ['auth'], 'prefix' => 'profile', 'as' => 'profile.'], function () {
+    Route::get('/', [ProfileController::class, 'show'])->name('show');
+    Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
+    Route::put('/update', [ProfileController::class, 'update'])->name('update');
+    Route::post('/upload-avatar', [ProfileController::class, 'uploadAvatar'])->name('upload-avatar');
+    Route::delete('/delete-avatar', [ProfileController::class, 'deleteAvatar'])->name('delete-avatar');
+    
+    // Settings Routes
+    Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
+    Route::put('/settings/update', [ProfileController::class, 'updateSettings'])->name('update-settings');
+    Route::post('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
+});
 
 /*
 |--------------------------------------------------------------------------

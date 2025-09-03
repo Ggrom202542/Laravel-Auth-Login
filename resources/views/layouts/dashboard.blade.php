@@ -27,7 +27,7 @@
 
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('/') }}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
                 <div class="sidebar-brand-icon">
                     <i class="bi bi-shield-lock"></i>
                 </div>
@@ -37,16 +37,22 @@
             <hr class="sidebar-divider my-0">
 
             <li class="nav-item {{ request()->is('*/dashboard') ? 'active' : '' }}">
-                @if(auth()->user()->role === 'user')
+                @if(auth()->user()->role == 'user')
                     <a class="nav-link" href="{{ route('user.dashboard') }}">
-                @elseif(auth()->user()->role === 'admin')
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                @elseif(auth()->user()->role == 'admin')
                     <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                @else
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                @elseif(auth()->user()->role == 'super_admin')
                     <a class="nav-link" href="{{ route('super-admin.dashboard') }}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
                 @endif
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
             </li>
 
             <hr class="sidebar-divider">
@@ -55,29 +61,31 @@
                 การจัดการ
             </div>
 
-            @if(auth()->user()->role === 'user')
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProfile" 
-                       aria-expanded="false" aria-controls="collapseProfile">
-                        <i class="bi bi-person-circle"></i>
-                        <span>โปรไฟล์</span>
-                    </a>
-                    <div id="collapseProfile" class="collapse" data-bs-parent="#accordionSidebar">
-                        <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">การจัดการโปรไฟล์:</h6>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-eye me-2"></i>ดูโปรไฟล์
-                            </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-pencil-square me-2"></i>แก้ไขโปรไฟล์
-                            </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-key me-2"></i>เปลี่ยนรหัสผ่าน
-                            </a>
-                        </div>
+            <!-- Profile Section for All Users -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProfile" 
+                   aria-expanded="false" aria-controls="collapseProfile">
+                    <i class="bi bi-person-circle"></i>
+                    <span>โปรไฟล์</span>
+                </a>
+                <div id="collapseProfile" class="collapse" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">การจัดการโปรไฟล์:</h6>
+                        <a class="collapse-item" href="{{ route('profile.show') }}">
+                            <i class="bi bi-eye me-2"></i>ดูโปรไฟล์
+                        </a>
+                        <a class="collapse-item" href="{{ route('profile.edit') }}">
+                            <i class="bi bi-pencil-square me-2"></i>แก้ไขโปรไฟล์
+                        </a>
+                        <a class="collapse-item" href="{{ route('profile.settings') }}">
+                            <i class="bi bi-gear me-2"></i>การตั้งค่า
+                        </a>
                     </div>
-                </li>
+                </div>
+            </li>
 
+            @if(auth()->user()->role == 'user')
+                <!-- User Menu -->
                 <li class="nav-item">
                     <a class="nav-link" href="#">
                         <i class="bi bi-clock-history"></i>
@@ -85,7 +93,8 @@
                     </a>
                 </li>
 
-            @elseif(auth()->user()->role === 'admin')
+            @elseif(auth()->user()->role == 'admin')
+                <!-- Admin Menu -->
                 <li class="nav-item">
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" 
                        aria-expanded="false" aria-controls="collapseUsers">
@@ -115,7 +124,8 @@
                     </a>
                 </li>
 
-            @else
+            @elseif(auth()->user()->role == 'super_admin')
+                <!-- Super Admin Menu -->
                 <li class="nav-item">
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSystem" 
                        aria-expanded="false" aria-controls="collapseSystem">
@@ -160,7 +170,7 @@
             </div>
 
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ route('profile.settings') }}">
                     <i class="bi bi-gear"></i>
                     <span>ตั้งค่า</span>
                 </a>
@@ -293,10 +303,12 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="me-2 d-none d-lg-inline text-gray-600 small">{{ auth()->user()->name }}</span>
+                                <span class="me-2 d-none d-lg-inline text-gray-600 small">
+                                    {{ auth()->user()->prefix }}{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}
+                                </span>
                                 <img class="img-profile rounded-circle" 
-                                     src="{{ auth()->user()->profile_photo ? asset('storage/'.auth()->user()->profile_photo) : 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name).'&color=7F9CF5&background=EBF4FF' }}" 
-                                     alt="{{ auth()->user()->name }}">
+                                     src="{{ auth()->user()->profile_image ? asset('storage/avatars/'.auth()->user()->profile_image) : 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->first_name.' '.auth()->user()->last_name).'&color=7F9CF5&background=EBF4FF' }}" 
+                                     alt="{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end shadow" 
                                  aria-labelledby="userDropdown">
@@ -308,11 +320,11 @@
                                     <div class="small text-muted">{{ ucfirst(auth()->user()->role) }}</div>
                                 </div>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('profile.show') }}">
                                     <i class="bi bi-person me-2 text-gray-400"></i>
                                     โปรไฟล์
                                 </a>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('profile.settings') }}">
                                     <i class="bi bi-gear me-2 text-gray-400"></i>
                                     ตั้งค่า
                                 </a>

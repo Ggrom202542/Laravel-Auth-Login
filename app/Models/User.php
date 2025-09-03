@@ -30,9 +30,28 @@ class User extends Authenticatable
         'password',
         'profile_image',
         'status',
+        'role',
         'last_login_at',
         'failed_login_attempts',
         'locked_until',
+        // Profile fields
+        'bio',
+        'date_of_birth',
+        'gender',
+        'address',
+        'city',
+        'state',
+        'postal_code',
+        'country',
+        'theme',
+        'language',
+        'email_notifications',
+        'sms_notifications',
+        'push_notifications',
+        'last_login_ip',
+        'login_history',
+        'profile_completed',
+        'profile_completed_at',
     ];
 
     /**
@@ -55,6 +74,13 @@ class User extends Authenticatable
         'password' => 'hashed',
         'last_login_at' => 'datetime',
         'locked_until' => 'datetime',
+        'date_of_birth' => 'date',
+        'email_notifications' => 'boolean',
+        'sms_notifications' => 'boolean', 
+        'push_notifications' => 'boolean',
+        'profile_completed' => 'boolean',
+        'profile_completed_at' => 'datetime',
+        'login_history' => 'array',
     ];
 
     /**
