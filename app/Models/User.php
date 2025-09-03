@@ -31,6 +31,9 @@ class User extends Authenticatable
         'profile_image',
         'status',
         'role',
+        'approval_status',
+        'registered_at',
+        'approved_at',
         'last_login_at',
         'failed_login_attempts',
         'locked_until',
@@ -75,6 +78,8 @@ class User extends Authenticatable
         'last_login_at' => 'datetime',
         'locked_until' => 'datetime',
         'date_of_birth' => 'date',
+        'registered_at' => 'datetime',
+        'approved_at' => 'datetime',
         'email_notifications' => 'boolean',
         'sms_notifications' => 'boolean', 
         'push_notifications' => 'boolean',
@@ -91,6 +96,22 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles')
                     ->withPivot(['assigned_at', 'assigned_by'])
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the registration approval record for this user.
+     */
+    public function registrationApproval()
+    {
+        return $this->hasOne(RegistrationApproval::class);
+    }
+
+    /**
+     * Get approvals reviewed by this user (for admins).
+     */
+    public function reviewedApprovals()
+    {
+        return $this->hasMany(RegistrationApproval::class, 'reviewed_by');
     }
 
     /**

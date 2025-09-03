@@ -21,7 +21,8 @@ Route::group(['middleware' => 'guest'], function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login']);
     Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('register/insert', [RegisterController::class, 'register'])->name('registerInsert');
+    Route::post('register', [RegisterController::class, 'register']);
+    Route::get('register/pending', [RegisterController::class, 'showPendingApproval'])->name('register.pending');
 });
 
 /*
@@ -30,6 +31,14 @@ Route::group(['middleware' => 'guest'], function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Registration Approval Status Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/register/pending', [App\Http\Controllers\ApprovalStatusController::class, 'pending'])->name('register.pending');
+Route::get('/approval-status/{token}', [App\Http\Controllers\ApprovalStatusController::class, 'show'])->name('approval.status');
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +74,16 @@ Route::group(['middleware' => ['auth', 'role:user', 'log.activity'], 'prefix' =>
 */
 Route::group(['middleware' => ['auth', 'role:admin', 'log.activity'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    
+    // Registration Approval Routes
+    Route::group(['prefix' => 'approvals', 'as' => 'approvals.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'index'])->name('index');
+        Route::get('/{approval}', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'show'])->name('show');
+        Route::post('/{approval}/approve', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'approve'])->name('approve');
+        Route::post('/{approval}/reject', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'reject'])->name('reject');
+        Route::post('/bulk-action', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'bulkAction'])->name('bulk-action');
+        Route::delete('/{approval}', [App\Http\Controllers\Admin\RegistrationApprovalController::class, 'destroy'])->name('destroy');
+    });
     
     // User Management Routes สำหรับ Admin
     // จะเพิ่มใน Phase ต่อไป

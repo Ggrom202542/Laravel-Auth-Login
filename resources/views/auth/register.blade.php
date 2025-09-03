@@ -28,9 +28,20 @@
                     @enderror
                 </div>
                 <div class="mb-3">
-                    <label for="name" class="form-label">ชื่อ - นามสกุล <span style="color: red;">*</span></label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                    @error('name')
+                    <label for="first_name" class="form-label">ชื่อ <span style="color: red;">*</span></label>
+                    <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
+                           id="first_name" name="first_name" value="{{ old('first_name') }}" required>
+                    @error('first_name')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+                <div class="mb-3">
+                    <label for="last_name" class="form-label">นามสกุล <span style="color: red;">*</span></label>
+                    <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
+                           id="last_name" name="last_name" value="{{ old('last_name') }}" required>
+                    @error('last_name')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
@@ -38,7 +49,8 @@
                 </div>
                 <div class="mb-3">
                     <label for="phone" class="form-label">เบอร์โทรศัพท์ <span style="color: red;">*</span></label>
-                    <input type="text" class="form-control" id="phone" name="phone" required>
+                    <input type="text" class="form-control @error('phone') is-invalid @enderror" 
+                           id="phone" name="phone" value="{{ old('phone') }}" required>
                     @error('phone')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -46,8 +58,9 @@
                     @enderror
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label">อีเมล (ถ้ามี) (ถ้าไม่มี - )</label>
-                    <input type="text" class="form-control" id="email" name="email" required>
+                    <label for="email" class="form-label">อีเมล (ไม่บังคับ)</label>
+                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                           id="email" name="email" value="{{ old('email') }}">
                     @error('email')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>

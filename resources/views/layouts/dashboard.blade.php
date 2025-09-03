@@ -96,6 +96,31 @@
             @elseif(auth()->user()->role == 'admin')
                 <!-- Admin Menu -->
                 <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseApprovals" 
+                       aria-expanded="false" aria-controls="collapseApprovals">
+                        <i class="bi bi-person-check"></i>
+                        <span>จัดการอนุมัติสมาชิก</span>
+                    </a>
+                    <div id="collapseApprovals" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">การอนุมัติสมาชิก:</h6>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index') }}">
+                                <i class="bi bi-list-ul me-2"></i>รายการทั้งหมด
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index', ['status' => 'pending']) }}">
+                                <i class="bi bi-hourglass-split me-2"></i>รอการอนุมัติ
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index', ['status' => 'approved']) }}">
+                                <i class="bi bi-check-circle me-2"></i>อนุมัติแล้ว
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.approvals.index', ['status' => 'rejected']) }}">
+                                <i class="bi bi-x-circle me-2"></i>ปฏิเสธแล้ว
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" 
                        aria-expanded="false" aria-controls="collapseUsers">
                         <i class="bi bi-people"></i>
