@@ -38,6 +38,30 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 /*
 |--------------------------------------------------------------------------
+| Two-Factor Authentication Routes
+|--------------------------------------------------------------------------
+*/
+use App\Http\Controllers\Auth\TwoFactorController;
+
+Route::group(['middleware' => ['auth'], 'prefix' => '2fa', 'as' => '2fa.'], function () {
+    // Two-Factor Setup and Management
+    Route::get('/setup', [TwoFactorController::class, 'setup'])->name('setup');
+    Route::post('/enable', [TwoFactorController::class, 'enable'])->name('enable');
+    Route::post('/confirm', [TwoFactorController::class, 'confirm'])->name('confirm');
+    Route::post('/disable', [TwoFactorController::class, 'disable'])->name('disable');
+    
+    // Two-Factor Challenge (for login verification)
+    Route::get('/challenge', [TwoFactorController::class, 'challenge'])->name('challenge');
+    Route::post('/verify', [TwoFactorController::class, 'verify'])->name('verify');
+    
+    // Recovery Codes
+    Route::get('/recovery', [TwoFactorController::class, 'recoveryForm'])->name('recovery');
+    Route::post('/recovery/verify', [TwoFactorController::class, 'verifyRecovery'])->name('recovery.verify');
+    Route::post('/recovery/generate', [TwoFactorController::class, 'generateRecoveryCodes'])->name('recovery.generate');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Notification Routes (สำหรับผู้ใช้ที่เข้าสู่ระบบแล้ว)
 |--------------------------------------------------------------------------
 */

@@ -285,6 +285,77 @@
                             </form>
                         </div>
 
+                        <!-- Two-Factor Authentication -->
+                        <div class="mb-5">
+                            <h6 class="text-secondary mb-3">
+                                <i class="bi bi-shield-lock me-2"></i>
+                                Two-Factor Authentication (2FA)
+                            </h6>
+                            
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-3">
+                                            @if(auth()->user()->hasTwoFactorEnabled())
+                                                <i class="bi bi-shield-fill-check text-success" style="font-size: 2rem;"></i>
+                                            @else
+                                                <i class="bi bi-shield-exclamation text-warning" style="font-size: 2rem;"></i>
+                                            @endif
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-2">
+                                                @if(auth()->user()->hasTwoFactorEnabled())
+                                                    <span class="badge bg-success me-2">เปิดใช้งาน</span>
+                                                    Two-Factor Authentication Active
+                                                @else
+                                                    <span class="badge bg-warning me-2">ปิดใช้งาน</span>
+                                                    Two-Factor Authentication Disabled
+                                                @endif
+                                            </h6>
+                                            <p class="text-muted mb-3 small">
+                                                @if(auth()->user()->hasTwoFactorEnabled())
+                                                    Your account is protected with two-factor authentication. You'll need both your password and a verification code from your authenticator app to log in.
+                                                @else
+                                                    Add an extra layer of security to your account by enabling two-factor authentication. You'll need an authenticator app to generate verification codes.
+                                                @endif
+                                            </p>
+                                            
+                                            @if(auth()->user()->hasTwoFactorEnabled())
+                                                <div class="mb-3">
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-calendar-check me-1"></i>
+                                                        Enabled on: {{ auth()->user()->google2fa_confirmed_at->format('M j, Y') }}
+                                                    </small>
+                                                    @if(auth()->user()->hasRecoveryCodes())
+                                                        <br>
+                                                        <small class="text-success">
+                                                            <i class="bi bi-key me-1"></i>
+                                                            {{ count(auth()->user()->recovery_codes) }} recovery codes available
+                                                        </small>
+                                                    @else
+                                                        <br>
+                                                        <small class="text-warning">
+                                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                                            No recovery codes generated
+                                                        </small>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                            
+                                            <a href="{{ route('2fa.setup') }}" class="btn btn-primary btn-sm">
+                                                <i class="bi bi-gear me-1"></i>
+                                                @if(auth()->user()->hasTwoFactorEnabled())
+                                                    Manage 2FA Settings
+                                                @else
+                                                    Setup Two-Factor Authentication
+                                                @endif
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Account Information -->
                         <div class="mb-4">
                             <h6 class="text-secondary mb-3">
@@ -298,7 +369,7 @@
                                         <div class="card-body">
                                             <h6 class="card-title mb-1">เข้าสู่ระบบล่าสุด</h6>
                                             <p class="card-text text-muted small mb-0">
-                                                {{ $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i:s') : 'ยังไม่เคยเข้าสู่ระบบ' }}
+                                                {{ safe_date_format($user->last_login_at, 'd/m/Y H:i:s', 'ยังไม่เคยเข้าสู่ระบบ') }}
                                             </p>
                                         </div>
                                     </div>
@@ -320,7 +391,7 @@
                                         <div class="card-body">
                                             <h6 class="card-title mb-1">สร้างบัญชีเมื่อ</h6>
                                             <p class="card-text text-muted small mb-0">
-                                                {{ $user->created_at->format('d/m/Y H:i:s') }}
+                                                {{ safe_date_format($user->created_at) }}
                                             </p>
                                         </div>
                                     </div>
@@ -331,7 +402,7 @@
                                         <div class="card-body">
                                             <h6 class="card-title mb-1">อัพเดทล่าสุด</h6>
                                             <p class="card-text text-muted small mb-0">
-                                                {{ $user->updated_at->format('d/m/Y H:i:s') }}
+                                                {{ safe_date_format($user->updated_at) }}
                                             </p>
                                         </div>
                                     </div>

@@ -294,7 +294,7 @@
                                 @endswitch
                             </td>
                             <td>
-                                @if($user->two_fa_enabled)
+                                @if($user->google2fa_enabled)
                                     <span class="badge badge-success">
                                         <i class="bi bi-shield-lock-fill"></i> เปิด
                                     </span>
@@ -316,8 +316,14 @@
                             </td>
                             <td>
                                 @if($user->last_login_at)
-                                    <div class="text-sm">{{ $user->last_login_at->format('d/m/Y') }}</div>
-                                    <div class="text-xs text-muted">{{ $user->last_login_at->format('H:i:s') }}</div>
+                                    @php
+                                        // แปลงเป็น Carbon object ถ้าเป็น string
+                                        $lastLogin = is_string($user->last_login_at) 
+                                            ? \Carbon\Carbon::parse($user->last_login_at) 
+                                            : $user->last_login_at;
+                                    @endphp
+                                    <div class="text-sm">{{ $lastLogin->format('d/m/Y') }}</div>
+                                    <div class="text-xs text-muted">{{ $lastLogin->format('H:i:s') }}</div>
                                 @else
                                     <span class="text-muted">ยังไม่เคยเข้าสู่ระบบ</span>
                                 @endif

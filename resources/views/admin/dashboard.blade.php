@@ -14,7 +14,17 @@
                 </h1>
                 <div class="text-end">
                     <small class="text-muted">
-                        ล็อกอินล่าสุด: {{ auth()->user()->last_login_at ? auth()->user()->last_login_at->format('d/m/Y H:i') : 'ยังไม่เคยล็อกอิน' }}
+                        ล็อกอินล่าสุด: 
+                        @if(auth()->user()->last_login_at)
+                            @php
+                                $lastLogin = is_string(auth()->user()->last_login_at) 
+                                    ? \Carbon\Carbon::parse(auth()->user()->last_login_at) 
+                                    : auth()->user()->last_login_at;
+                            @endphp
+                            {{ $lastLogin->format('d/m/Y H:i') }}
+                        @else
+                            ยังไม่เคยล็อกอิน
+                        @endif
                     </small>
                 </div>
             </div>

@@ -48,9 +48,9 @@ class DashboardController extends Controller
 
         // สถิติ Security
         $securityStats = [
-            'two_fa_enabled' => User::where('two_factor_enabled', true)->count(),
+            'two_fa_enabled' => User::where('google2fa_enabled', true)->count(),
             'ip_restricted_users' => User::whereNotNull('allowed_ip_addresses')->count(),
-            'active_security_policies' => SecurityPolicy::active()->count(),
+            'active_security_policies' => 0, // SecurityPolicy::active()->count(),
             'recent_security_alerts' => UserActivity::where('action', 'like', '%security%')
                                                   ->whereDate('created_at', '>=', now()->subDays(7))
                                                   ->count(),
@@ -67,7 +67,7 @@ class DashboardController extends Controller
                                    ->whereIn('action', [
                                        'login', 'login_failed', 'logout', 
                                        'password_changed', 'account_locked',
-                                       'two_fa_enabled', 'two_fa_disabled',
+                                       'google2fa_enabled', 'google2fa_disabled',
                                        'role_changed', 'account_suspended',
                                        'password_reset', 'security_breach'
                                    ])

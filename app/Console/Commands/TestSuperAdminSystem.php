@@ -39,11 +39,19 @@ class TestSuperAdminSystem extends Command
         $this->newLine();
         $this->info('3. Testing Routes:');
         try {
-            $routes = \Route::getRoutes()->getByName('super-admin.dashboard');
-            $this->line('   ✅ super-admin.dashboard route exists');
+            $routes = \Illuminate\Support\Facades\Route::getRoutes()->getByName('super-admin.dashboard');
+            if ($routes) {
+                $this->line('   ✅ super-admin.dashboard route exists');
+            } else {
+                $this->error('   ❌ super-admin.dashboard route not found');
+            }
             
-            $userRoutes = \Route::getRoutes()->getByName('super-admin.users.index');
-            $this->line('   ✅ super-admin.users.index route exists');
+            $userRoutes = \Illuminate\Support\Facades\Route::getRoutes()->getByName('super-admin.users.index');
+            if ($userRoutes) {
+                $this->line('   ✅ super-admin.users.index route exists');
+            } else {
+                $this->error('   ❌ super-admin.users.index route not found');
+            }
         } catch (\Exception $e) {
             $this->error('   ❌ Route error: ' . $e->getMessage());
         }

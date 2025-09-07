@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .qr-container { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>QR Code Debug Test</h1>
+    
+    <div class="qr-container">
+        <h3>Test 1: Google Charts QR Code</h3>
+        <div id="test1-status">Loading...</div>
+        <br>
+        <img id="qr1" 
+             src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=otpauth://totp/Laravel%20App:test@example.com?secret=TESTKEY123&issuer=Laravel%20App"
+             alt="Test QR Code 1"
+             style="max-width: 200px; border: 1px solid #ddd;"
+             onload="document.getElementById('test1-status').innerHTML = '<span class=success>✅ Google Charts QR Code โหลดสำเร็จ</span>'"
+             onerror="document.getElementById('test1-status').innerHTML = '<span class=error>❌ Google Charts QR Code โหลดไม่สำเร็จ</span>'">
+    </div>
+    
+    <div class="qr-container">
+        <h3>Test 2: Network Test</h3>
+        <div id="test2-status">Testing...</div>
+        <button onclick="testNetwork()">ทดสอบการเชื่อมต่อ</button>
+    </div>
+    
+    <div class="qr-container">
+        <h3>Test 3: Current System QR</h3>
+        <div id="test3-status">กดปุ่มเพื่อทดสอบ</div>
+        <button onclick="testCurrentQR()">ทดสอบ QR จากระบบ</button>
+        <div id="current-qr-container"></div>
+    </div>
+
+    <script>
+        function testNetwork() {
+            const status = document.getElementById('test2-status');
+            status.innerHTML = 'กำลังทดสอบ...';
+            
+            fetch('https://chart.googleapis.com/chart?chs=50x50&cht=qr&chl=test')
+                .then(response => {
+                    if (response.ok) {
+                        status.innerHTML = '<span class="success">✅ เชื่อมต่อ Google Charts API สำเร็จ</span>';
+                    } else {
+                        status.innerHTML = '<span class="error">❌ Google Charts API ตอบกลับ error: ' + response.status + '</span>';
+                    }
+                })
+                .catch(error => {
+                    status.innerHTML = '<span class="error">❌ ไม่สามารถเชื่อมต่อ Google Charts API: ' + error.message + '</span>';
+                });
+        }
+        
+        function testCurrentQR() {
+            const status = document.getElementById('test3-status');
+            const container = document.getElementById('current-qr-container');
+            
+            status.innerHTML = 'กำลังดึงข้อมูล QR จากระบบ...';
+            
+            fetch('/2fa/setup')
+                .then(response => response.text())
+                .then(html => {
+                    // หา QR URL ใน HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const img = doc.querySelector('img[src*="chart.googleapis.com"]');
+                    
+                    if (img) {
+                        const qrUrl = img.src;
+                        status.innerHTML = '<span class="success">✅ พบ QR URL: ' + qrUrl + '</span>';
+                        container.innerHTML = '<br><img src="' + qrUrl + '" alt="Current QR" style="max-width: 200px; border: 1px solid #ddd;">';
+                    } else {
+                        status.innerHTML = '<span class="error">❌ ไม่พบ QR URL ในระบบ</span>';
+                    }
+                })
+                .catch(error => {
+                    status.innerHTML = '<span class="error">❌ Error: ' + error.message + '</span>';
+                });
+        }
+        
+        console.log('QR Debug Test โหลดเสร็จแล้ว');
+    </script>
+</body>
+</html>

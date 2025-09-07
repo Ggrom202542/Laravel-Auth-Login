@@ -79,6 +79,12 @@ class User extends Authenticatable
         'admin_session_timeout', // Use correct field name
         'admin_notes', // Add this field
         'created_by_admin',
+        // Google 2FA fields
+        'google2fa_secret',
+        'google2fa_enabled',
+        'google2fa_confirmed_at',
+        'recovery_codes',
+        'recovery_codes_generated_at',
         // Remove fields that don't exist: session_timeout, allowed_login_methods, updated_by_admin
     ];
 
@@ -101,22 +107,19 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
         'last_login_at' => 'datetime',
-        'locked_until' => 'datetime',
-        'date_of_birth' => 'date',
-        'registered_at' => 'datetime',
-        'approved_at' => 'datetime',
-        'email_notifications' => 'boolean',
-        'sms_notifications' => 'boolean', 
-        'push_notifications' => 'boolean',
-        'profile_completed' => 'boolean',
-        'profile_completed_at' => 'datetime',
-        'login_history' => 'array',
-        // Super Admin fields
+        'password' => 'hashed',
+        // Add casts for admin features
+        'is_admin' => 'boolean',
+        'is_super_admin' => 'boolean',
+        'admin_features' => 'array',
         'two_factor_enabled' => 'boolean',
         'two_factor_recovery_codes' => 'array',
-        'allowed_login_methods' => 'array',
+        'allowed_ip_addresses' => 'array',
+        'google2fa_enabled' => 'boolean',
+        'google2fa_confirmed_at' => 'datetime',
+        'recovery_codes' => 'array',
+        'recovery_codes_generated_at' => 'datetime',
     ];
 
     /**
@@ -342,5 +345,128 @@ class User extends Authenticatable
         }
 
         $this->update($updateData);
+    }
+
+    /**
+     * Two-Factor Authentication Helper Methods
+     */
+    public function hasTwoFactorEnabled()
+    {
+        return $this->google2fa_enabled;
+    }
+
+    public function hasTwoFactorSecret()
+    {
+        return !empty($this->google2fa_secret);
+    }
+
+    public function hasTwoFactorConfirmed()
+    {
+        return !is_null($this->google2fa_confirmed_at);
+    }
+
+    public function hasRecoveryCodes()
+    {
+        return !empty($this->recovery_codes);
+    }
+
+    public function generateRecoveryCodes()
+    {
+        $codes = [];
+        for ($i = 0; $i < 8; $i++) {
+            $codes[] = strtoupper(substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8));
+        }
+        
+        $this->recovery_codes = $codes;
+        $this->recovery_codes_generated_at = now();
+        $this->save();
+        
+        return $codes;
+    }
+
+    public function useRecoveryCode($code)
+    {
+        $codes = $this->recovery_codes ?? [];
+        $codeIndex = array_search(strtoupper($code), $codes);
+        
+        if ($codeIndex !== false) {
+            unset($codes[$codeIndex]);
+            $this->recovery_codes = array_values($codes);
+            $this->save();
+            return true;
+        }
+        
+        return false;
+    }
+
+    public function enableTwoFactor()
+    {
+        $this->google2fa_enabled = true;
+        $this->save();
+    }
+
+    public function disableTwoFactor()
+    {
+        $this->google2fa_enabled = false;
+        $this->google2fa_secret = null;
+        $this->google2fa_confirmed_at = null;
+        $this->recovery_codes = null;
+        $this->recovery_codes_generated_at = null;
+        $this->save();
+    }
+
+    public function generateTwoFactorSecret()
+    {
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $secret = $google2fa->generateSecretKey();
+        
+        $this->google2fa_secret = $secret;
+        $this->save();
+        
+        return $secret;
+    }
+
+    public function getTwoFactorQrCodeUrl()
+    {
+        if (!$this->google2fa_secret) {
+            throw new \Exception('Two-factor secret not generated');
+        }
+
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $companyName = config('app.name', 'Laravel App');
+        $companyEmail = $this->email;
+        
+        return $google2fa->getQRCodeUrl(
+            $companyName,
+            $companyEmail,
+            $this->google2fa_secret
+        );
+    }
+
+    public function verifyTwoFactorCode($code)
+    {
+        if (!$this->google2fa_secret) {
+            return false;
+        }
+
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        return $google2fa->verifyKey($this->google2fa_secret, $code);
+    }
+
+    public function confirmTwoFactor()
+    {
+        $this->google2fa_confirmed_at = now();
+        $this->google2fa_enabled = true;
+        $this->save();
+    }
+
+    public function regenerateRecoveryCodes()
+    {
+        return $this->generateRecoveryCodes();
+    }
+
+    public function verifyRecoveryCode($code)
+    {
+        return $this->useRecoveryCode($code);
     }
 }

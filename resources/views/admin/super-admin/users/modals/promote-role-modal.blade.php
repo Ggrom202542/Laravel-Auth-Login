@@ -4,17 +4,14 @@
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="promoteRoleModalLabel">
-                    <i class="fas fa-arrow-up"></i> เปลี่ยนบทบาทผู้ใช้
+                    <i class="bi bi-arrow-up-circle"></i> เปลี่ยนบทบาทผู้ใช้
                 </h5>
-                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <form id="promoteRoleForm">
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="bi bi-exclamation-triangle-fill"></i>
                         <strong>คำเตือน:</strong> การเปลี่ยนบทบาทจะมอบสิทธิ์เพิ่มเติมให้กับผู้ใช้ กรุณาพิจารณาอย่างรอบคอบ
                     </div>
 
@@ -33,10 +30,10 @@
                         <select class="form-control" id="new_role" name="role" required>
                             <option value="">-- เลือกบทบาท --</option>
                             <option value="admin">
-                                <i class="fas fa-user-shield text-warning"></i> Admin
+                                🛡️ Admin
                             </option>
                             <option value="super_admin">
-                                <i class="fas fa-crown text-danger"></i> Super Admin
+                                👑 Super Admin
                             </option>
                         </select>
                     </div>
@@ -50,15 +47,17 @@
 
                     <!-- Role Permissions Info -->
                     <div id="rolePermissions" class="alert" role="alert" style="display: none;">
-                        <h6><i class="fas fa-key"></i> สิทธิ์ที่จะได้รับ:</h6>
+                        <h6><i class="bi bi-key-fill"></i> สิทธิ์ที่จะได้รับ:</h6>
                         <ul id="rolePermissionsList"></ul>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> ยกเลิก
+                    </button>
                     <button type="submit" class="btn btn-success" id="promoteRoleBtn">
-                        <i class="fas fa-arrow-up"></i> เปลี่ยนบทบาท
+                        <i class="bi bi-arrow-up-circle"></i> เปลี่ยนบทบาท
                     </button>
                 </div>
             </form>

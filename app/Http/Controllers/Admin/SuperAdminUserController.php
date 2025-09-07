@@ -79,7 +79,7 @@ class SuperAdminUserController extends Controller
             'active_users' => User::where('status', 'active')->count(),
             'admin_users' => User::where('role', 'admin')->count(),
             'super_admin_users' => User::where('role', 'super_admin')->count(),
-            'two_fa_enabled' => User::where('two_factor_enabled', true)->count(),
+            'two_fa_enabled' => User::where('google2fa_enabled', true)->count(),
             'recent_logins' => User::where('last_login_at', '>=', now()->subDays(7))->count(),
             'active_sessions' => AdminSession::where('status', 'active')->count()
         ];

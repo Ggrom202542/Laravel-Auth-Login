@@ -13,10 +13,18 @@
                     Super Admin Dashboard
                 </h1>
                 <div class="text-end">
-                    <span class="badge bg-danger fs-6 me-2">SUPER ADMIN</span>
-                    <br>
                     <small class="text-muted">
-                        ล็อกอินล่าสุด: {{ auth()->user()->last_login_at ? auth()->user()->last_login_at->format('d/m/Y H:i') : 'ยังไม่เคยล็อกอิน' }}
+                        ล็อกอินล่าสุด: 
+                        @if(auth()->user()->last_login_at)
+                            @php
+                                $lastLogin = is_string(auth()->user()->last_login_at) 
+                                    ? \Carbon\Carbon::parse(auth()->user()->last_login_at) 
+                                    : auth()->user()->last_login_at;
+                            @endphp
+                            {{ $lastLogin->format('d/m/Y H:i') }}
+                        @else
+                            ยังไม่เคยล็อกอิน
+                        @endif
                     </small>
                 </div>
             </div>
@@ -333,7 +341,18 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <small>{{ $admin->last_login_at ? $admin->last_login_at->format('d/m/Y H:i') : 'ยังไม่เคยล็อกอิน' }}</small>
+                                            <small>
+                                                @if($admin->last_login_at)
+                                                    @php
+                                                        $lastLogin = is_string($admin->last_login_at) 
+                                                            ? \Carbon\Carbon::parse($admin->last_login_at) 
+                                                            : $admin->last_login_at;
+                                                    @endphp
+                                                    {{ $lastLogin->format('d/m/Y H:i') }}
+                                                @else
+                                                    ยังไม่เคยล็อกอิน
+                                                @endif
+                                            </small>
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">

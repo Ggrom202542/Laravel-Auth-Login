@@ -42,12 +42,14 @@ class TestApprovalData extends Command
             
             $this->info("ID: {$approval->id}");
             $this->info("Type: " . gettype($fresh->additional_data));
-            $this->info("Raw value: " . $fresh->getRawOriginal('additional_data'));
+            $this->info("Raw value: " . ($fresh->getRawOriginal('additional_data') ?? 'null'));
             $this->info("Cast value: " . json_encode($fresh->additional_data));
             $this->info("Is array: " . (is_array($fresh->additional_data) ? 'Yes' : 'No'));
             
-            if (is_array($fresh->additional_data)) {
+            if (is_array($fresh->additional_data) && !empty($fresh->additional_data)) {
                 $this->info("Array keys: " . implode(', ', array_keys($fresh->additional_data)));
+            } else {
+                $this->info("Array keys: N/A");
             }
             
             $this->line('---');

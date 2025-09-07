@@ -20,7 +20,9 @@ class SuperAdminIntegrationTest extends TestCase
         
         // สร้าง Super Admin สำหรับทดสอบ
         $this->superAdmin = User::factory()->create([
-            'name' => 'Test Super Admin',
+            'username' => 'testsuperadmin',
+            'first_name' => 'Test',
+            'last_name' => 'Super Admin',
             'email' => 'super@test.com',
             'role' => 'super_admin',
             'status' => 'active',
@@ -102,7 +104,9 @@ class SuperAdminIntegrationTest extends TestCase
     public function super_admin_can_create_new_user()
     {
         $userData = [
-            'name' => 'Test New User',
+            'username' => 'testnewuser',
+            'first_name' => 'Test',
+            'last_name' => 'New User',
             'email' => 'newuser@test.com',
             'role' => 'admin',
             'status' => 'active',
