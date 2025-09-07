@@ -101,7 +101,9 @@ class SuperAdminUserController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'prefix' => 'nullable|string|max:20',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
             'email' => 'required|string|email|max:255|unique:users',
             'username' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
@@ -112,7 +114,7 @@ class SuperAdminUserController extends Controller
             
             // Super Admin specific fields
             'two_factor_enabled' => 'boolean',
-            'allowed_ip_addresses' => 'nullable|json',
+            'allowed_ip_addresses' => 'nullable|string',
             'session_timeout' => 'nullable|integer|min:5|max:480', // 5 minutes to 8 hours
             'allowed_login_methods' => 'nullable|array',
             'allowed_login_methods.*' => 'in:password,two_factor,social',
@@ -134,8 +136,18 @@ class SuperAdminUserController extends Controller
         try {
             DB::beginTransaction();
 
+            // Generate full name from components
+            $fullName = trim(
+                ($request->prefix ? $request->prefix . ' ' : '') . 
+                $request->first_name . ' ' . 
+                $request->last_name
+            );
+
             $userData = [
-                'name' => $request->name,
+                'prefix' => $request->prefix,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                // Remove 'name' field as it doesn't exist in database
                 'email' => $request->email,
                 'username' => $request->username,
                 'password' => Hash::make($request->password),
@@ -145,13 +157,13 @@ class SuperAdminUserController extends Controller
                 'address' => $request->address,
                 'email_verified_at' => now(),
                 
-                // Super Admin fields
+                // Super Admin fields - use correct field names
                 'two_factor_enabled' => $request->boolean('two_factor_enabled'),
                 'allowed_ip_addresses' => $request->allowed_ip_addresses,
-                'session_timeout' => $request->session_timeout,
-                'allowed_login_methods' => $request->allowed_login_methods ? json_encode($request->allowed_login_methods) : null,
+                'admin_session_timeout' => $request->session_timeout, // Use correct field name
                 'admin_notes' => $request->admin_notes,
                 'created_by_admin' => Auth::id(),
+                // Remove fields that don't exist: allowed_login_methods
             ];
 
             $user = User::create($userData);
@@ -258,8 +270,17 @@ class SuperAdminUserController extends Controller
     {
         $user = User::findOrFail($id);
 
+        // Debug: Log ข้อมูลที่ส่งมา
+        Log::info('Update User Request Data', [
+            'user_id' => $id,
+            'request_data' => $request->all(),
+            'super_admin_id' => Auth::id()
+        ]);
+
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'prefix' => 'nullable|string|max:20',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($id)],
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($id)],
             'password' => 'nullable|string|min:8|confirmed',
@@ -270,7 +291,7 @@ class SuperAdminUserController extends Controller
             
             // Super Admin specific fields
             'two_factor_enabled' => 'boolean',
-            'allowed_ip_addresses' => 'nullable|json',
+            'allowed_ip_addresses' => 'nullable|string',
             'session_timeout' => 'nullable|integer|min:5|max:480',
             'allowed_login_methods' => 'nullable|array',
             'allowed_login_methods.*' => 'in:password,two_factor,social',
@@ -278,6 +299,12 @@ class SuperAdminUserController extends Controller
         ]);
 
         if ($validator->fails()) {
+            Log::warning('User update validation failed', [
+                'user_id' => $id,
+                'errors' => $validator->errors()->toArray(),
+                'super_admin_id' => Auth::id()
+            ]);
+            
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -292,8 +319,18 @@ class SuperAdminUserController extends Controller
         try {
             DB::beginTransaction();
 
+            // Generate full name from components
+            $fullName = trim(
+                ($request->prefix ? $request->prefix . ' ' : '') . 
+                $request->first_name . ' ' . 
+                $request->last_name
+            );
+
             $updateData = [
-                'name' => $request->name,
+                'prefix' => $request->prefix,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                // Remove 'name' field as it doesn't exist in database
                 'email' => $request->email,
                 'username' => $request->username,
                 'role' => $request->role,
@@ -301,22 +338,44 @@ class SuperAdminUserController extends Controller
                 'phone' => $request->phone,
                 'address' => $request->address,
                 
-                // Super Admin fields
+                // Super Admin fields - use correct field names that exist in database
                 'two_factor_enabled' => $request->boolean('two_factor_enabled'),
                 'allowed_ip_addresses' => $request->allowed_ip_addresses,
-                'session_timeout' => $request->session_timeout,
-                'allowed_login_methods' => $request->allowed_login_methods ? json_encode($request->allowed_login_methods) : null,
+                'admin_session_timeout' => $request->session_timeout, // Use correct field name
                 'admin_notes' => $request->admin_notes,
-                'updated_by_admin' => Auth::id(),
+                // Remove fields that don't exist: updated_by_admin, allowed_login_methods
             ];
+
+            // Debug: Log update data before saving
+            Log::info('Update Data Prepared', [
+                'user_id' => $id,
+                'full_name_generated' => $fullName,
+                'update_data' => $updateData,
+                'super_admin_id' => Auth::id()
+            ]);
 
             // Only update password if provided
             if ($request->filled('password')) {
                 $updateData['password'] = Hash::make($request->password);
+                Log::info('Password update requested', ['user_id' => $id]);
             }
 
             $oldData = $user->toArray();
-            $user->update($updateData);
+            
+            // Debug: Log before update
+            Log::info('Before Update', [
+                'user_id' => $id,
+                'old_data' => $oldData
+            ]);
+            
+            $result = $user->update($updateData);
+            
+            // Debug: Log after update
+            Log::info('After Update', [
+                'user_id' => $id,
+                'update_result' => $result,
+                'new_data' => $user->fresh()->toArray()
+            ]);
 
             // Log this action with changes
             $changes = array_diff_assoc($updateData, $oldData);

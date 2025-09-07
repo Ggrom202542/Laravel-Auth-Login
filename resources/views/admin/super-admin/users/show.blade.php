@@ -7,14 +7,14 @@
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user"></i> ข้อมูลผู้ใช้: {{ $user->name }}
+            <i class="bi bi-person-circle"></i> ข้อมูลผู้ใช้: {{ $user->name }}
         </h1>
         <div>
             <a href="{{ route('super-admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm mr-2">
-                <i class="fas fa-edit"></i> แก้ไข
+                <i class="bi bi-pencil-square"></i> แก้ไข
             </a>
             <a href="{{ route('super-admin.users.index') }}" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> กลับ
+                <i class="bi bi-arrow-left"></i> กลับ
             </a>
         </div>
     </div>
@@ -26,7 +26,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-id-card"></i> ข้อมูลส่วนตัว
+                        <i class="bi bi-person-vcard"></i> ข้อมูลส่วนตัว
                     </h6>
                 </div>
                 <div class="card-body text-center">
@@ -46,16 +46,16 @@
 
                     <!-- Role Badge -->
                     @if($user->role === 'super_admin')
-                        <span class="badge badge-danger badge-pill">
-                            <i class="fas fa-crown"></i> Super Admin
+                        <span class="badge badge-danger badge-pill text-dark">
+                            <i class="bi bi-shield-fill-exclamation"></i> Super Admin
                         </span>
                     @elseif($user->role === 'admin')
-                        <span class="badge badge-warning badge-pill">
-                            <i class="fas fa-user-shield"></i> Admin
+                        <span class="badge badge-warning badge-pill text-dark">
+                            <i class="bi bi-shield-fill-check"></i> Admin
                         </span>
                     @else
-                        <span class="badge badge-secondary badge-pill">
-                            <i class="fas fa-user"></i> ผู้ใช้
+                        <span class="badge badge-secondary badge-pill text-dark">
+                            <i class="bi bi-person"></i> ผู้ใช้
                         </span>
                     @endif
 
@@ -77,14 +77,14 @@
 
                     <!-- Action Buttons -->
                     <div class="mt-3">
-                        <div class="btn-group" role="group">
+                        <div class="btn-group" role="group" style="gap: 8px;">
                             <button type="button" class="btn btn-warning btn-sm" 
                                     onclick="showResetPasswordModal({{ $user->id }}, '{{ $user->name }}')">
-                                <i class="fas fa-key"></i> รีเซ็ตรหัสผ่าน
+                                <i class="bi bi-key"></i> รีเซ็ตรหัสผ่าน
                             </button>
                             <button type="button" class="btn btn-info btn-sm" 
                                     onclick="showStatusToggleModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->status }}')">
-                                <i class="fas fa-toggle-on"></i> เปลี่ยนสถานะ
+                                <i class="bi bi-toggle-on"></i> เปลี่ยนสถานะ
                             </button>
                         </div>
                     </div>
@@ -95,7 +95,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-chart-bar"></i> สถิติด่วน
+                        <i class="bi bi-bar-chart"></i> สถิติด่วน
                     </h6>
                 </div>
                 <div class="card-body">
@@ -133,7 +133,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle"></i> ข้อมูลพื้นฐาน
+                        <i class="bi bi-info-circle"></i> ข้อมูลพื้นฐาน
                     </h6>
                 </div>
                 <div class="card-body">
@@ -152,7 +152,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><strong>อีเมล:</strong></label>
                             <p class="form-control-plaintext">
-                                <i class="fas fa-envelope text-muted"></i> {{ $user->email }}
+                                <i class="bi bi-envelope"></i> {{ $user->email }}
                                 @if($user->email_verified_at)
                                     <span class="badge badge-success badge-sm ml-2">ยืนยันแล้ว</span>
                                 @else
@@ -164,7 +164,7 @@
                             <label class="form-label"><strong>เบอร์โทรศัพท์:</strong></label>
                             <p class="form-control-plaintext">
                                 @if($user->phone)
-                                    <i class="fas fa-phone text-muted"></i> {{ $user->phone }}
+                                    <i class="bi bi-telephone"></i> {{ $user->phone }}
                                 @else
                                     <span class="text-muted">ไม่ได้ระบุ</span>
                                 @endif
@@ -176,7 +176,7 @@
                     <div class="mb-3">
                         <label class="form-label"><strong>ที่อยู่:</strong></label>
                         <p class="form-control-plaintext">
-                            <i class="fas fa-map-marker-alt text-muted"></i> {{ $user->address }}
+                            <i class="bi bi-geo-alt"></i> {{ $user->address }}
                         </p>
                     </div>
                     @endif
@@ -187,7 +187,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-danger">
-                        <i class="fas fa-shield-alt"></i> การตั้งค่าความปลอดภัย
+                        <i class="bi bi-shield-lock"></i> การตั้งค่าความปลอดภัย
                     </h6>
                 </div>
                 <div class="card-body">
@@ -197,11 +197,11 @@
                             <p class="form-control-plaintext">
                                 @if($user->two_fa_enabled)
                                     <span class="badge badge-success">
-                                        <i class="fas fa-lock"></i> เปิดใช้งาน
+                                        <i class="bi bi-lock-fill"></i> เปิดใช้งาน
                                     </span>
                                 @else
                                     <span class="badge badge-secondary">
-                                        <i class="fas fa-lock-open"></i> ปิดใช้งาน
+                                        <i class="bi bi-unlock"></i> ปิดใช้งาน
                                     </span>
                                 @endif
                             </p>
@@ -252,7 +252,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-secondary">
-                        <i class="fas fa-database"></i> ข้อมูลระบบ
+                        <i class="bi bi-database"></i> ข้อมูลระบบ
                     </h6>
                 </div>
                 <div class="card-body">
@@ -260,7 +260,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><strong>สมาชิกเมื่อ:</strong></label>
                             <p class="form-control-plaintext">
-                                <i class="fas fa-calendar-plus text-muted"></i> 
+                                <i class="bi bi-calendar-plus"></i> 
                                 {{ $user->created_at->format('d/m/Y H:i:s') }}
                                 <small class="text-muted">({{ $user->created_at->diffForHumans() }})</small>
                             </p>
@@ -268,7 +268,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><strong>อัปเดตล่าสุด:</strong></label>
                             <p class="form-control-plaintext">
-                                <i class="fas fa-edit text-muted"></i> 
+                                <i class="bi bi-pencil-square"></i> 
                                 {{ $user->updated_at->format('d/m/Y H:i:s') }}
                                 <small class="text-muted">({{ $user->updated_at->diffForHumans() }})</small>
                             </p>
@@ -280,7 +280,7 @@
                             <label class="form-label"><strong>เข้าสู่ระบบล่าสุด:</strong></label>
                             <p class="form-control-plaintext">
                                 @if($user->last_login_at)
-                                    <i class="fas fa-sign-in-alt text-muted"></i> 
+                                    <i class="bi bi-box-arrow-in-right"></i> 
                                     {{ $user->last_login_at->format('d/m/Y H:i:s') }}
                                     <small class="text-muted">({{ $user->last_login_at->diffForHumans() }})</small>
                                 @else
@@ -309,7 +309,7 @@
                                     $creator = \App\Models\User::find($user->created_by_admin);
                                 @endphp
                                 @if($creator)
-                                    <i class="fas fa-user-shield text-muted"></i> {{ $creator->name }}
+                                    <i class="bi bi-shield-check"></i> {{ $creator->name }}
                                 @else
                                     <span class="text-muted">ไม่มีข้อมูล</span>
                                 @endif
@@ -323,7 +323,7 @@
                                     $updater = \App\Models\User::find($user->updated_by_admin);
                                 @endphp
                                 @if($updater)
-                                    <i class="fas fa-user-shield text-muted"></i> {{ $updater->name }}
+                                    <i class="bi bi-shield-check"></i> {{ $updater->name }}
                                 @else
                                     <span class="text-muted">ไม่มีข้อมูล</span>
                                 @endif
@@ -337,7 +337,7 @@
                     <div class="mb-3">
                         <label class="form-label"><strong>หมายเหตุผู้ดูแลระบบ:</strong></label>
                         <div class="alert alert-info">
-                            <i class="fas fa-sticky-note"></i> {{ $user->admin_notes }}
+                            <i class="bi bi-sticky"></i> {{ $user->admin_notes }}
                         </div>
                     </div>
                     @endif
@@ -348,12 +348,12 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-history"></i> เซสชันล่าสุด
+                        <i class="bi bi-clock-history"></i> เซสชันล่าสุด
                     </h6>
                     @if($stats['active_sessions'] > 0)
                     <button class="btn btn-sm btn-danger" 
                             onclick="terminateUserSessions({{ $user->id }}, '{{ $user->name }}')">
-                        <i class="fas fa-sign-out-alt"></i> ยกเลิกเซสชันทั้งหมด
+                        <i class="bi bi-box-arrow-right"></i> ยกเลิกเซสชันทั้งหมด
                     </button>
                     @endif
                 </div>
@@ -385,10 +385,10 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <i class="fas fa-browser text-muted"></i> {{ $session->browser }}
+                                            <i class="bi bi-browser-chrome"></i> {{ $session->browser }}
                                         </div>
                                         <small class="text-muted">
-                                            <i class="fas fa-desktop"></i> {{ $session->operating_system }}
+                                            <i class="bi bi-display"></i> {{ $session->operating_system }}
                                         </small>
                                     </td>
                                     <td>
@@ -406,8 +406,8 @@
                     </div>
                     @else
                     <div class="text-center py-4">
-                        <i class="fas fa-history fa-3x text-gray-300 mb-3"></i>
-                        <p class="text-gray-500">ไม่มีประวัติการเข้าสู่ระบบ</p>
+                        <i class="bi bi-clock-history" style="font-size: 3rem; color: #d1d3e2;"></i>
+                        <p class="text-gray-500 mt-3">ไม่มีประวัติการเข้าสู่ระบบ</p>
                     </div>
                     @endif
                 </div>

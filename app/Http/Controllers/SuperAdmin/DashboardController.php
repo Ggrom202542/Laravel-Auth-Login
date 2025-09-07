@@ -62,9 +62,15 @@ class DashboardController extends Controller
                          ->limit(10)
                          ->get();
 
-        // Security Logs สำหรับ view
+        // Security Logs สำหรับ view - 10 รายการล่าสุด
         $securityLogs = UserActivity::with('user')
-                                   ->whereIn('action', ['login', 'login_failed', 'logout', 'password_changed', 'account_locked'])
+                                   ->whereIn('action', [
+                                       'login', 'login_failed', 'logout', 
+                                       'password_changed', 'account_locked',
+                                       'two_fa_enabled', 'two_fa_disabled',
+                                       'role_changed', 'account_suspended',
+                                       'password_reset', 'security_breach'
+                                   ])
                                    ->orderBy('created_at', 'desc')
                                    ->limit(10)
                                    ->get();

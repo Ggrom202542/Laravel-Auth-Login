@@ -50,7 +50,9 @@ function showResetPasswordModal(userId, userName) {
     $('#resetUserName').text(userName);
     $('#passwordResetForm')[0].reset();
     $('#passwordStrength').hide();
-    $('#passwordResetModal').modal('show');
+    
+    const modal = new bootstrap.Modal(document.getElementById('passwordResetModal'));
+    modal.show();
 }
 
 /**
@@ -74,7 +76,8 @@ function showStatusToggleModal(userId, userName, currentStatus) {
     $('#statusToggleForm')[0].reset();
     $('#statusEffects').hide();
     
-    $('#statusToggleModal').modal('show');
+    const modal = new bootstrap.Modal(document.getElementById('statusToggleModal'));
+    modal.show();
 }
 
 /**
@@ -103,7 +106,8 @@ function showPromoteRoleModal(userId, userName, currentRole) {
         $('#new_role option[value="admin"]').hide();
     }
     
-    $('#promoteRoleModal').modal('show');
+    const modal = new bootstrap.Modal(document.getElementById('promoteRoleModal'));
+    modal.show();
 }
 
 /**
@@ -321,7 +325,8 @@ function setupFormHandlers() {
             data: formData,
             success: function(response) {
                 if (response.success) {
-                    $('#passwordResetModal').modal('hide');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('passwordResetModal'));
+                    modal.hide();
                     showAlert('success', 'รีเซ็ตรหัสผ่านสำเร็จ', response.message);
                 } else {
                     showAlert('error', 'เกิดข้อผิดพลาด', response.message);
@@ -354,7 +359,8 @@ function setupFormHandlers() {
             data: formData,
             success: function(response) {
                 if (response.success) {
-                    $('#statusToggleModal').modal('hide');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('statusToggleModal'));
+                    modal.hide();
                     showAlert('success', 'เปลี่ยนสถานะสำเร็จ', response.message);
                     setTimeout(() => location.reload(), 1500);
                 } else {
@@ -388,7 +394,8 @@ function setupFormHandlers() {
             data: formData,
             success: function(response) {
                 if (response.success) {
-                    $('#promoteRoleModal').modal('hide');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('promoteRoleModal'));
+                    modal.hide();
                     showAlert('success', 'เปลี่ยนบทบาทสำเร็จ', response.message);
                     setTimeout(() => location.reload(), 1500);
                 } else {

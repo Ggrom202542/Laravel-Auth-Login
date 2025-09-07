@@ -4,11 +4,8 @@
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
                 <h5 class="modal-title" id="statusToggleModalLabel">
-                    <i class="fas fa-toggle-on"></i> เปลี่ยนสถานะผู้ใช้
+                    <i class="bi bi-toggle-on"></i> เปลี่ยนสถานะผู้ใช้
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <form id="statusToggleForm">
                 @csrf
@@ -28,13 +25,13 @@
                         <select class="form-control" id="new_status" name="status" required>
                             <option value="">-- เลือกสถานะ --</option>
                             <option value="active">
-                                <i class="fas fa-check-circle text-success"></i> ใช้งานได้
+                                ใช้งานได้
                             </option>
                             <option value="inactive">
-                                <i class="fas fa-pause-circle text-secondary"></i> ไม่ใช้งาน
+                                ไม่ใช้งาน
                             </option>
                             <option value="suspended">
-                                <i class="fas fa-ban text-danger"></i> ระงับการใช้งาน
+                                ระงับการใช้งาน
                             </option>
                         </select>
                     </div>
@@ -48,15 +45,15 @@
 
                     <!-- Status Change Effects -->
                     <div id="statusEffects" class="alert" role="alert" style="display: none;">
-                        <h6><i class="fas fa-info-circle"></i> ผลที่จะเกิดขึ้น:</h6>
+                        <h6><i class="bi bi-info-circle"></i> ผลที่จะเกิดขึ้น:</h6>
                         <ul id="statusEffectsList"></ul>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>ยกเลิก</button>
                     <button type="submit" class="btn btn-info" id="changeStatusBtn">
-                        <i class="fas fa-toggle-on"></i> เปลี่ยนสถานะ
+                        <i class="bi bi-toggle-on"></i> เปลี่ยนสถานะ
                     </button>
                 </div>
             </form>

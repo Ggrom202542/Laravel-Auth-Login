@@ -72,15 +72,14 @@ class User extends Authenticatable
         'profile_completed',
         'profile_completed_at',
         // Super Admin fields
-        'two_fa_enabled',
-        'two_fa_secret',
-        'two_fa_recovery_codes',
-        'ip_restrictions',
-        'session_timeout',
-        'allowed_login_methods',
+        'two_factor_enabled',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'allowed_ip_addresses',
+        'admin_session_timeout', // Use correct field name
+        'admin_notes', // Add this field
         'created_by_admin',
-        'updated_by_admin',
-        'name', // Add name field for compatibility
+        // Remove fields that don't exist: session_timeout, allowed_login_methods, updated_by_admin
     ];
 
     /**
@@ -91,8 +90,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'two_fa_secret',
-        'two_fa_recovery_codes',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -115,8 +114,8 @@ class User extends Authenticatable
         'profile_completed_at' => 'datetime',
         'login_history' => 'array',
         // Super Admin fields
-        'two_fa_enabled' => 'boolean',
-        'two_fa_recovery_codes' => 'array',
+        'two_factor_enabled' => 'boolean',
+        'two_factor_recovery_codes' => 'array',
         'allowed_login_methods' => 'array',
     ];
 

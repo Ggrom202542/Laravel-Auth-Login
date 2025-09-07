@@ -368,7 +368,7 @@
                 <div class="card-header bg-white py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
                         <i class="bi bi-shield-exclamation me-2"></i>
-                        Security & System Logs
+                        Security & System Logs (10 รายการล่าสุด)
                     </h6>
                 </div>
                 <div class="card-body">
@@ -406,7 +406,10 @@
                             @endforeach
                         </div>
                         <div class="text-center mt-3">
-                            <a href="#" class="btn btn-outline-danger btn-sm">ดู Security Logs ทั้งหมด</a>
+                            <a href="#" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-list-ul me-1"></i>
+                                ดู Security Logs ทั้งหมด
+                            </a>
                         </div>
                     @else
                         <div class="text-center py-4">

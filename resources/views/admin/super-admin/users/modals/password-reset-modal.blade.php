@@ -4,17 +4,14 @@
         <div class="modal-content">
             <div class="modal-header bg-warning text-white">
                 <h5 class="modal-title" id="passwordResetModalLabel">
-                    <i class="fas fa-key"></i> รีเซ็ตรหัสผ่าน
+                    <i class="bi bi-key"></i> รีเซ็ตรหัสผ่าน
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <form id="passwordResetForm">
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="bi bi-exclamation-triangle"></i>
                         <strong>คำเตือน:</strong> การดำเนินการนี้จะเปลี่ยนรหัสผ่านของผู้ใช้ และจะไม่สามารถยกเลิกได้
                     </div>
 
@@ -30,7 +27,7 @@
                                    required minlength="8" placeholder="กรอกรหัสผ่านใหม่">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="bi bi-eye"></i>
                                 </button>
                             </div>
                         </div>
@@ -44,7 +41,7 @@
                                    required minlength="8" placeholder="กรอกรหัสผ่านอีกครั้ง">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="bi bi-eye"></i>
                                 </button>
                             </div>
                         </div>
@@ -62,7 +59,7 @@
                     <!-- Password Generator -->
                     <div class="mb-3">
                         <button type="button" class="btn btn-sm btn-outline-primary" onclick="generatePassword()">
-                            <i class="fas fa-random"></i> สร้างรหัสผ่านอัตโนมัติ
+                            <i class="bi bi-arrow-clockwise"></i> สร้างรหัสผ่านอัตโนมัติ
                         </button>
                     </div>
 
@@ -78,9 +75,9 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>ยกเลิก</button>
                     <button type="submit" class="btn btn-warning" id="resetPasswordBtn">
-                        <i class="fas fa-key"></i> รีเซ็ตรหัสผ่าน
+                        <i class="bi bi-key"></i> รีเซ็ตรหัสผ่าน
                     </button>
                 </div>
             </form>
