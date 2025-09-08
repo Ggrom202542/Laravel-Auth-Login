@@ -112,4 +112,22 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Two-Factor Authentication Settings
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the two-factor authentication settings for your
+    | application. This allows you to enable/disable 2FA login integration
+    | and customize the behavior of the 2FA system.
+    |
+    */
+
+    'two_factor' => [
+        'enabled' => env('TWO_FACTOR_ENABLED', false),
+        'enforce_for_all_users' => env('TWO_FACTOR_ENFORCE_ALL', false),
+        'grace_period_days' => env('TWO_FACTOR_GRACE_PERIOD', 7),
+        'remember_device_days' => env('TWO_FACTOR_REMEMBER_DEVICE', 30),
+    ],
+
 ];

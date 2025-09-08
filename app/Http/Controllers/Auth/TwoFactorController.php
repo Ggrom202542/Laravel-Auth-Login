@@ -162,9 +162,58 @@ class TwoFactorController extends Controller
     /**
      * แสดงหน้าตรวจสอบ 2FA สำหรับการเข้าสู่ระบบ
      */
-    public function challenge()
+    public function challenge(Request $request)
     {
-        return view('auth.2fa.challenge');
+        Log::info('TwoFactorController::challenge - Method started', [
+            'session_id' => $request->session()->getId(),
+            'session_2fa_user_id' => $request->session()->get('2fa:user:id'),
+            'session_2fa_timestamp' => $request->session()->get('2fa:login:timestamp'),
+            'current_timestamp' => time(),
+            'request_url' => $request->url(),
+            'request_method' => $request->method(),
+            'all_session_keys' => array_keys($request->session()->all()),
+            'full_session_data' => $request->session()->all()
+        ]);
+        
+        // ตรวจสอบว่ามี session สำหรับ 2FA หรือไม่
+        if (!$request->session()->has('2fa:user:id')) {
+            Log::warning('2FA Challenge - No session found, redirecting to login');
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่']);
+        }
+
+        // ตรวจสอบว่า session ไม่หมดอายุ (15 นาที เพิ่มจาก 5 นาที)
+        $loginTimestamp = $request->session()->get('2fa:login:timestamp');
+        $currentTime = time();
+        $timeDiff = $loginTimestamp ? ($currentTime - $loginTimestamp) : 0;
+        
+        Log::info('2FA Challenge - Session timeout check', [
+            'login_timestamp' => $loginTimestamp,
+            'current_time' => $currentTime,
+            'time_diff_seconds' => $timeDiff,
+            'timeout_limit' => 900, // 15 minutes
+            'is_expired' => $timeDiff > 900
+        ]);
+        
+        if ($loginTimestamp && $timeDiff > 900) { // เพิ่มเป็น 15 นาที
+            $request->session()->forget(['2fa:user:id', '2fa:login:timestamp']);
+            Log::warning('2FA Challenge - Session expired', [
+                'time_diff_seconds' => $timeDiff
+            ]);
+            return redirect()->route('login')
+                ->withErrors(['email' => '2FA session หมดอายุ กรุณาเข้าสู่ระบบใหม่']);
+        }
+
+        $userId = $request->session()->get('2fa:user:id');
+        $user = User::find($userId);
+
+        if (!$user || !$user->hasTwoFactorEnabled()) {
+            $request->session()->forget(['2fa:user:id', '2fa:login:timestamp']);
+            return redirect()->route('login')
+                ->withErrors(['email' => 'ข้อมูล 2FA ไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่']);
+        }
+
+        return view('auth.2fa.challenge', compact('user'));
     }
 
     /**
@@ -179,12 +228,19 @@ class TwoFactorController extends Controller
             'code.digits' => 'รหัสยืนยันต้องเป็นตัวเลข 6 หลัก'
         ]);
 
-        /** @var User $user */
-        $user = Auth::user();
-        
-        // ตรวจสอบว่าผู้ใช้เปิดใช้งาน 2FA หรือไม่
-        if (!$user->hasTwoFactorEnabled()) {
-            return redirect()->route('login')->withErrors(['email' => 'บัญชีนี้ไม่ได้เปิดใช้งาน Two-Factor Authentication']);
+        // ตรวจสอบ session
+        if (!$request->session()->has('2fa:user:id')) {
+            return redirect()->route('login')
+                ->withErrors(['code' => 'Session หมดอายุ กรุณาเข้าสู่ระบบใหม่']);
+        }
+
+        $userId = $request->session()->get('2fa:user:id');
+        $user = User::find($userId);
+
+        if (!$user || !$user->hasTwoFactorEnabled()) {
+            $request->session()->forget(['2fa:user:id', '2fa:login:timestamp']);
+            return redirect()->route('login')
+                ->withErrors(['code' => 'ข้อมูล 2FA ไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่']);
         }
 
         // ตรวจสอบรหัสยืนยัน
@@ -195,16 +251,68 @@ class TwoFactorController extends Controller
             return back()->withErrors(['code' => 'รหัสยืนยันไม่ถูกต้อง กรุณาลองใหม่']);
         }
 
-        // บันทึกสถานะว่าผ่านการตรวจสอบ 2FA แล้ว
-        session(['2fa_verified' => true]);
+        // ล้าง 2FA session และเก็บ remember preference
+        $rememberLogin = $request->session()->get('2fa:user:remember', false);
+        $request->session()->forget(['2fa:user:id', '2fa:login:timestamp', '2fa:user:remember']);
 
-        Log::info('ผ่านการตรวจสอบ Two-Factor Authentication', [
+        // Login ผู้ใช้พร้อม remember token หากมี
+        Auth::login($user, $rememberLogin);
+
+        Log::info('Two-Factor Authentication successful - User logged in', [
             'user_id' => $user->id,
-            'user_email' => $user->email,
-            'ip' => $request->ip()
+            'username' => $user->username,
+            'remember_login' => $rememberLogin,
+            'auth_check_after_login' => Auth::check() ? 'true' : 'false'
         ]);
 
-        return redirect()->intended(route('dashboard'));
+        // บันทึกกิจกรรม
+        \App\Models\UserActivity::create([
+            'user_id' => $user->id,
+            'action' => 'login_2fa',
+            'description' => 'เข้าสู่ระบบสำเร็จด้วย 2FA',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent() ?: 'Unknown',
+            'created_at' => now()
+        ]);
+
+        Log::info('Two-Factor Authentication successful for user', [
+            'user_id' => $user->id,
+            'username' => $user->username
+        ]);
+
+        // Redirect ตามบทบาท
+        return $this->redirectToIntended($user);
+    }
+
+    /**
+     * Redirect ผู้ใช้ไปยัง dashboard ที่เหมาะสมตามบทบาท
+     */
+    private function redirectToIntended($user)
+    {
+        Log::info('2FA redirectToIntended - User role check', [
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'role' => $user->role,
+            'role_type' => gettype($user->role)
+        ]);
+
+        switch ($user->role) {
+            case 'super_admin':
+                Log::info('2FA redirect - Super Admin dashboard');
+                return redirect()->route('super-admin.dashboard')
+                               ->with('success', 'ยินดีต้อนรับ Super Admin ' . $user->full_name);
+            
+            case 'admin':
+                Log::info('2FA redirect - Admin dashboard');
+                return redirect()->route('admin.dashboard')
+                               ->with('success', 'ยินดีต้อนรับ Admin ' . $user->full_name);
+            
+            case 'user':
+            default:
+                Log::info('2FA redirect - User dashboard');
+                return redirect()->route('user.dashboard')
+                               ->with('success', 'ยินดีต้อนรับ ' . $user->full_name);
+        }
     }
 
     /**
@@ -221,18 +329,38 @@ class TwoFactorController extends Controller
     public function verifyRecovery(Request $request)
     {
         $request->validate([
-            'recovery_code' => 'required|string|size:8'
+            'recovery_code' => 'required|string|min:8|max:8'
         ], [
             'recovery_code.required' => 'กรุณากรอกรหัสกู้คืน',
-            'recovery_code.size' => 'รหัสกู้คืนต้องมี 8 ตัวอักษร'
+            'recovery_code.min' => 'รหัสกู้คืนต้องมี 8 ตัวอักษร',
+            'recovery_code.max' => 'รหัสกู้คืนต้องมี 8 ตัวอักษร'
         ]);
 
         /** @var User $user */
         $user = Auth::user();
-        $recoveryCode = strtoupper($request->recovery_code);
+        
+        // ตรวจสอบว่าผู้ใช้เปิดใช้งาน 2FA หรือไม่
+        if (!$user->hasTwoFactorEnabled()) {
+            return back()->withErrors(['recovery_code' => 'บัญชีนี้ไม่ได้เปิดใช้งาน Two-Factor Authentication']);
+        }
+
+        $recoveryCode = strtoupper(trim($request->recovery_code));
+        
+        // Debug logging
+        Log::info('Recovery code verification attempt', [
+            'user_id' => $user->id,
+            'input_code' => $recoveryCode,
+            'has_recovery_codes' => $user->hasRecoveryCodes(),
+            'recovery_codes_count' => count($user->recovery_codes ?? [])
+        ]);
 
         // ใช้รหัสกู้คืน
         if (!$user->useRecoveryCode($recoveryCode)) {
+            Log::warning('Invalid recovery code attempt', [
+                'user_id' => $user->id,
+                'input_code' => $recoveryCode,
+                'available_codes' => $user->recovery_codes ?? []
+            ]);
             return back()->withErrors(['recovery_code' => 'รหัสกู้คืนไม่ถูกต้องหรือถูกใช้ไปแล้ว']);
         }
 

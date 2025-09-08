@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'permission' => \App\Http\Middleware\CheckPermission::class,
         'log.activity' => \App\Http\Middleware\LogActivity::class,
         'super.admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+        '2fa.challenge' => \App\Http\Middleware\TwoFactorChallenge::class,
     ];
 }

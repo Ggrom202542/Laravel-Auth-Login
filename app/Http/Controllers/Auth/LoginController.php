@@ -28,6 +28,13 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        Log::info('Login request received', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'input' => $request->only(['username']),
+            'headers' => $request->headers->all()
+        ]);
+        
         $input = $request->only('username', 'password');
 
         $this->validate(
@@ -75,12 +82,60 @@ class LoginController extends Controller
         if (Auth::attempt($input)) {
             $user = Auth::user();
             
+            Log::info('User login successful', [
+                'user_id' => $user->id,
+                'username' => $user->username,
+                'role' => $user->role
+            ]);
+            
             // รีเซ็ตการนับความผิดพลาด
             User::where('id', $user->id)->update([
                 'failed_login_attempts' => 0,
                 'locked_until' => null,
                 'last_login_at' => now()
             ]);
+            
+            // ตรวจสอบ Two-Factor Authentication
+            $requires2FA = $this->requiresTwoFactorAuth($user);
+            
+            // ตรวจสอบสถานะ 2FA ของผู้ใช้
+            $userHas2FA = ($user->two_factor_enabled || $user->google2fa_enabled) 
+                         && !empty($user->google2fa_secret) 
+                         && !is_null($user->google2fa_confirmed_at);
+            
+            Log::info('2FA Check Result', [
+                'user_id' => $user->id,
+                'requires_2fa' => $requires2FA,
+                'config_enabled' => config('auth.two_factor.enabled'),
+                'user_has_2fa' => $userHas2FA,
+                'two_factor_enabled' => $user->two_factor_enabled,
+                'google2fa_enabled' => $user->google2fa_enabled,
+                'google2fa_secret_exists' => !empty($user->google2fa_secret),
+                'google2fa_confirmed_at' => $user->google2fa_confirmed_at
+            ]);
+            
+            if ($requires2FA) {
+                // เก็บ user ID และ credentials ใน session สำหรับ 2FA challenge
+                $request->session()->put('2fa:user:id', $user->id);
+                $request->session()->put('2fa:login:timestamp', now()->timestamp);
+                $request->session()->put('2fa:user:remember', $request->filled('remember'));
+                
+                // ออกจากระบบชั่วคราว แต่ regenerate session เพื่อป้องกันปัญหา
+                Auth::logout();
+                $request->session()->regenerate();
+                
+                Log::info('Two-Factor Authentication required - user logged out temporarily', [
+                    'user_id' => $user->id,
+                    'username' => $user->username,
+                    'session_id' => $request->session()->getId(),
+                    'session_2fa_id' => $request->session()->get('2fa:user:id'),
+                    'auth_check_after_logout' => Auth::check() ? 'true' : 'false'
+                ]);
+                
+                // Direct redirect แทน meta refresh
+                return redirect()->route('2fa.challenge')
+                    ->with('message', 'กรุณายืนยันตัวตนด้วยรหัส 2FA');
+            }
             
             // บันทึกกิจกรรม
             UserActivity::create([
@@ -125,19 +180,84 @@ class LoginController extends Controller
     }
 
     /**
+     * ตรวจสอบว่าผู้ใช้ต้องใช้ Two-Factor Authentication หรือไม่
+     */
+    private function requiresTwoFactorAuth($user)
+    {
+        // ตรวจสอบว่าระบบเปิดใช้งาน 2FA หรือไม่
+        $configEnabled = config('auth.two_factor.enabled', false);
+        Log::info('requiresTwoFactorAuth - Config check', [
+            'config_enabled' => $configEnabled,
+            'env_value' => env('TWO_FACTOR_ENABLED'),
+            'user_id' => $user->id
+        ]);
+        
+        if (!$configEnabled) {
+            Log::info('requiresTwoFactorAuth - 2FA disabled in config', ['user_id' => $user->id]);
+            return false;
+        }
+
+        // ตรวจสอบว่าผู้ใช้เปิดใช้งาน 2FA หรือไม่
+        $userHas2FA = ($user->two_factor_enabled || $user->google2fa_enabled) 
+                     && !empty($user->google2fa_secret) 
+                     && !is_null($user->google2fa_confirmed_at);
+                     
+        Log::info('requiresTwoFactorAuth - User 2FA check', [
+            'user_id' => $user->id,
+            'user_has_2fa' => $userHas2FA,
+            'two_factor_enabled' => $user->two_factor_enabled,
+            'google2fa_enabled' => $user->google2fa_enabled,
+            'google2fa_secret' => !empty($user->google2fa_secret),
+            'google2fa_confirmed_at' => $user->google2fa_confirmed_at
+        ]);
+        
+        if (!$userHas2FA) {
+            // หาก enforce_for_all_users = true, บังคับให้ตั้ง 2FA
+            $enforceAll = config('auth.two_factor.enforce_for_all_users', false);
+            Log::info('requiresTwoFactorAuth - User has no 2FA', [
+                'user_id' => $user->id,
+                'enforce_for_all' => $enforceAll
+            ]);
+            
+            if ($enforceAll) {
+                // TODO: Redirect to 2FA setup page
+                return true;
+            }
+            return false;
+        }
+
+        Log::info('requiresTwoFactorAuth - 2FA required', ['user_id' => $user->id]);
+        return true;
+    }
+
+    /**
      * Redirect ผู้ใช้ไปยัง dashboard ที่เหมาะสมตามบทบาท
      */
     protected function redirectToIntended($user)
     {
-        if ($user->hasRole('super_admin')) {
-            return redirect()->route('super-admin.dashboard')
-                           ->with('success', 'ยินดีต้อนรับ Super Admin ' . $user->full_name);
-        } elseif ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard')
-                           ->with('success', 'ยินดีต้อนรับ Admin ' . $user->full_name);
-        } else {
-            return redirect()->route('user.dashboard')
-                           ->with('success', 'ยินดีต้อนรับ ' . $user->full_name);
+        Log::info('LoginController redirectToIntended - User role check', [
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'role' => $user->role,
+            'role_type' => gettype($user->role)
+        ]);
+
+        switch ($user->role) {
+            case 'super_admin':
+                Log::info('Login redirect - Super Admin dashboard');
+                return redirect()->route('super-admin.dashboard')
+                               ->with('success', 'ยินดีต้อนรับ Super Admin ' . $user->full_name);
+            
+            case 'admin':
+                Log::info('Login redirect - Admin dashboard');
+                return redirect()->route('admin.dashboard')
+                               ->with('success', 'ยินดีต้อนรับ Admin ' . $user->full_name);
+            
+            case 'user':
+            default:
+                Log::info('Login redirect - User dashboard');
+                return redirect()->route('user.dashboard')
+                               ->with('success', 'ยินดีต้อนรับ ' . $user->full_name);
         }
     }
 

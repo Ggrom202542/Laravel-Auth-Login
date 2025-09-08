@@ -25,6 +25,7 @@ class SuperAdminSeeder extends Seeder
             'username' => 'superadmin',
             'password' => Hash::make('SuperAdmin123!'),
             'status' => 'active',
+            'role' => 'super_admin', // เพิ่ม role field
             'email_verified_at' => now(),
         ];
 
@@ -33,12 +34,7 @@ class SuperAdminSeeder extends Seeder
             $superAdminData
         );
 
-        // กำหนดบทบาท Super Admin
-        $superAdminRole = Role::where('name', 'super_admin')->first();
-        if ($superAdminRole) {
-            $superAdmin->assignRole('super_admin');
-            $this->command->info('✅ กำหนดบทบาท Super Admin ให้ผู้ใช้: ' . $superAdmin->username);
-        }
+        $this->command->info('✅ กำหนดบทบาท Super Admin ให้ผู้ใช้: ' . $superAdmin->username);
 
         // สร้างบัญชี Admin ตัวอย่าง
         $adminData = [
@@ -50,6 +46,7 @@ class SuperAdminSeeder extends Seeder
             'username' => 'admin',
             'password' => Hash::make('Admin123!'),
             'status' => 'active',
+            'role' => 'admin', // เพิ่ม role field
             'email_verified_at' => now(),
         ];
 
@@ -58,12 +55,7 @@ class SuperAdminSeeder extends Seeder
             $adminData
         );
 
-        // กำหนดบทบาท Admin
-        $adminRole = Role::where('name', 'admin')->first();
-        if ($adminRole) {
-            $admin->assignRole('admin');
-            $this->command->info('✅ กำหนดบทบาท Admin ให้ผู้ใช้: ' . $admin->username);
-        }
+        $this->command->info('✅ กำหนดบทบาท Admin ให้ผู้ใช้: ' . $admin->username);
 
         // สร้างบัญชี User ตัวอย่าง
         $userData = [
@@ -75,6 +67,7 @@ class SuperAdminSeeder extends Seeder
             'username' => 'user',
             'password' => Hash::make('User123!'),
             'status' => 'active',
+            'role' => 'user', // เพิ่ม role field
             'email_verified_at' => now(),
         ];
 
@@ -83,12 +76,7 @@ class SuperAdminSeeder extends Seeder
             $userData
         );
 
-        // กำหนดบทบาท User
-        $userRole = Role::where('name', 'user')->first();
-        if ($userRole) {
-            $user->assignRole('user');
-            $this->command->info('✅ กำหนดบทบาท User ให้ผู้ใช้: ' . $user->username);
-        }
+        $this->command->info('✅ กำหนดบทบาท User ให้ผู้ใช้: ' . $user->username);
 
         $this->command->info('');
         $this->command->info('🎉 สร้างบัญชีทดสอบเรียบร้อยแล้ว:');

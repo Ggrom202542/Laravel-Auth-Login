@@ -352,7 +352,11 @@ class User extends Authenticatable
      */
     public function hasTwoFactorEnabled()
     {
-        return $this->google2fa_enabled;
+        // ตรวจสอบทั้ง two_factor_enabled และ google2fa_enabled
+        // และต้องมี secret ที่ถูก confirm แล้ว
+        return ($this->two_factor_enabled || $this->google2fa_enabled) 
+               && !empty($this->google2fa_secret) 
+               && !is_null($this->google2fa_confirmed_at);
     }
 
     public function hasTwoFactorSecret()

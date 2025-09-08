@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Route, Auth, Http, Log, DB};
-use App\Http\Controllers\Auth\{LoginController, RegisterController};
+use App\Http\Controllers\Auth\{LoginController, RegisterController, TwoFactorController};
 use App\Http\Controllers\User\DashboardController as UserDashboard;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserManagementController as AdminUserManagement;
@@ -20,6 +20,22 @@ use App\Http\Controllers\NotificationController;
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
+
+// Simple debug route
+Route::get('/test', function () {
+    return 'Test route working!';
+});
+
+Route::get('/debug-session', function (Request $request) {
+    return response()->json([
+        'session_id' => $request->session()->getId(),
+        'auth_check' => auth()->check(),
+        'user_id' => auth()->id(),
+        '2fa_user_id' => $request->session()->get('2fa:user:id'),
+        '2fa_timestamp' => $request->session()->get('2fa:login:timestamp'),
+        'session_keys' => array_keys($request->session()->all())
+    ]);
+});
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -41,22 +57,21 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 | Two-Factor Authentication Routes
 |--------------------------------------------------------------------------
 */
-use App\Http\Controllers\Auth\TwoFactorController;
 
+// Two-Factor Challenge routes (ใช้ custom middleware สำหรับ 2FA)
+Route::group(['prefix' => '2fa', 'as' => '2fa.', 'middleware' => ['web', '2fa.challenge']], function () {
+    Route::get('/challenge', [TwoFactorController::class, 'challenge'])->name('challenge');
+    Route::post('/verify', [TwoFactorController::class, 'verify'])->name('verify');
+    Route::get('/recovery', [TwoFactorController::class, 'recoveryForm'])->name('recovery');
+    Route::post('/recovery/verify', [TwoFactorController::class, 'verifyRecovery'])->name('recovery.verify');
+});
+
+// Two-Factor Setup routes (ต้อง auth middleware)
 Route::group(['middleware' => ['auth'], 'prefix' => '2fa', 'as' => '2fa.'], function () {
-    // Two-Factor Setup and Management
     Route::get('/setup', [TwoFactorController::class, 'setup'])->name('setup');
     Route::post('/enable', [TwoFactorController::class, 'enable'])->name('enable');
     Route::post('/confirm', [TwoFactorController::class, 'confirm'])->name('confirm');
     Route::post('/disable', [TwoFactorController::class, 'disable'])->name('disable');
-    
-    // Two-Factor Challenge (for login verification)
-    Route::get('/challenge', [TwoFactorController::class, 'challenge'])->name('challenge');
-    Route::post('/verify', [TwoFactorController::class, 'verify'])->name('verify');
-    
-    // Recovery Codes
-    Route::get('/recovery', [TwoFactorController::class, 'recoveryForm'])->name('recovery');
-    Route::post('/recovery/verify', [TwoFactorController::class, 'verifyRecovery'])->name('recovery.verify');
     Route::post('/recovery/generate', [TwoFactorController::class, 'generateRecoveryCodes'])->name('recovery.generate');
 });
 
