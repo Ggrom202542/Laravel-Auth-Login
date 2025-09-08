@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Password Expiration Countdown -->
+    @include('components.password-expiration-countdown')
+
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -376,6 +379,22 @@
                                 <a href="#" class="btn btn-outline-secondary">
                                     <i class="bi bi-gear me-2"></i>
                                     ตั้งค่าระบบ
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-6 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ route('password.status') }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-shield-check me-2"></i>
+                                    สถานะรหัสผ่าน
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-6 mb-3">
+                            <div class="d-grid">
+                                <a href="{{ route('password.change') }}" class="btn btn-outline-success">
+                                    <i class="bi bi-key me-2"></i>
+                                    เปลี่ยนรหัสผ่าน
                                 </a>
                             </div>
                         </div>

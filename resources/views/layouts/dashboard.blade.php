@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-id" content="{{ auth()->id() }}">
     
     <title>@yield('title', 'Dashboard') - {{ config('app.name', 'Laravel') }}</title>
 
@@ -18,6 +19,9 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard/components.css') }}">
+    
+    <!-- Custom SCSS/JS -->
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
 
@@ -87,6 +91,31 @@
             @if(auth()->user()->role == 'user')
                 <!-- User Menu -->
                 <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSecurity" 
+                       aria-expanded="false" aria-controls="collapseSecurity">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>ความปลอดภัย</span>
+                    </a>
+                    <div id="collapseSecurity" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">การจัดการความปลอดภัย:</h6>
+                            <a class="collapse-item" href="{{ route('user.security.index') }}">
+                                <i class="bi bi-shield-check me-2"></i>แดชบอร์ดความปลอดภัย
+                            </a>
+                            <a class="collapse-item" href="{{ route('user.security.devices') }}">
+                                <i class="bi bi-phone me-2"></i>จัดการอุปกรณ์
+                            </a>
+                            <a class="collapse-item" href="{{ route('user.security.login-history') }}">
+                                <i class="bi bi-clock-history me-2"></i>ประวัติการเข้าสู่ระบบ
+                            </a>
+                            <a class="collapse-item" href="{{ route('user.security.alerts') }}">
+                                <i class="bi bi-exclamation-triangle me-2"></i>การแจ้งเตือนความปลอดภัย
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" href="#">
                         <i class="bi bi-clock-history"></i>
                         <span>ประวัติกิจกรรม</span>
@@ -137,6 +166,35 @@
                             </a>
                             <a class="collapse-item" href="{{ route('admin.users.index', ['status' => 'inactive']) }}">
                                 <i class="bi bi-person-x me-2"></i>ผู้ใช้ไม่ใช้งาน
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Security Management for Admin -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAdminSecurity" 
+                       aria-expanded="false" aria-controls="collapseAdminSecurity">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>จัดการความปลอดภัย</span>
+                    </a>
+                    <div id="collapseAdminSecurity" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">ความปลอดภัยระบบ:</h6>
+                            <a class="collapse-item" href="{{ route('admin.security.index') }}">
+                                <i class="bi bi-shield-check me-2"></i>แดชบอร์ดความปลอดภัย
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.ip.index') }}">
+                                <i class="bi bi-globe me-2"></i>จัดการ IP Address
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.index') }}#devices">
+                                <i class="bi bi-phone me-2"></i>อุปกรณ์ผู้ใช้
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.index') }}#suspicious">
+                                <i class="bi bi-exclamation-triangle me-2"></i>กิจกรรมน่าสงสัย
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.report') }}">
+                                <i class="bi bi-graph-up me-2"></i>รายงานความปลอดภัย
                             </a>
                         </div>
                     </div>
@@ -235,6 +293,50 @@
                             </a>
                             <a class="collapse-item" href="#">
                                 <i class="bi bi-gear me-2"></i>ตั้งค่าระบบ
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Advanced Security Management for Super Admin -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSuperSecurity" 
+                       aria-expanded="false" aria-controls="collapseSuperSecurity">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>ความปลอดภัยขั้นสูง</span>
+                        <span class="badge bg-danger text-white ms-auto">Advanced</span>
+                    </a>
+                    <div id="collapseSuperSecurity" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">ความปลอดภัยระบบ:</h6>
+                            <a class="collapse-item" href="{{ route('admin.security.index') }}">
+                                <i class="bi bi-shield-check me-2"></i>แดชบอร์ดความปลอดภัย
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.ip.index') }}">
+                                <i class="bi bi-globe me-2"></i>จัดการ IP Address
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.index') }}#devices">
+                                <i class="bi bi-phone me-2"></i>จัดการอุปกรณ์ทั้งหมด
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.index') }}#suspicious">
+                                <i class="bi bi-exclamation-triangle me-2"></i>กิจกรรมน่าสงสัย
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.security.report') }}">
+                                <i class="bi bi-graph-up me-2"></i>รายงานความปลอดภัย
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <h6 class="collapse-header">เครื่องมือขั้นสูง:</h6>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-shield-exclamation me-2 text-warning"></i>Security Alerts Center
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-eye me-2"></i>Real-time Monitoring
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-lock me-2"></i>Force Logout All
+                            </a>
+                            <a class="collapse-item" href="#">
+                                <i class="bi bi-download me-2"></i>Export Security Data
                             </a>
                         </div>
                     </div>
@@ -486,6 +588,14 @@
                                 <a class="dropdown-item" href="{{ route('profile.settings') }}">
                                     <i class="bi bi-gear me-2 text-gray-400"></i>
                                     ตั้งค่า
+                                </a>
+                                <a class="dropdown-item" href="{{ route('password.status') }}">
+                                    <i class="bi bi-shield-check me-2 text-warning"></i>
+                                    สถานะรหัสผ่าน
+                                </a>
+                                <a class="dropdown-item" href="{{ route('password.change') }}">
+                                    <i class="bi bi-key me-2 text-gray-400"></i>
+                                    เปลี่ยนรหัสผ่าน
                                 </a>
                                 <a class="dropdown-item" href="#">
                                     <i class="bi bi-clock-history me-2 text-gray-400"></i>

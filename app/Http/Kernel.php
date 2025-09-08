@@ -71,5 +71,8 @@ class Kernel extends HttpKernel
         'log.activity' => \App\Http\Middleware\LogActivity::class,
         'super.admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
         '2fa.challenge' => \App\Http\Middleware\TwoFactorChallenge::class,
+        'password.expiration' => \App\Http\Middleware\CheckPasswordExpiration::class,
+        'ip.security' => \App\Http\Middleware\IpSecurityMiddleware::class,
+        'device.verification' => \App\Http\Middleware\DeviceVerificationMiddleware::class,
     ];
 }

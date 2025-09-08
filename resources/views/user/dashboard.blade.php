@@ -4,6 +4,9 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Password Expiration Countdown -->
+    @include('components.password-expiration-countdown')
+
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -224,7 +227,7 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
-                                <a href="{{ route('profile.settings') }}" class="btn btn-outline-success">
+                                <a href="{{ route('password.change') }}" class="btn btn-outline-success">
                                     <i class="bi bi-key me-2"></i>
                                     เปลี่ยนรหัสผ่าน
                                 </a>
@@ -232,17 +235,17 @@
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
-                                <a href="#" class="btn btn-outline-info">
-                                    <i class="bi bi-clock-history me-2"></i>
-                                    ประวัติกิจกรรม
+                                <a href="{{ route('password.status') }}" class="btn btn-outline-warning">
+                                    <i class="bi bi-shield-check me-2"></i>
+                                    สถานะรหัสผ่าน
                                 </a>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="d-grid">
-                                <a href="{{ route('profile.settings') }}" class="btn btn-outline-warning">
+                                <a href="{{ route('profile.settings') }}" class="btn btn-outline-info">
                                     <i class="bi bi-gear me-2"></i>
-                                    ตั้งค่า
+                                    ตั้งค่าบัญชี
                                 </a>
                             </div>
                         </div>

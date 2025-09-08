@@ -2,6 +2,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/login_register/login_register.css') }}">
+<link rel="stylesheet" href="{{ asset('css/password-strength-meter.css') }}">
 @endpush
 @section('content')
 <div class="login-container">
@@ -79,7 +80,8 @@
                 <div class="mb-3">
                     <label for="password">รหัสผ่าน <span style="color: red;">*</span></label>
                     <input type="password" class="form-control" id="password" name="password" required>
-                    <p style="color: var(--color-8); margin-top: 8px;">หมายเหตุ : รหัสผ่านต้องมี 8 หลักขึ้นไป</p>
+                    <small class="text-muted">รหัสผ่านจะถูกตรวจสอบความแข็งแกร่งอัตโนมัติ</small>
+                    <!-- Password Strength Meter จะถูกแทรกที่นี่โดย JavaScript -->
                     @error('password')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -104,3 +106,7 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/password-strength-meter.js') }}"></script>
+@endpush

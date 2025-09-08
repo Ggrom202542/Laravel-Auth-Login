@@ -241,11 +241,38 @@
                         </h6>
                     </div>
                     <div class="card-body">
+                        <!-- Password Security Actions -->
+                        <div class="mb-4">
+                            <h6 class="text-secondary mb-3">
+                                <i class="bi bi-shield-lock me-2"></i>
+                                จัดการรหัสผ่าน
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-grid">
+                                        <a href="{{ route('password.change') }}" class="btn btn-outline-primary">
+                                            <i class="bi bi-key me-2"></i>
+                                            เปลี่ยนรหัสผ่าน
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-grid">
+                                        <a href="{{ route('password.status') }}" class="btn btn-outline-warning">
+                                            <i class="bi bi-shield-check me-2"></i>
+                                            ตรวจสอบสถานะรหัสผ่าน
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                        </div>
+
                         <!-- Change Password Form -->
                         <div class="mb-5">
                             <h6 class="text-secondary mb-3">
                                 <i class="bi bi-key me-2"></i>
-                                เปลี่ยนรหัสผ่าน
+                                เปลี่ยนรหัสผ่าน (แบบเร็ว)
                             </h6>
                             
                             <form action="{{ route('profile.change-password') }}" method="POST" class="row g-3">

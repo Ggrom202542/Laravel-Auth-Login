@@ -5,20 +5,36 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, Log, Http};
+use Illuminate\Support\Facades\{Auth, Log, Http, Hash};
 use App\Models\User;
 use App\Models\UserActivity;
+use App\Services\AccountLockoutService;
+use App\Services\IpManagementService;
+use App\Services\DeviceManagementService;
+use App\Services\SuspiciousLoginService;
 
 class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
     protected $redirectTo = '/dashboard';
+    protected $lockoutService;
+    protected $ipManagementService;
+    protected $deviceService;
+    protected $suspiciousLoginService;
 
-    public function __construct()
-    {
+    public function __construct(
+        AccountLockoutService $lockoutService, 
+        IpManagementService $ipManagementService,
+        DeviceManagementService $deviceService,
+        SuspiciousLoginService $suspiciousLoginService
+    ) {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
+        $this->lockoutService = $lockoutService;
+        $this->ipManagementService = $ipManagementService;
+        $this->deviceService = $deviceService;
+        $this->suspiciousLoginService = $suspiciousLoginService;
     }
 
     public function username()
@@ -71,14 +87,46 @@ class LoginController extends Controller
         }
 
         // ตรวจสอบว่าบัญชีถูกล็อกหรือไม่
-        if ($user->locked_until && $user->locked_until > now()) {
-            $remainingTime = $user->locked_until->diffInMinutes(now());
+        if ($this->lockoutService->isAccountLocked($user)) {
+            $lockoutStatus = $this->lockoutService->getLockoutStatus($user);
+            $remainingMinutes = $lockoutStatus['remaining_minutes'];
+            
             return back()->withErrors([
-                'username' => "บัญชีของคุณถูกล็อก กรุณาลองใหม่ใน {$remainingTime} นาที",
+                'username' => "บัญชีของคุณถูกล็อกเนื่องจากเข้าสู่ระบบผิดหลายครั้ง กรุณาลองใหม่ใน {$remainingMinutes} นาที",
             ]);
         }
 
-        // ลองเข้าสู่ระบบ
+        // ตรวจสอบรหัสผ่าน
+        if (!Hash::check($input['password'], $user->password)) {
+            // บันทึกความพยายาม login ที่ล้มเหลว
+            $this->lockoutService->recordFailedAttempt($user, $request->ip());
+            
+            // บันทึกการล้มเหลวของ IP ด้วย
+            $this->ipManagementService->recordFailedAttempt($request->ip(), $user);
+            
+            // บันทึกและวิเคราะห์ suspicious login attempt
+            $this->suspiciousLoginService->recordLoginAttempt(
+                $request, 
+                $user, 
+                'failed', 
+                $input['username'], 
+                'Invalid password'
+            );
+            
+            $lockoutStatus = $this->lockoutService->getLockoutStatus($user);
+            $remainingAttempts = $lockoutStatus['remaining_attempts'] ?? 0;
+            
+            $errorMessage = 'รหัสผ่านไม่ถูกต้อง';
+            if ($remainingAttempts > 0) {
+                $errorMessage .= " (เหลือ {$remainingAttempts} ครั้ง)";
+            }
+            
+            return back()->withErrors([
+                'password' => $errorMessage,
+            ]);
+        }
+
+        // ลองเข้าสู่ระบบ (ตอนนี้เรารู้แล้วว่ารหัสผ่านถูกต้อง)
         if (Auth::attempt($input)) {
             $user = Auth::user();
             
@@ -88,11 +136,25 @@ class LoginController extends Controller
                 'role' => $user->role
             ]);
             
-            // รีเซ็ตการนับความผิดพลาด
-            User::where('id', $user->id)->update([
-                'failed_login_attempts' => 0,
-                'locked_until' => null,
-                'last_login_at' => now()
+            // บันทึก login ที่สำเร็จและรีเซ็ต failed attempts
+            $this->lockoutService->recordSuccessfulLogin($user, $request->ip());
+            
+            // บันทึกอุปกรณ์ที่ใช้ login
+            $device = $this->deviceService->registerDevice($user, $request);
+            
+            // บันทึกและวิเคราะห์ successful login
+            $this->suspiciousLoginService->recordLoginAttempt(
+                $request, 
+                $user, 
+                'success', 
+                $input['username']
+            );
+            
+            Log::info('Device registered for user', [
+                'user_id' => $user->id,
+                'device_fingerprint' => $device->device_fingerprint,
+                'device_type' => $device->device_type,
+                'is_trusted' => $device->is_trusted
             ]);
             
             // ตรวจสอบ Two-Factor Authentication

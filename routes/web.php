@@ -54,6 +54,17 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 /*
 |--------------------------------------------------------------------------
+| Password Change Routes
+|--------------------------------------------------------------------------
+*/
+Route::group(['middleware' => ['auth'], 'prefix' => 'password', 'as' => 'password.'], function () {
+    Route::get('/change', [App\Http\Controllers\Auth\ChangePasswordController::class, 'showChangeForm'])->name('change');
+    Route::post('/update', [App\Http\Controllers\Auth\ChangePasswordController::class, 'updatePassword'])->name('update');
+    Route::get('/status', [App\Http\Controllers\PasswordStatusController::class, 'show'])->name('status');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Two-Factor Authentication Routes
 |--------------------------------------------------------------------------
 */
@@ -124,7 +135,7 @@ Route::get('/approval-status/{token}', [App\Http\Controllers\ApprovalStatusContr
 | Profile Routes (สำหรับผู้ใช้ที่เข้าสู่ระบบแล้ว)
 |--------------------------------------------------------------------------
 */
-Route::group(['middleware' => ['auth'], 'prefix' => 'profile', 'as' => 'profile.'], function () {
+Route::group(['middleware' => ['auth', 'password.expiration'], 'prefix' => 'profile', 'as' => 'profile.'], function () {
     Route::get('/', [ProfileController::class, 'show'])->name('show');
     Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
     Route::put('/update', [ProfileController::class, 'update'])->name('update');
@@ -142,8 +153,25 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'profile', 'as' => 'profile.
 | User Routes (บทบาท: user)
 |--------------------------------------------------------------------------
 */
-Route::group(['middleware' => ['auth', 'role:user', 'log.activity'], 'prefix' => 'user', 'as' => 'user.'], function () {
+Route::group(['middleware' => ['auth', 'role:user', 'log.activity', 'password.expiration'], 'prefix' => 'user', 'as' => 'user.'], function () {
     Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
+    
+    // User Security Routes
+    Route::group(['prefix' => 'security', 'as' => 'security.'], function () {
+        Route::get('/', [App\Http\Controllers\User\SecurityController::class, 'index'])->name('index');
+        Route::get('/devices', [App\Http\Controllers\User\SecurityController::class, 'devices'])->name('devices');
+        Route::get('/login-history', [App\Http\Controllers\User\SecurityController::class, 'loginHistory'])->name('login-history');
+        Route::get('/alerts', [App\Http\Controllers\User\SecurityController::class, 'securityAlerts'])->name('alerts');
+        Route::get('/export', [App\Http\Controllers\User\SecurityController::class, 'exportSecurityData'])->name('export');
+        Route::post('/update-settings', [App\Http\Controllers\User\SecurityController::class, 'updateSecuritySettings'])->name('update-settings');
+        
+        // API endpoints
+        Route::get('/api/stats', [App\Http\Controllers\User\SecurityController::class, 'getSecurityStats'])->name('api.stats');
+        
+        // Device Management
+        Route::post('/devices/{device}/trust', [App\Http\Controllers\User\SecurityController::class, 'trustDevice'])->name('devices.trust');
+        Route::delete('/devices/{device}', [App\Http\Controllers\User\SecurityController::class, 'removeDevice'])->name('devices.remove');
+    });
 });
 
 /*
@@ -151,7 +179,7 @@ Route::group(['middleware' => ['auth', 'role:user', 'log.activity'], 'prefix' =>
 | Admin Routes (บทบาท: admin, super_admin)
 |--------------------------------------------------------------------------
 */
-Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
+Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity', 'password.expiration'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
     
     // Registration Approval Routes
@@ -178,6 +206,29 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity']
         
         // Statistics API route
         Route::get('/api/statistics', [AdminUserManagement::class, 'getUserStatistics'])->name('statistics');
+    });
+
+    // Security Management Routes
+    Route::group(['prefix' => 'security', 'as' => 'security.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\SecurityController::class, 'index'])->name('index');
+        Route::post('/users/{user}/unlock', [App\Http\Controllers\Admin\SecurityController::class, 'unlockAccount'])->name('unlock');
+        Route::post('/users/{user}/lock', [App\Http\Controllers\Admin\SecurityController::class, 'lockAccount'])->name('lock');
+        Route::post('/users/{user}/reset-attempts', [App\Http\Controllers\Admin\SecurityController::class, 'resetFailedAttempts'])->name('reset-attempts');
+        Route::get('/users/{user}/details', [App\Http\Controllers\Admin\SecurityController::class, 'userSecurityDetails'])->name('user-details');
+        Route::put('/users/{user}/security', [App\Http\Controllers\Admin\SecurityController::class, 'updateUserSecurity'])->name('update-user-security');
+        Route::get('/report', [App\Http\Controllers\Admin\SecurityController::class, 'securityReport'])->name('report');
+        Route::post('/cleanup-expired', [App\Http\Controllers\Admin\SecurityController::class, 'cleanupExpiredLocks'])->name('cleanup-expired');
+        
+        // IP Management Routes
+        Route::group(['prefix' => 'ip', 'as' => 'ip.'], function () {
+            Route::get('/', [App\Http\Controllers\Admin\SecurityController::class, 'ipManagement'])->name('index');
+            Route::post('/blacklist', [App\Http\Controllers\Admin\SecurityController::class, 'addToBlacklist'])->name('blacklist');
+            Route::post('/whitelist', [App\Http\Controllers\Admin\SecurityController::class, 'addToWhitelist'])->name('whitelist');
+            Route::delete('/remove', [App\Http\Controllers\Admin\SecurityController::class, 'removeIpRestriction'])->name('remove');
+            Route::get('/{ip}/details', [App\Http\Controllers\Admin\SecurityController::class, 'ipDetails'])->name('details');
+            Route::get('/report', [App\Http\Controllers\Admin\SecurityController::class, 'ipReport'])->name('report');
+            Route::post('/cleanup-expired', [App\Http\Controllers\Admin\SecurityController::class, 'cleanupExpiredIpRestrictions'])->name('cleanup-expired');
+        });
     });
 });
 
@@ -239,3 +290,13 @@ if (app()->environment('local')) {
         return 'Log cleared!';
     })->middleware('auth');
 }
+
+/*
+|--------------------------------------------------------------------------
+| AJAX API Routes (ใช้ session authentication)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/api/password/status', [App\Http\Controllers\PasswordStatusController::class, 'getStatus'])
+        ->name('api.password.status');
+});

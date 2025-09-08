@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\{
     Log
 };
 use Illuminate\Support\Str;
+use App\Rules\{PasswordPolicy, PasswordHistoryRule};
 
 class RegisterController extends Controller
 {
@@ -47,7 +48,7 @@ class RegisterController extends Controller
                 'phone' => ['required', 'string', 'max:15', 'unique:users'],
                 'email' => ['nullable', 'email', 'max:255', 'unique:users'],
                 'username' => ['required', 'string', 'max:255', 'unique:users'],
-                'password' => ['required', 'string', 'min:8', 'confirmed'],
+                'password' => ['required', 'string', 'confirmed', new PasswordPolicy()],
             ],
             [
                 'prefix.required' => 'กรุณากรอกคำนำหน้า',
@@ -60,7 +61,6 @@ class RegisterController extends Controller
                 'username.unique' => 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว',
                 'password.required' => 'กรุณากรอกรหัสผ่าน',
                 'password.confirmed' => 'รหัสผ่านไม่ตรงกัน',
-                'password.min' => 'รหัสผ่านต้องมีอย่างน้อย 8 หลัก',
             ]
         );
 

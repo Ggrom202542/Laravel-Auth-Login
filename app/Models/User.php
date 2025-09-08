@@ -85,6 +85,13 @@ class User extends Authenticatable
         'google2fa_confirmed_at',
         'recovery_codes',
         'recovery_codes_generated_at',
+        // Password expiration fields
+        'password_expires_at',
+        'password_changed_at',
+        'password_warned_at',
+        'password_expiration_enabled',
+        // User preferences
+        'preferences',
         // Remove fields that don't exist: session_timeout, allowed_login_methods, updated_by_admin
     ];
 
@@ -120,6 +127,13 @@ class User extends Authenticatable
         'google2fa_confirmed_at' => 'datetime',
         'recovery_codes' => 'array',
         'recovery_codes_generated_at' => 'datetime',
+        // Password expiration casts
+        'password_expires_at' => 'datetime',
+        'password_changed_at' => 'datetime',
+        'password_warned_at' => 'datetime',
+        'password_expiration_enabled' => 'boolean',
+        // User preferences
+        'preferences' => 'array',
     ];
 
     /**
@@ -180,6 +194,30 @@ class User extends Authenticatable
         return SecurityPolicy::effective()
                             ->forUser($this->id, $this->role)
                             ->orderBy('priority_order');
+    }
+
+    /**
+     * Get user's devices relationship
+     */
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    /**
+     * Get user's active devices
+     */
+    public function activeDevices()
+    {
+        return $this->devices()->active();
+    }
+
+    /**
+     * Get user's trusted devices
+     */
+    public function trustedDevices()
+    {
+        return $this->devices()->trusted();
     }
 
     /**
@@ -472,5 +510,23 @@ class User extends Authenticatable
     public function verifyRecoveryCode($code)
     {
         return $this->useRecoveryCode($code);
+    }
+
+    /**
+     * Get the user's password history.
+     */
+    public function passwordHistories()
+    {
+        return $this->hasMany(PasswordHistory::class);
+    }
+
+    /**
+     * Store current password in history when password is changed
+     */
+    public function storePasswordInHistory(): void
+    {
+        if ($this->password) {
+            PasswordHistory::storePassword($this->id, $this->password);
+        }
     }
 }
