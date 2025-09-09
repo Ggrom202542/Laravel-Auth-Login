@@ -115,6 +115,14 @@
                     </div>
                 </li>
 
+                <!-- User Session Management -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.sessions.index') }}">
+                        <i class="bi bi-laptop"></i>
+                        <span>จัดการ Sessions</span>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="#">
                         <i class="bi bi-clock-history"></i>
@@ -195,6 +203,32 @@
                             </a>
                             <a class="collapse-item" href="{{ route('admin.security.report') }}">
                                 <i class="bi bi-graph-up me-2"></i>รายงานความปลอดภัย
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Admin Session Management -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAdminSessions" 
+                       aria-expanded="false" aria-controls="collapseAdminSessions">
+                        <i class="bi bi-laptop"></i>
+                        <span>จัดการ Sessions</span>
+                    </a>
+                    <div id="collapseAdminSessions" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Session Management:</h6>
+                            <a class="collapse-item" href="{{ route('admin.sessions.index') }}">
+                                <i class="bi bi-list-ul me-2"></i>รายการ Sessions
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.sessions.report') }}">
+                                <i class="bi bi-graph-up me-2"></i>รายงาน Sessions
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.sessions.index', ['status' => 'active']) }}">
+                                <i class="bi bi-wifi me-2"></i>Sessions ที่ใช้งาน
+                            </a>
+                            <a class="collapse-item" href="{{ route('admin.sessions.index', ['status' => 'expired']) }}">
+                                <i class="bi bi-clock-history me-2"></i>Sessions หมดอายุ
                             </a>
                         </div>
                     </div>
@@ -315,74 +349,74 @@
                             <a class="collapse-item" href="{{ route('admin.security.ip.index') }}">
                                 <i class="bi bi-globe me-2"></i>จัดการ IP Address
                             </a>
-                            <a class="collapse-item" href="{{ route('admin.security.index') }}#devices">
-                                <i class="bi bi-phone me-2"></i>จัดการอุปกรณ์ทั้งหมด
+                            <a class="collapse-item" href="{{ route('super-admin.security.index') }}">
+                                <i class="bi bi-shield-exclamation me-2"></i>Security Dashboard
                             </a>
-                            <a class="collapse-item" href="{{ route('admin.security.index') }}#suspicious">
-                                <i class="bi bi-exclamation-triangle me-2"></i>กิจกรรมน่าสงสัย
+                            <a class="collapse-item" href="{{ route('super-admin.security.devices') }}">
+                                <i class="bi bi-phone me-2"></i>Device Management
                             </a>
-                            <a class="collapse-item" href="{{ route('admin.security.report') }}">
-                                <i class="bi bi-graph-up me-2"></i>รายงานความปลอดภัย
+                            <a class="collapse-item" href="{{ route('super-admin.security.ip-management') }}">
+                                <i class="bi bi-globe me-2"></i>IP Management
                             </a>
-                            <div class="dropdown-divider"></div>
-                            <h6 class="collapse-header">เครื่องมือขั้นสูง:</h6>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-shield-exclamation me-2 text-warning"></i>Security Alerts Center
+                            <a class="collapse-item" href="{{ route('super-admin.security.suspicious-activity') }}">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Suspicious Activity
                             </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-eye me-2"></i>Real-time Monitoring
-                            </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-lock me-2"></i>Force Logout All
-                            </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-download me-2"></i>Export Security Data
+                            <a class="collapse-item" href="{{ route('super-admin.security.policies') }}">
+                                <i class="bi bi-shield-shaded me-2"></i>Security Policies
                             </a>
                         </div>
                     </div>
                 </li>
 
-                <!-- Reports & Analytics -->
+                <!-- Super Admin Session Management -->
                 <li class="nav-item">
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports" 
-                       aria-expanded="false" aria-controls="collapseReports">
-                        <i class="bi bi-graph-up"></i>
-                        <span>รายงาน & วิเคราะห์</span>
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSuperSessions" 
+                       aria-expanded="false" aria-controls="collapseSuperSessions">
+                        <i class="bi bi-laptop"></i>
+                        <span>Session Management</span>
+                        <span class="badge bg-primary text-white ms-auto">Pro</span>
                     </a>
-                    <div id="collapseReports" class="collapse" data-bs-parent="#accordionSidebar">
+                    <div id="collapseSuperSessions" class="collapse" data-bs-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">รายงานและสถิติ:</h6>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-bar-chart me-2"></i>Dashboard Analytics
+                            <h6 class="collapse-header">Session Management:</h6>
+                            <a class="collapse-item" href="{{ route('super-admin.sessions.dashboard') }}">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
                             </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-file-earmark-text me-2"></i>Approval Reports
+                            <a class="collapse-item" href="{{ route('super-admin.sessions.index') }}">
+                                <i class="bi bi-list-ul me-2"></i>All Sessions
                             </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-clock-history me-2"></i>Performance Metrics
+                            <a class="collapse-item" href="{{ route('super-admin.sessions.realtime') }}">
+                                <i class="bi bi-broadcast me-2"></i>Real-time Monitor
                             </a>
-                            <a class="collapse-item" href="#">
-                                <i class="bi bi-download me-2"></i>Export Data
+                            <a class="collapse-item" href="{{ route('super-admin.sessions.system-report') }}">
+                                <i class="bi bi-graph-up me-2"></i>System Reports
+                            </a>
+                            <a class="collapse-item" href="{{ route('super-admin.sessions.settings') }}">
+                                <i class="bi bi-gear me-2"></i>Session Settings
                             </a>
                         </div>
                     </div>
                 </li>
 
+                <!-- Reports and Analytics -->
                 <li class="nav-item">
                     <a class="nav-link" href="#">
-                        <i class="bi bi-database"></i>
-                        <span>ฐานข้อมูล</span>
+                        <i class="bi bi-graph-up"></i>
+                        <span>รายงานระบบ</span>
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-shield-exclamation"></i>
-                        <span>Security Logs</span>
-                    </a>
-                </li>
             @endif
 
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+            <!-- Divider -->
             <hr class="sidebar-divider">
 
             <div class="sidebar-heading">
@@ -410,6 +444,7 @@
                 </a>
             </li>
 
+            <!-- Sidebar Toggler (Sidebar) -->
             <hr class="sidebar-divider d-none d-md-block">
 
             <div class="text-center d-none d-md-inline">
@@ -417,6 +452,7 @@
             </div>
 
         </ul>
+        <!-- End of Sidebar -->
         
         <div id="content-wrapper" class="d-flex flex-column flex-grow-1">
 

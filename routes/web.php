@@ -3,10 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Route, Auth, Http, Log, DB};
 use App\Http\Controllers\Auth\{LoginController, RegisterController, TwoFactorController};
-use App\Http\Controllers\User\DashboardController as UserDashboard;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
-use App\Http\Controllers\Admin\UserManagementController as AdminUserManagement;
-use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboard;
+use App\Http\Controllers\User\{DashboardController as UserDashboard, SessionController as UserSessionController};
+use App\Http\Controllers\Admin\{DashboardController as AdminDashboard, UserManagementController as AdminUserManagement, SessionController as AdminSessionController};
+use App\Http\Controllers\SuperAdmin\{DashboardController as SuperAdminDashboard, SessionController as SuperAdminSessionController};
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 
@@ -156,6 +155,15 @@ Route::group(['middleware' => ['auth', 'password.expiration'], 'prefix' => 'prof
 Route::group(['middleware' => ['auth', 'role:user', 'log.activity', 'password.expiration'], 'prefix' => 'user', 'as' => 'user.'], function () {
     Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
     
+    // User Session Management Routes
+    Route::group(['prefix' => 'sessions', 'as' => 'sessions.'], function () {
+        Route::get('/', [UserSessionController::class, 'index'])->name('index');
+        Route::post('/logout-others', [UserSessionController::class, 'logoutOtherDevices'])->name('logout-others');
+        Route::post('/terminate', [UserSessionController::class, 'terminateSession'])->name('terminate');
+        Route::post('/trust', [UserSessionController::class, 'trustDevice'])->name('trust');
+        Route::get('/activity', [UserSessionController::class, 'activity'])->name('activity');
+    });
+    
     // User Security Routes
     Route::group(['prefix' => 'security', 'as' => 'security.'], function () {
         Route::get('/', [App\Http\Controllers\User\SecurityController::class, 'index'])->name('index');
@@ -200,6 +208,23 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity',
         Route::get('/{user}/edit', [AdminUserManagement::class, 'edit'])->name('edit');
         Route::put('/{user}', [AdminUserManagement::class, 'update'])->name('update');
         
+        // Force logout route
+        Route::post('/{user}/force-logout', [AdminUserManagement::class, 'forceLogout'])->name('force-logout');
+    });
+    
+    // Admin Session Management Routes
+    Route::group(['prefix' => 'sessions', 'as' => 'sessions.'], function () {
+        Route::get('/', [AdminSessionController::class, 'index'])->name('index');
+        Route::get('/users/{user}', [AdminSessionController::class, 'show'])->name('show');
+        Route::post('/users/{user}/force-logout', [AdminSessionController::class, 'forceLogout'])->name('force-logout');
+        Route::post('/terminate', [AdminSessionController::class, 'terminateSession'])->name('terminate');
+        Route::post('/cleanup', [AdminSessionController::class, 'cleanupExpired'])->name('cleanup');
+        Route::get('/report', [AdminSessionController::class, 'report'])->name('report');
+        Route::get('/export', [AdminSessionController::class, 'export'])->name('export');
+    });
+    
+    // Additional User Management Routes
+    Route::group(['prefix' => 'users', 'as' => 'users.'], function () {
         // AJAX routes for status management
         Route::patch('/{user}/toggle-status', [AdminUserManagement::class, 'toggleStatus'])->name('toggle-status');
         Route::patch('/{user}/reset-password', [AdminUserManagement::class, 'resetPassword'])->name('reset-password');
@@ -254,6 +279,22 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity',
 */
 Route::group(['middleware' => ['auth', 'super.admin', 'log.activity'], 'prefix' => 'super-admin', 'as' => 'super-admin.'], function () {
     Route::get('/dashboard', [SuperAdminDashboard::class, 'index'])->name('dashboard');
+    
+    // Super Admin Session Management Routes
+    Route::group(['prefix' => 'sessions', 'as' => 'sessions.'], function () {
+        Route::get('/', [SuperAdminSessionController::class, 'index'])->name('index');
+        Route::get('/dashboard', [SuperAdminSessionController::class, 'dashboard'])->name('dashboard');
+        Route::get('/realtime', [SuperAdminSessionController::class, 'realtime'])->name('realtime');
+        Route::get('/realtime-data', [SuperAdminSessionController::class, 'realtimeData'])->name('realtime-data');
+        Route::get('/settings', [SuperAdminSessionController::class, 'settings'])->name('settings');
+        Route::post('/settings', [SuperAdminSessionController::class, 'updateSettings'])->name('update-settings');
+        Route::get('/system-report', [SuperAdminSessionController::class, 'systemReport'])->name('system-report');
+        Route::post('/bulk-actions', [SuperAdminSessionController::class, 'bulkActions'])->name('bulk-actions');
+        Route::get('/advanced-export', [SuperAdminSessionController::class, 'advancedExport'])->name('advanced-export');
+        Route::post('/trust-device', [SuperAdminSessionController::class, 'trustDevice'])->name('trust-device');
+        Route::get('/{session}', [SuperAdminSessionController::class, 'show'])->name('show');
+        Route::delete('/{session}/terminate', [SuperAdminSessionController::class, 'terminate'])->name('terminate');
+    });
     
     // Registration Approval Routes (Super Admin สามารถเข้าถึงได้เหมือน Admin)
     Route::group(['prefix' => 'approvals', 'as' => 'approvals.'], function () {
