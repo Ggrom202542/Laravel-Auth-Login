@@ -1,6 +1,6 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
-@section('title', 'Suspicious Login Detection')
+@section('title', 'การตรวจจับการเข้าสู่ระบบที่น่าสงสัย')
 
 @section('content')
 <div class="container-fluid">
@@ -10,22 +10,22 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="h3 mb-0 fw-bold text-dark">
-                        <i class="fas fa-shield-alt text-primary me-2"></i>
-                        Suspicious Login Detection
+                        <i class="bi bi-shield-check text-primary me-2"></i>
+                        การตรวจจับการเข้าสู่ระบบที่น่าสงสัย
                     </h1>
-                    <p class="text-muted mb-0">AI-powered anomaly detection and real-time threat monitoring</p>
+                    <p class="text-muted mb-0">การตรวจจับความผิดปกติด้วย AI และการติดตามภัยคุกคามแบบเรียลไทม์</p>
                 </div>
                 <div>
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-outline-primary" onclick="refreshStats()">
-                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                            <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรช
                         </button>
                         <button type="button" class="btn btn-primary" onclick="runFullScan()">
-                            <i class="fas fa-search me-1"></i> Run Full Scan
+                            <i class="bi bi-search me-1"></i> สแกนเต็มรูปแบบ
                         </button>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fas fa-download me-1"></i> Export
+                                <i class="bi bi-download me-1"></i> ส่งออก
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" onclick="exportDetections('csv')">

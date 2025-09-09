@@ -219,9 +219,24 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity',
         Route::get('/report', [App\Http\Controllers\Admin\SecurityController::class, 'securityReport'])->name('report');
         Route::post('/cleanup-expired', [App\Http\Controllers\Admin\SecurityController::class, 'cleanupExpiredLocks'])->name('cleanup-expired');
         
+        // Device Management Routes
+        Route::get('/devices', [App\Http\Controllers\Admin\SecurityController::class, 'devices'])->name('devices');
+        Route::delete('/devices/remove', [App\Http\Controllers\Admin\SecurityController::class, 'removeDevice'])->name('devices.remove');
+        
+        // Suspicious Login Detection Routes
+        Route::get('/suspicious-logins', [App\Http\Controllers\Admin\SecurityController::class, 'suspiciousLogins'])->name('suspicious-logins');
+        Route::get('/login-attempt/{loginAttempt}/details', [App\Http\Controllers\Admin\SecurityController::class, 'loginAttemptDetails'])->name('login-attempt.details');
+        Route::post('/login-attempt/{loginAttempt}/investigate', [App\Http\Controllers\Admin\SecurityController::class, 'markAsInvestigated'])->name('login-attempt.investigate');
+        
         // IP Management Routes
         Route::group(['prefix' => 'ip', 'as' => 'ip.'], function () {
             Route::get('/', [App\Http\Controllers\Admin\SecurityController::class, 'ipManagement'])->name('index');
+            Route::post('/store', [App\Http\Controllers\Admin\SecurityController::class, 'storeIpRestriction'])->name('store');
+            Route::get('/{id}/show', [App\Http\Controllers\Admin\SecurityController::class, 'showIpDetails'])->name('show');
+            Route::post('/{ip}/allow', [App\Http\Controllers\Admin\SecurityController::class, 'allowIp'])->name('allow');
+            Route::post('/{ip}/block', [App\Http\Controllers\Admin\SecurityController::class, 'blockIp'])->name('block');
+            Route::delete('/{ip}/destroy', [App\Http\Controllers\Admin\SecurityController::class, 'destroyIp'])->name('destroy');
+            Route::get('/export', [App\Http\Controllers\Admin\SecurityController::class, 'exportIpRules'])->name('export');
             Route::post('/blacklist', [App\Http\Controllers\Admin\SecurityController::class, 'addToBlacklist'])->name('blacklist');
             Route::post('/whitelist', [App\Http\Controllers\Admin\SecurityController::class, 'addToWhitelist'])->name('whitelist');
             Route::delete('/remove', [App\Http\Controllers\Admin\SecurityController::class, 'removeIpRestriction'])->name('remove');
@@ -269,6 +284,27 @@ Route::group(['middleware' => ['auth', 'super.admin', 'log.activity'], 'prefix' 
         
         // Session management routes
         Route::get('/sessions', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'sessions'])->name('sessions');
+    });
+    
+    // Advanced Security Management Routes (Super Admin Only)
+    Route::group(['prefix' => 'security', 'as' => 'security.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'index'])->name('index');
+        Route::get('/devices', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'deviceManagement'])->name('devices');
+        Route::get('/ip-management', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'ipManagement'])->name('ip-management');
+        Route::get('/suspicious-activity', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'suspiciousActivity'])->name('suspicious-activity');
+        Route::get('/policies', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'securityPolicies'])->name('policies');
+        
+        // Security Actions
+        Route::post('/policies', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'updateSecurityPolicies'])->name('policies.update');
+        Route::post('/users/{user}/force-logout', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'forceLogoutUser'])->name('force-logout');
+        Route::post('/users/{user}/suspend', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'suspendUser'])->name('suspend-user');
+        
+        // API endpoints for AJAX calls
+        Route::get('/stats', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'getSecurityStats'])->name('stats');
+        Route::post('/system-scan', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'runSystemScan'])->name('system-scan');
+        Route::post('/cleanup-expired', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'cleanupExpired'])->name('cleanup-expired');
+        Route::post('/force-logout-all', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'forceLogoutAll'])->name('force-logout-all');
+        Route::post('/block-ip', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'blockIP'])->name('block-ip');
     });
     
     // System Management Routes สำหรับ Super Admin

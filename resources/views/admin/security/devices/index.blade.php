@@ -1,6 +1,6 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
-@section('title', 'Device Management System')
+@section('title', 'ระบบจัดการอุปกรณ์')
 
 @section('content')
 <div class="container-fluid">
@@ -10,43 +10,43 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="h3 mb-0 fw-bold text-dark">
-                        <i class="fas fa-mobile-alt text-primary me-2"></i>
-                        Device Management System
+                        <i class="bi bi-phone text-primary me-2"></i>
+                        ระบบจัดการอุปกรณ์
                     </h1>
-                    <p class="text-muted mb-0">Monitor and manage user devices, trusted devices, and device security</p>
+                    <p class="text-muted mb-0">ติดตามและจัดการอุปกรณ์ของผู้ใช้ อุปกรณ์ที่ไว้วางใจ และความปลอดภัยของอุปกรณ์</p>
                 </div>
                 <div>
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-outline-primary" onclick="refreshStats()">
-                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                            <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรช
                         </button>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fas fa-download me-1"></i> Export
+                                <i class="bi bi-download me-1"></i> ส่งออก
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" onclick="exportDevices('csv')">
-                                    <i class="fas fa-file-csv me-2"></i> Export CSV
+                                    <i class="bi bi-filetype-csv me-2"></i> ส่งออก CSV
                                 </a></li>
                                 <li><a class="dropdown-item" href="#" onclick="exportDevices('pdf')">
-                                    <i class="fas fa-file-pdf me-2"></i> Export PDF
+                                    <i class="bi bi-filetype-pdf me-2"></i> ส่งออก PDF
                                 </a></li>
                             </ul>
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fas fa-cog me-1"></i> Admin Actions
+                                <i class="bi bi-gear me-1"></i> การจัดการแอดมิน
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" onclick="cleanupOldDevices()">
-                                    <i class="fas fa-broom me-2"></i> Cleanup Old Devices
+                                    <i class="bi bi-brush me-2"></i> ล้างอุปกรณ์เก่า
                                 </a></li>
                                 <li><a class="dropdown-item" href="#" onclick="revokeAllDevices()">
-                                    <i class="fas fa-ban me-2"></i> Revoke All Untrusted
+                                    <i class="bi bi-ban me-2"></i> เพิกถอนอุปกรณ์ที่ไม่ไว้วางใจ
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#" onclick="showDeviceSettings()">
-                                    <i class="fas fa-sliders-h me-2"></i> Device Settings
+                                    <i class="bi bi-sliders me-2"></i> การตั้งค่าอุปกรณ์
                                 </a></li>
                             </ul>
                         </div>
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <!-- Statistics Cards -->
+            <!-- สถิติการใช้งาน -->
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="card border-0 shadow-sm hover-card bg-primary-subtle border-primary-subtle">

@@ -1,6 +1,18 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
-@section('title', 'IP Management System')
+@section('title', 'ระบบจัดการ IP')
+
+@section('head')
+<style>
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+@endsection
 
 @section('content')
 <div class="container-fluid">
@@ -10,29 +22,29 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="h3 mb-0 fw-bold text-dark">
-                        <i class="fas fa-globe-americas text-primary me-2"></i>
-                        IP Management System
+                        <i class="bi bi-globe text-primary me-2"></i>
+                        ระบบจัดการ IP
                     </h1>
-                    <p class="text-muted mb-0">Manage IP restrictions, whitelist, and geographic access controls</p>
+                    <p class="text-muted mb-0">จัดการข้อจำกัด IP รายชื่อที่อนุญาต และการควบคุมการเข้าถึงทางภูมิศาสตร์</p>
                 </div>
                 <div>
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-outline-primary" onclick="refreshStats()">
-                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                            <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรช
                         </button>
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIpModal">
-                            <i class="fas fa-plus me-1"></i> Add IP Rule
+                            <i class="bi bi-plus me-1"></i> เพิ่มกฎ IP
                         </button>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fas fa-download me-1"></i> Export
+                                <i class="bi bi-download me-1"></i> ส่งออก
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="#" onclick="exportIpRules('csv')">
-                                    <i class="fas fa-file-csv me-2"></i> Export CSV
+                                    <i class="bi bi-file-earmark-text me-2"></i> ส่งออก CSV
                                 </a></li>
                                 <li><a class="dropdown-item" href="#" onclick="exportIpRules('pdf')">
-                                    <i class="fas fa-file-pdf me-2"></i> Export PDF
+                                    <i class="bi bi-file-earmark-pdf me-2"></i> ส่งออก PDF
                                 </a></li>
                             </ul>
                         </div>
@@ -46,12 +58,12 @@
                     <div class="card border-0 shadow-sm hover-card bg-danger-subtle border-danger-subtle">
                         <div class="card-body text-center">
                             <div class="avatar-lg bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                <i class="fas fa-ban text-danger fs-2"></i>
+                                <i class="bi bi-shield-x text-danger fs-2"></i>
                             </div>
                             <h3 class="mb-1 fw-bold text-dark">{{ $statistics['blocked_count'] ?? 0 }}</h3>
-                            <p class="text-muted mb-0">Blocked IPs</p>
+                            <p class="text-muted mb-0">IP ที่ถูกบล็อก</p>
                             <small class="text-danger">
-                                <i class="fas fa-arrow-up me-1"></i>{{ $statistics['blocked_today'] ?? 0 }} today
+                                <i class="bi bi-arrow-up me-1"></i>{{ $statistics['blocked_today'] ?? 0 }} วันนี้
                             </small>
                         </div>
                     </div>
@@ -60,12 +72,12 @@
                     <div class="card border-0 shadow-sm hover-card bg-success-subtle border-success-subtle">
                         <div class="card-body text-center">
                             <div class="avatar-lg bg-success-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                <i class="fas fa-check-circle text-success fs-2"></i>
+                                <i class="bi bi-shield-check text-success fs-2"></i>
                             </div>
                             <h3 class="mb-1 fw-bold text-dark">{{ $statistics['allowed_count'] ?? 0 }}</h3>
-                            <p class="text-muted mb-0">Whitelisted IPs</p>
+                            <p class="text-muted mb-0">IP ใน Whitelist</p>
                             <small class="text-success">
-                                <i class="fas fa-shield-alt me-1"></i>Protected access
+                                <i class="bi bi-shield-check me-1"></i>การเข้าถึงที่ปลอดภัย
                             </small>
                         </div>
                     </div>
@@ -74,12 +86,12 @@
                     <div class="card border-0 shadow-sm hover-card bg-warning-subtle border-warning-subtle">
                         <div class="card-body text-center">
                             <div class="avatar-lg bg-warning-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                <i class="fas fa-clock text-warning fs-2"></i>
+                                <i class="bi bi-clock text-warning fs-2"></i>
                             </div>
                             <h3 class="mb-1 fw-bold text-dark">{{ $statistics['temporary_count'] ?? 0 }}</h3>
-                            <p class="text-muted mb-0">Temporary Blocks</p>
+                            <p class="text-muted mb-0">การบล็อกชั่วคราว</p>
                             <small class="text-warning">
-                                <i class="fas fa-hourglass-half me-1"></i>Auto-expiring
+                                <i class="bi bi-hourglass-split me-1"></i>หมดอายุอัตโนมัติ
                             </small>
                         </div>
                     </div>
@@ -88,12 +100,12 @@
                     <div class="card border-0 shadow-sm hover-card bg-info-subtle border-info-subtle">
                         <div class="card-body text-center">
                             <div class="avatar-lg bg-info-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                <i class="fas fa-globe text-info fs-2"></i>
+                                <i class="bi bi-globe text-info fs-2"></i>
                             </div>
                             <h3 class="mb-1 fw-bold text-dark">{{ $statistics['countries_blocked'] ?? 0 }}</h3>
-                            <p class="text-muted mb-0">Countries Blocked</p>
+                            <p class="text-muted mb-0">ประเทศที่ถูกบล็อก</p>
                             <small class="text-info">
-                                <i class="fas fa-flag me-1"></i>Geographic controls
+                                <i class="bi bi-flag me-1"></i>การควบคุมทางภูมิศาสตร์
                             </small>
                         </div>
                     </div>
@@ -106,13 +118,13 @@
                     <div class="row align-items-center">
                         <div class="col-md-6">
                             <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-filter text-primary me-2"></i>
-                                Filter & Search
+                                <i class="bi bi-funnel text-primary me-2"></i>
+                                ตัวกรอง & ค้นหา
                             </h5>
                         </div>
                         <div class="col-md-6 text-end">
                             <button class="btn btn-sm btn-outline-secondary" onclick="clearFilters()">
-                                <i class="fas fa-times me-1"></i> Clear Filters
+                                <i class="bi bi-x me-1"></i> ล้างตัวกรอง
                             </button>
                         </div>
                     </div>
@@ -121,26 +133,26 @@
                     <form method="GET" id="filterForm">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-semibold">Search IP Address</label>
+                                <label class="form-label fw-semibold">ค้นหาที่อยู่ IP</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
                                     <input type="text" name="search" class="form-control" 
-                                           placeholder="192.168.1.1 or 192.168.*"
+                                           placeholder="192.168.1.1 หรือ 192.168.*"
                                            value="{{ request('search') }}">
                                 </div>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label fw-semibold">Status</label>
+                                <label class="form-label fw-semibold">สถานะ</label>
                                 <select name="type" class="form-select">
-                                    <option value="">All Types</option>
-                                    <option value="blocked" {{ request('type') == 'blocked' ? 'selected' : '' }}>Blocked</option>
-                                    <option value="allowed" {{ request('type') == 'allowed' ? 'selected' : '' }}>Allowed</option>
+                                    <option value="">ทุกประเภท</option>
+                                    <option value="blocked" {{ request('type') == 'blocked' ? 'selected' : '' }}>ถูกบล็อก</option>
+                                    <option value="allowed" {{ request('type') == 'allowed' ? 'selected' : '' }}>อนุญาต</option>
                                 </select>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label fw-semibold">Country</label>
+                                <label class="form-label fw-semibold">ประเทศ</label>
                                 <select name="country" class="form-select">
-                                    <option value="">All Countries</option>
+                                    <option value="">ทุกประเทศ</option>
                                     @foreach($countries ?? [] as $country)
                                     <option value="{{ $country }}" {{ request('country') == $country ? 'selected' : '' }}>
                                         {{ $country }}
@@ -152,7 +164,7 @@
                                 <label class="form-label fw-semibold">&nbsp;</label>
                                 <div class="d-grid">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i> Search
+                                        <i class="bi bi-search me-1"></i> ค้นหา
                                     </button>
                                 </div>
                             </div>
@@ -166,27 +178,27 @@
                 <div class="card-header bg-white border-bottom">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold">
-                            <i class="fas fa-list text-primary me-2"></i>
-                            IP Restrictions ({{ $ipRestrictions->total() ?? 0 }} total)
+                            <i class="bi bi-list text-primary me-2"></i>
+                            ข้อจำกัด IP ({{ $ipRestrictions->total() ?? 0 }} รายการ)
                         </h5>
                         <div class="d-flex gap-2">
                             <button class="btn btn-sm btn-outline-warning" onclick="cleanupExpiredIPs()">
-                                <i class="fas fa-broom me-1"></i> Cleanup Expired
+                                <i class="bi bi-trash me-1"></i> ล้างที่หมดอายุ
                             </button>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
                                         data-bs-toggle="dropdown">
-                                    <i class="fas fa-cog me-1"></i> Bulk Actions
+                                    <i class="bi bi-gear me-1"></i> การดำเนินการแบบกลุ่ม
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="#" onclick="bulkDelete()">
-                                        <i class="fas fa-trash me-2"></i> Delete Selected
+                                        <i class="bi bi-trash me-2"></i> ลบที่เลือก
                                     </a></li>
                                     <li><a class="dropdown-item" href="#" onclick="bulkBlock()">
-                                        <i class="fas fa-ban me-2"></i> Block Selected
+                                        <i class="bi bi-shield-x me-2"></i> บล็อกที่เลือก
                                     </a></li>
                                     <li><a class="dropdown-item" href="#" onclick="bulkAllow()">
-                                        <i class="fas fa-check me-2"></i> Allow Selected
+                                        <i class="bi bi-shield-check me-2"></i> อนุญาตที่เลือก
                                     </a></li>
                                 </ul>
                             </div>
@@ -202,13 +214,13 @@
                                         <th class="border-0 ps-4">
                                             <input type="checkbox" id="selectAll" class="form-check-input">
                                         </th>
-                                        <th class="border-0">IP Address</th>
-                                        <th class="border-0">Type</th>
-                                        <th class="border-0">Location</th>
-                                        <th class="border-0">Reason</th>
-                                        <th class="border-0">Created</th>
-                                        <th class="border-0">Expires</th>
-                                        <th class="border-0">Actions</th>
+                                        <th class="border-0">ที่อยู่ IP</th>
+                                        <th class="border-0">ประเภท</th>
+                                        <th class="border-0">ตำแหน่ง</th>
+                                        <th class="border-0">เหตุผล</th>
+                                        <th class="border-0">วันที่สร้าง</th>
+                                        <th class="border-0">หมดอายุ</th>
+                                        <th class="border-0">การดำเนินการ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -221,24 +233,24 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm {{ $ip->type === 'blocked' ? 'bg-danger-subtle' : 'bg-success-subtle' }} rounded-circle d-flex align-items-center justify-content-center me-3">
-                                                    <i class="fas {{ $ip->type === 'blocked' ? 'fa-ban text-danger' : 'fa-check text-success' }}"></i>
+                                                    <i class="bi {{ $ip->type === 'blocked' ? 'bi-shield-x text-danger' : 'bi-shield-check text-success' }}"></i>
                                                 </div>
                                                 <div>
                                                     <code class="fw-bold">{{ $ip->ip_address }}</code>
                                                     @if($ip->is_range)
-                                                        <span class="badge bg-info-subtle text-info ms-2">Range</span>
+                                                        <span class="badge bg-info-subtle text-info ms-2">ช่วง</span>
                                                     @endif
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             @if($ip->type === 'blocked')
-                                                <span class="badge bg-danger">Blocked</span>
+                                                <span class="badge bg-danger">ถูกบล็อก</span>
                                             @else
-                                                <span class="badge bg-success">Allowed</span>
+                                                <span class="badge bg-success">อนุญาต</span>
                                             @endif
                                             @if($ip->is_temporary)
-                                                <span class="badge bg-warning-subtle text-warning ms-1">Temporary</span>
+                                                <span class="badge bg-warning-subtle text-warning ms-1">ชั่วคราว</span>
                                             @endif
                                         </td>
                                         <td>
@@ -249,19 +261,19 @@
                                                              class="me-2" alt="{{ $ip->country }}">
                                                     @endif
                                                     <div>
-                                                        <small class="fw-semibold">{{ $ip->country ?? 'Unknown' }}</small>
+                                                        <small class="fw-semibold">{{ $ip->country ?? 'ไม่ทราบ' }}</small>
                                                         @if($ip->city)
                                                             <br><small class="text-muted">{{ $ip->city }}</small>
                                                         @endif
                                                     </div>
                                                 </div>
                                             @else
-                                                <span class="text-muted">Unknown</span>
+                                                <span class="text-muted">ไม่ทราบ</span>
                                             @endif
                                         </td>
                                         <td>
                                             <span class="text-muted" title="{{ $ip->reason }}">
-                                                {{ Str::limit($ip->reason ?? 'No reason provided', 30) }}
+                                                {{ Str::limit($ip->reason ?? 'ไม่ได้ระบุเหตุผล', 30) }}
                                             </span>
                                         </td>
                                         <td>
@@ -273,7 +285,7 @@
                                         <td>
                                             @if($ip->expires_at)
                                                 @if($ip->expires_at->isPast())
-                                                    <span class="badge bg-secondary">Expired</span>
+                                                    <span class="badge bg-secondary">หมดอายุแล้ว</span>
                                                 @else
                                                     <small class="text-warning">
                                                         {{ $ip->expires_at->format('M d, H:i') }}
@@ -281,7 +293,7 @@
                                                     </small>
                                                 @endif
                                             @else
-                                                <span class="badge bg-primary">Permanent</span>
+                                                <span class="badge bg-primary">ถาวร</span>
                                             @endif
                                         </td>
                                         <td>
@@ -290,36 +302,36 @@
                                                     <form action="{{ route('admin.security.ip.allow', $ip) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         <button type="submit" class="btn btn-sm btn-outline-success" 
-                                                                title="Allow IP">
-                                                            <i class="fas fa-check"></i>
+                                                                title="อนุญาต IP">
+                                                            <i class="bi bi-check"></i>
                                                         </button>
                                                     </form>
                                                 @else
                                                     <form action="{{ route('admin.security.ip.block', $ip) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                                title="Block IP">
-                                                            <i class="fas fa-ban"></i>
+                                                                title="บล็อก IP">
+                                                            <i class="bi bi-shield-x"></i>
                                                         </button>
                                                     </form>
                                                 @endif
                                                 <button class="btn btn-sm btn-outline-primary" 
                                                         onclick="viewIpDetails('{{ $ip->id }}')"
-                                                        title="View Details">
-                                                    <i class="fas fa-eye"></i>
+                                                        title="ดูรายละเอียด">
+                                                    <i class="bi bi-eye"></i>
                                                 </button>
                                                 <button class="btn btn-sm btn-outline-warning" 
                                                         onclick="editIp('{{ $ip->id }}')"
-                                                        title="Edit">
-                                                    <i class="fas fa-edit"></i>
+                                                        title="แก้ไข">
+                                                    <i class="bi bi-pencil"></i>
                                                 </button>
                                                 <form action="{{ route('admin.security.ip.destroy', $ip) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                            onclick="return confirm('Delete this IP restriction?')"
-                                                            title="Delete">
-                                                        <i class="fas fa-trash"></i>
+                                                            onclick="return confirm('ลบข้อจำกัด IP นี้หรือไม่?')"
+                                                            title="ลบ">
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
                                             </div>
@@ -336,8 +348,8 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <small class="text-muted">
-                                            Showing {{ $ipRestrictions->firstItem() }} to {{ $ipRestrictions->lastItem() }} 
-                                            of {{ $ipRestrictions->total() }} results
+                                            แสดง {{ $ipRestrictions->firstItem() }} ถึง {{ $ipRestrictions->lastItem() }} 
+                                            จาก {{ $ipRestrictions->total() }} ผลลัพธ์
                                         </small>
                                     </div>
                                     <div>
@@ -349,12 +361,12 @@
                     @else
                         <div class="text-center py-5">
                             <div class="avatar-xl bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                <i class="fas fa-globe text-primary fs-2"></i>
+                                <i class="bi bi-globe text-primary fs-2"></i>
                             </div>
-                            <h5 class="text-dark fw-bold mb-2">No IP Restrictions</h5>
-                            <p class="text-muted mb-4">Start protecting your application by adding IP restrictions</p>
+                            <h5 class="text-dark fw-bold mb-2">ไม่มีข้อจำกัด IP</h5>
+                            <p class="text-muted mb-4">เริ่มปกป้องแอปพลิเคชันของคุณด้วยการเพิ่มข้อจำกัด IP</p>
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIpModal">
-                                <i class="fas fa-plus me-2"></i> Add First IP Rule
+                                <i class="bi bi-plus me-2"></i> เพิ่มกฎ IP แรก
                             </button>
                         </div>
                     @endif
@@ -370,8 +382,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-plus text-primary me-2"></i>
-                    Add IP Restriction
+                    <i class="bi bi-plus-circle text-primary me-2"></i>
+                    เพิ่ม IP Restriction
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -380,47 +392,52 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">IP Address <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">ที่อยู่ IP <span class="text-danger">*</span></label>
                             <input type="text" name="ip_address" class="form-control" 
-                                   placeholder="192.168.1.1 or 192.168.1.0/24" required>
+                                   placeholder="192.168.1.1 หรือ 192.168.1.0/24" required>
                             <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Supports single IPs, CIDR notation, or wildcards (192.168.1.*)
+                                <i class="bi bi-info-circle me-1"></i>
+                                รองรับ IP เดี่ยว, CIDR notation, หรือ wildcards (192.168.1.*)
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Type <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">ประเภท <span class="text-danger">*</span></label>
                             <select name="type" class="form-select" required>
-                                <option value="">Select Type</option>
-                                <option value="blocked">Block (Deny Access)</option>
-                                <option value="allowed">Allow (Whitelist)</option>
+                                <option value="">เลือกประเภท</option>
+                                <option value="blacklist">บล็อก (ปฏิเสธการเข้าถึง)</option>
+                                <option value="whitelist">อนุญาต (Whitelist)</option>
                             </select>
                         </div>
                         <div class="col-12 mb-3">
-                            <label class="form-label fw-semibold">Reason</label>
+                            <label class="form-label fw-semibold">เหตุผล <span class="text-danger">*</span></label>
                             <textarea name="reason" class="form-control" rows="3" 
-                                      placeholder="Reason for this IP restriction..."></textarea>
+                                      placeholder="เหตุผลสำหรับการจำกัด IP นี้..." required></textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-semibold">คำอธิบายเพิ่มเติม</label>
+                            <textarea name="description" class="form-control" rows="2" 
+                                      placeholder="คำอธิบายเพิ่มเติม (ไม่บังคับ)"></textarea>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-check">
                                 <input type="checkbox" name="is_temporary" class="form-check-input" id="isTemporary">
                                 <label class="form-check-label" for="isTemporary">
-                                    Temporary restriction
+                                    จำกัดเวลา (Temporary)
                                 </label>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3" id="expiresAtField" style="display: none;">
-                            <label class="form-label fw-semibold">Expires At</label>
+                            <label class="form-label fw-semibold">หมดอายุเมื่อ</label>
                             <input type="datetime-local" name="expires_at" class="form-control">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i> Cancel
+                        <i class="bi bi-x me-1"></i> ยกเลิก
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Add IP Restriction
+                        <i class="bi bi-save me-1"></i> เพิ่ม IP Restriction
                     </button>
                 </div>
             </form>
@@ -434,8 +451,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-eye text-primary me-2"></i>
-                    IP Details
+                    <i class="bi bi-info-circle text-primary me-2"></i>
+                    รายละเอียด IP
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -554,7 +571,7 @@ function clearFilters() {
 }
 
 function cleanupExpiredIPs() {
-    if (confirm('Are you sure you want to cleanup all expired IP restrictions?')) {
+    if (confirm('คุณแน่ใจว่าต้องการล้างข้อจำกัด IP ที่หมดอายุทั้งหมดหรือไม่?')) {
         fetch('{{ route("admin.security.ip.cleanup-expired") }}', {
             method: 'POST',
             headers: {
@@ -565,15 +582,15 @@ function cleanupExpiredIPs() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`Cleanup completed: ${data.count} expired restrictions removed`);
+                alert(`การล้างข้อมูลเสร็จสิ้น: ลบข้อจำกัดที่หมดอายุ ${data.count} รายการ`);
                 location.reload();
             } else {
-                alert('Cleanup failed');
+                alert('การล้างข้อมูลล้มเหลว');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error occurred during cleanup');
+            alert('เกิดข้อผิดพลาดในการล้างข้อมูล');
         });
     }
 }
@@ -582,7 +599,7 @@ function viewIpDetails(ipId) {
     const modal = new bootstrap.Modal(document.getElementById('viewDetailsModal'));
     const content = document.getElementById('ipDetailsContent');
     
-    content.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    content.innerHTML = '<div class="text-center"><i class="bi bi-arrow-clockwise spin"></i> กำลังโหลด...</div>';
     modal.show();
     
     fetch(`{{ route('admin.security.ip.show', ':id') }}`.replace(':id', ipId))
@@ -591,13 +608,13 @@ function viewIpDetails(ipId) {
             content.innerHTML = html;
         })
         .catch(error => {
-            content.innerHTML = '<div class="alert alert-danger">Error loading details</div>';
+            content.innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
         });
 }
 
 function editIp(ipId) {
     // Implement edit functionality
-    alert('Edit functionality will be implemented');
+    alert('ฟีเจอร์แก้ไขกำลังพัฒนา');
 }
 
 function exportIpRules(format) {
@@ -612,39 +629,39 @@ function getSelectedIps() {
 function bulkDelete() {
     const selected = getSelectedIps();
     if (selected.length === 0) {
-        alert('Please select IP restrictions to delete');
+        alert('กรุณาเลือกข้อจำกัด IP ที่ต้องการลบ');
         return;
     }
     
-    if (confirm(`Delete ${selected.length} selected IP restrictions?`)) {
+    if (confirm(`ลบข้อจำกัด IP ${selected.length} รายการที่เลือกหรือไม่?`)) {
         // Implement bulk delete
-        alert('Bulk delete functionality will be implemented');
+        alert('ฟีเจอร์ลบแบบกลุ่มกำลังพัฒนา');
     }
 }
 
 function bulkBlock() {
     const selected = getSelectedIps();
     if (selected.length === 0) {
-        alert('Please select IP restrictions to block');
+        alert('กรุณาเลือกข้อจำกัด IP ที่ต้องการบล็อก');
         return;
     }
     
-    if (confirm(`Block ${selected.length} selected IPs?`)) {
+    if (confirm(`บล็อก IP ${selected.length} รายการที่เลือกหรือไม่?`)) {
         // Implement bulk block
-        alert('Bulk block functionality will be implemented');
+        alert('ฟีเจอร์บล็อกแบบกลุ่มกำลังพัฒนา');
     }
 }
 
 function bulkAllow() {
     const selected = getSelectedIps();
     if (selected.length === 0) {
-        alert('Please select IP restrictions to allow');
+        alert('กรุณาเลือกข้อจำกัด IP ที่ต้องการอนุญาต');
         return;
     }
     
-    if (confirm(`Allow ${selected.length} selected IPs?`)) {
+    if (confirm(`อนุญาต IP ${selected.length} รายการที่เลือกหรือไม่?`)) {
         // Implement bulk allow
-        alert('Bulk allow functionality will be implemented');
+        alert('ฟีเจอร์อนุญาตแบบกลุ่มกำลังพัฒนา');
     }
 }
 </script>

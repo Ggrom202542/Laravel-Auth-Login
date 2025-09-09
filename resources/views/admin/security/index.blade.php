@@ -1,6 +1,6 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
-@section('title', 'Security Management Dashboard')
+@section('title', 'ระบบจัดการความปลอดภัย')
 
 @section('content')
 <div class="container-fluid">
@@ -10,29 +10,29 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="text-dark fw-bold mb-1">
-                        <i class="fas fa-shield-alt text-primary me-2"></i>
-                        Security Management
+                        <i class="bi bi-shield-check text-primary me-2"></i>
+                        ระบบจัดการความปลอดภัย
                     </h2>
-                    <p class="text-muted mb-0">Comprehensive security monitoring and management dashboard</p>
+                    <p class="text-muted mb-0">แดชบอร์ดตรวจสอบและจัดการความปลอดภัยแบบครบครัน</p>
                 </div>
                 <div>
                     <button class="btn btn-outline-primary me-2" id="refreshStats">
-                        <i class="fas fa-sync-alt me-1"></i> Refresh
+                        <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรช
                     </button>
                     <div class="dropdown d-inline">
                         <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-tools me-1"></i> Actions
+                            <i class="bi bi-gear me-1"></i> การจัดการ
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#" onclick="cleanupExpiredLocks()">
-                                <i class="fas fa-broom me-2"></i>Cleanup Expired Locks
+                                <i class="bi bi-trash3 me-2"></i>ลบข้อมูลล็อกที่หมดอายุ
                             </a></li>
                             <li><a class="dropdown-item" href="#" onclick="cleanupExpiredIPs()">
-                                <i class="fas fa-trash me-2"></i>Cleanup Expired IPs
+                                <i class="bi bi-x-circle me-2"></i>ลบ IP ที่หมดอายุ
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('admin.security.report') }}">
-                                <i class="fas fa-chart-line me-2"></i>Generate Report
+                                <i class="bi bi-graph-up me-2"></i>สร้างรายงาน
                             </a></li>
                         </ul>
                     </div>
@@ -41,86 +41,86 @@
         </div>
     </div>
 
-    <!-- Quick Stats Cards -->
+    <!-- สถิติโดยย่อ -->
     <div class="row g-3 mb-4">
-        <!-- Account Lockouts -->
+        <!-- บัญชีที่ถูกล็อก -->
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <p class="text-muted mb-1 fw-semibold">Locked Accounts</p>
+                            <p class="text-muted mb-1 fw-semibold">บัญชีที่ถูกล็อก</p>
                             <h3 class="mb-0 text-danger">{{ $statistics['total_locked'] ?? 0 }}</h3>
                             <small class="text-muted">
-                                <i class="fas fa-clock me-1"></i>
-                                {{ $statistics['locked_today'] ?? 0 }} today
+                                <i class="bi bi-clock me-1"></i>
+                                {{ $statistics['locked_today'] ?? 0 }} วันนี้
                             </small>
                         </div>
                         <div class="avatar-lg bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fas fa-user-lock text-danger fs-3"></i>
+                            <i class="bi bi-person-lock text-danger fs-3"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Failed Attempts -->
+        <!-- ความพยายามที่ล้มเหลว -->
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <p class="text-muted mb-1 fw-semibold">Failed Attempts</p>
+                            <p class="text-muted mb-1 fw-semibold">ความพยายามที่ล้มเหลว</p>
                             <h3 class="mb-0 text-warning">{{ $statistics['high_failed_attempts'] ?? 0 }}</h3>
                             <small class="text-muted">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                High risk accounts
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                บัญชีเสี่ยงสูง
                             </small>
                         </div>
                         <div class="avatar-lg bg-warning-subtle rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fas fa-ban text-warning fs-3"></i>
+                            <i class="bi bi-ban text-warning fs-3"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activity -->
+        <!-- กิจกรรมล่าสุด -->
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <p class="text-muted mb-1 fw-semibold">Recent Activity</p>
+                            <p class="text-muted mb-1 fw-semibold">กิจกรรมล่าสุด</p>
                             <h3 class="mb-0 text-success">{{ $lockedAccounts->count() }}</h3>
                             <small class="text-muted">
-                                <i class="fas fa-users me-1"></i>
-                                Active sessions
+                                <i class="bi bi-people me-1"></i>
+                                เซสชันที่ใช้งาน
                             </small>
                         </div>
                         <div class="avatar-lg bg-success-subtle rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fas fa-chart-line text-success fs-3"></i>
+                            <i class="bi bi-graph-up text-success fs-3"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- System Status -->
+        <!-- สถานะระบบ -->
         <div class="col-xl-3 col-md-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <p class="text-muted mb-1 fw-semibold">System Status</p>
-                            <h3 class="mb-0 text-info">Online</h3>
+                            <p class="text-muted mb-1 fw-semibold">สถานะระบบ</p>
+                            <h3 class="mb-0 text-info">ออนไลน์</h3>
                             <small class="text-muted">
-                                <i class="fas fa-check-circle me-1"></i>
-                                All systems operational
+                                <i class="bi bi-check-circle me-1"></i>
+                                ระบบทุกอย่างทำงานปกติ
                             </small>
                         </div>
                         <div class="avatar-lg bg-info-subtle rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fas fa-server text-info fs-3"></i>
+                            <i class="bi bi-hdd text-info fs-3"></i>
                         </div>
                     </div>
                 </div>
@@ -128,73 +128,73 @@
         </div>
     </div>
 
-    <!-- Security Modules Navigation -->
+    <!-- โมดูลความปลอดภัย -->
     <div class="row g-3 mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-th-large text-primary me-2"></i>
-                        Security Modules
+                        <i class="bi bi-grid-3x3-gap text-primary me-2"></i>
+                        โมดูลความปลอดภัย
                     </h5>
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-3">
-                        <!-- Account Lockout Management -->
+                        <!-- การจัดการการล็อกบัญชี -->
                         <div class="col-xl-3 col-md-6">
                             <a href="#lockedAccountsSection" class="text-decoration-none" onclick="scrollToSection('lockedAccountsSection')">
                                 <div class="card border border-primary-subtle h-100 hover-card">
                                     <div class="card-body text-center p-4">
                                         <div class="avatar-xl bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                            <i class="fas fa-user-shield text-primary fs-2"></i>
+                                            <i class="bi bi-person-fill-lock text-primary fs-2"></i>
                                         </div>
-                                        <h6 class="fw-bold text-dark mb-2">Account Lockout</h6>
-                                        <p class="text-muted small mb-0">Manage locked accounts and failed login attempts</p>
+                                        <h6 class="fw-bold text-dark mb-2">การล็อกบัญชี</h6>
+                                        <p class="text-muted small mb-0">จัดการบัญชีที่ถูกล็อกและความพยายามเข้าสู่ระบบที่ล้มเหลว</p>
                                     </div>
                                 </div>
                             </a>
                         </div>
 
-                        <!-- IP Management -->
+                        <!-- การจัดการ IP -->
                         <div class="col-xl-3 col-md-6">
                             <a href="{{ route('admin.security.ip.index') }}" class="text-decoration-none">
                                 <div class="card border border-warning-subtle h-100 hover-card">
                                     <div class="card-body text-center p-4">
                                         <div class="avatar-xl bg-warning-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                            <i class="fas fa-network-wired text-warning fs-2"></i>
+                                            <i class="bi bi-hdd-network text-warning fs-2"></i>
                                         </div>
-                                        <h6 class="fw-bold text-dark mb-2">IP Management</h6>
-                                        <p class="text-muted small mb-0">Control IP whitelist, blacklist and geographic tracking</p>
+                                        <h6 class="fw-bold text-dark mb-2">การจัดการ IP</h6>
+                                        <p class="text-muted small mb-0">ควบคุมรายชื่อ IP ที่อนุญาต ห้าม และติดตามทางภูมิศาสตร์</p>
                                     </div>
                                 </div>
                             </a>
                         </div>
 
-                        <!-- Device Management -->
+                        <!-- การจัดการอุปกรณ์ -->
                         <div class="col-xl-3 col-md-6">
                             <a href="{{ route('admin.security.devices') }}" class="text-decoration-none">
                                 <div class="card border border-success-subtle h-100 hover-card">
                                     <div class="card-body text-center p-4">
                                         <div class="avatar-xl bg-success-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                            <i class="fas fa-mobile-alt text-success fs-2"></i>
+                                            <i class="bi bi-phone text-success fs-2"></i>
                                         </div>
-                                        <h6 class="fw-bold text-dark mb-2">Device Management</h6>
-                                        <p class="text-muted small mb-0">Monitor and manage trusted devices</p>
+                                        <h6 class="fw-bold text-dark mb-2">การจัดการอุปกรณ์</h6>
+                                        <p class="text-muted small mb-0">ติดตามและจัดการอุปกรณ์ที่ไว้วางใจ</p>
                                     </div>
                                 </div>
                             </a>
                         </div>
 
-                        <!-- Suspicious Login Detection -->
+                        <!-- การตรวจจับการเข้าสู่ระบบที่น่าสงสัย -->
                         <div class="col-xl-3 col-md-6">
                             <a href="{{ route('admin.security.suspicious-logins') }}" class="text-decoration-none">
                                 <div class="card border border-info-subtle h-100 hover-card">
                                     <div class="card-body text-center p-4">
                                         <div class="avatar-xl bg-info-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                            <i class="fas fa-eye text-info fs-2"></i>
+                                            <i class="bi bi-eye text-info fs-2"></i>
                                         </div>
-                                        <h6 class="fw-bold text-dark mb-2">Suspicious Detection</h6>
-                                        <p class="text-muted small mb-0">AI-powered anomaly detection and analysis</p>
+                                        <h6 class="fw-bold text-dark mb-2">การตรวจจับความน่าสงสัย</h6>
+                                        <p class="text-muted small mb-0">การตรวจจับความผิดปกติด้วย AI และการวิเคราะห์</p>
                                     </div>
                                 </div>
                             </a>
@@ -205,19 +205,19 @@
         </div>
     </div>
 
-    <!-- Locked Accounts Section -->
+    <!-- ส่วนบัญชีที่ถูกล็อก -->
     <div id="lockedAccountsSection" class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold">
-                            <i class="fas fa-user-lock text-danger me-2"></i>
-                            Locked Accounts
+                            <i class="bi bi-person-lock text-danger me-2"></i>
+                            บัญชีที่ถูกล็อก
                         </h5>
                         <div>
                             <button class="btn btn-sm btn-outline-success" onclick="unlockAllExpired()">
-                                <i class="fas fa-unlock me-1"></i> Unlock Expired
+                                <i class="bi bi-unlock me-1"></i> ปลดล็อกที่หมดอายุ
                             </button>
                         </div>
                     </div>
@@ -228,12 +228,12 @@
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="border-0 ps-4">User</th>
-                                        <th class="border-0">Failed Attempts</th>
-                                        <th class="border-0">Locked Time</th>
-                                        <th class="border-0">Last IP</th>
-                                        <th class="border-0">Status</th>
-                                        <th class="border-0">Actions</th>
+                                        <th class="border-0 ps-4">ผู้ใช้</th>
+                                        <th class="border-0">ความพยายามที่ล้มเหลว</th>
+                                        <th class="border-0">เวลาที่ล็อก</th>
+                                        <th class="border-0">IP ล่าสุด</th>
+                                        <th class="border-0">สถานะ</th>
+                                        <th class="border-0">การกระทำ</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -242,7 +242,7 @@
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-sm bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center me-3">
-                                                    <i class="fas fa-user text-danger"></i>
+                                                    <i class="bi bi-person text-danger"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0 fw-semibold">{{ $user->username }}</h6>
@@ -252,7 +252,7 @@
                                         </td>
                                         <td>
                                             <span class="badge bg-danger-subtle text-danger">
-                                                {{ $user->failed_login_attempts }} attempts
+                                                {{ $user->failed_login_attempts }} ครั้ง
                                             </span>
                                         </td>
                                         <td>
@@ -261,7 +261,7 @@
                                             </small>
                                         </td>
                                         <td>
-                                            <code class="text-muted">{{ $user->last_login_ip ?? 'Unknown' }}</code>
+                                            <code class="text-muted">{{ $user->last_login_ip ?? 'ไม่ทราบ' }}</code>
                                         </td>
                                         <td>
                                             @php
@@ -269,9 +269,9 @@
                                                 $remainingMinutes = $lockoutStatus['remaining_minutes'] ?? 0;
                                             @endphp
                                             @if($remainingMinutes > 0)
-                                                <span class="badge bg-warning">{{ $remainingMinutes }}m remaining</span>
+                                                <span class="badge bg-warning">เหลือ {{ $remainingMinutes }} นาที</span>
                                             @else
-                                                <span class="badge bg-danger">Permanent lock</span>
+                                                <span class="badge bg-danger">ล็อกถาวร</span>
                                             @endif
                                         </td>
                                         <td>
@@ -279,20 +279,20 @@
                                                 <form action="{{ route('admin.security.unlock', $user) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-success" 
-                                                            onclick="return confirm('Unlock this account?')"
-                                                            title="Unlock Account">
-                                                        <i class="fas fa-unlock"></i>
+                                                            onclick="return confirm('ปลดล็อกบัญชีนี้?')"
+                                                            title="ปลดล็อกบัญชี">
+                                                        <i class="bi bi-unlock"></i>
                                                     </button>
                                                 </form>
                                                 <a href="{{ route('admin.security.user-details', $user) }}" 
                                                    class="btn btn-sm btn-outline-primary"
-                                                   title="View Details">
-                                                    <i class="fas fa-eye"></i>
+                                                   title="ดูรายละเอียด">
+                                                    <i class="bi bi-eye"></i>
                                                 </a>
                                                 <button class="btn btn-sm btn-outline-danger" 
                                                         onclick="extendLock({{ $user->id }})"
-                                                        title="Extend Lock">
-                                                    <i class="fas fa-plus"></i>
+                                                        title="ขยายการล็อก">
+                                                    <i class="bi bi-plus"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -304,10 +304,10 @@
                     @else
                         <div class="text-center py-5">
                             <div class="avatar-xl bg-success-subtle rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                <i class="fas fa-check-circle text-success fs-2"></i>
+                                <i class="bi bi-check-circle text-success fs-2"></i>
                             </div>
-                            <h5 class="text-dark fw-bold mb-2">No Locked Accounts</h5>
-                            <p class="text-muted mb-0">All user accounts are currently active and accessible</p>
+                            <h5 class="text-dark fw-bold mb-2">ไม่มีบัญชีที่ถูกล็อก</h5>
+                            <p class="text-muted mb-0">บัญชีผู้ใช้ทั้งหมดสามารถใช้งานได้ปกติ</p>
                         </div>
                     @endif
                 </div>
@@ -400,7 +400,7 @@ function refreshStats() {
 }
 
 function cleanupExpiredLocks() {
-    if (confirm('Are you sure you want to cleanup all expired account locks?')) {
+    if (confirm('คุณแน่ใจหรือว่าต้องการล้างข้อมูลล็อกบัญชีที่หมดอายุทั้งหมด?')) {
         fetch('{{ route("admin.security.cleanup-expired") }}', {
             method: 'POST',
             headers: {
@@ -411,21 +411,21 @@ function cleanupExpiredLocks() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`Cleanup completed: ${data.count} expired locks removed`);
+                alert(`การล้างข้อมูลเสร็จสิ้น: ลบล็อกที่หมดอายุไปแล้ว ${data.count} รายการ`);
                 location.reload();
             } else {
-                alert('Cleanup failed');
+                alert('การล้างข้อมูลล้มเหลว');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error occurred during cleanup');
+            alert('เกิดข้อผิดพลาดในระหว่างการล้างข้อมูล');
         });
     }
 }
 
 function cleanupExpiredIPs() {
-    if (confirm('Are you sure you want to cleanup all expired IP restrictions?')) {
+    if (confirm('คุณแน่ใจหรือว่าต้องการล้างข้อมูลข้อจำกัด IP ที่หมดอายุทั้งหมด?')) {
         fetch('{{ route("admin.security.ip.cleanup-expired") }}', {
             method: 'POST',
             headers: {
@@ -436,31 +436,31 @@ function cleanupExpiredIPs() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`Cleanup completed: ${data.count} expired IP restrictions removed`);
+                alert(`การล้างข้อมูลเสร็จสิ้น: ลบข้อจำกัด IP ที่หมดอายุไปแล้ว ${data.count} รายการ`);
                 location.reload();
             } else {
-                alert('Cleanup failed');
+                alert('การล้างข้อมูลล้มเหลว');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error occurred during cleanup');
+            alert('เกิดข้อผิดพลาดในระหว่างการล้างข้อมูล');
         });
     }
 }
 
 function unlockAllExpired() {
-    if (confirm('Unlock all accounts with expired lockout periods?')) {
+    if (confirm('ปลดล็อกบัญชีทั้งหมดที่หมดระยะเวลาล็อกแล้ว?')) {
         // Implementation for bulk unlock
-        alert('Feature coming soon!');
+        alert('ฟีเจอร์นี้กำลังจะมาเร็วๆ นี้!');
     }
 }
 
 function extendLock(userId) {
-    const hours = prompt('Extend lock for how many hours?', '24');
+    const hours = prompt('ขยายการล็อกกี่ชั่วโมง?', '24');
     if (hours && !isNaN(hours)) {
         // Implementation for extending lock
-        alert(`Lock extended for ${hours} hours`);
+        alert(`ขยายการล็อกไปแล้ว ${hours} ชั่วโมง`);
     }
 }
 

@@ -23,7 +23,7 @@ class SecurityController extends Controller
         IpManagementService $ipManagementService,
         SuspiciousLoginService $suspiciousLoginService
     ) {
-        $this->middleware(['auth', 'check.role:admin,super_admin']);
+        $this->middleware(['auth', 'role:admin,super_admin']);
         $this->lockoutService = $lockoutService;
         $this->ipManagementService = $ipManagementService;
         $this->suspiciousLoginService = $suspiciousLoginService;
@@ -202,7 +202,64 @@ class SecurityController extends Controller
         ]);
     }
 
-    // IP Management Methods
+    /**
+     * แสดงหน้าจัดการอุปกรณ์
+     */
+    public function devices()
+    {
+        try {
+            // ข้อมูลสถิติอุปกรณ์
+            $deviceStats = [
+                'total' => DB::table('user_devices')->count(),
+                'trusted' => DB::table('user_devices')->where('is_trusted', true)->count(),
+                'active' => DB::table('user_devices')->where('last_used_at', '>=', now()->subDays(30))->count(),
+                'suspicious' => DB::table('user_devices')->where('is_suspicious', true)->count()
+            ];
+
+            // รายการอุปกรณ์ล่าสุด
+            $devices = DB::table('user_devices')
+                ->join('users', 'user_devices.user_id', '=', 'users.id')
+                ->select(
+                    'user_devices.*',
+                    'users.username',
+                    'users.email'
+                )
+                ->orderBy('user_devices.last_used_at', 'desc')
+                ->paginate(20);
+
+            return view('admin.security.devices.index', compact('deviceStats', 'devices'));
+        } catch (\Exception $e) {
+            Log::error('Error in devices management: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาดในการโหลดข้อมูลอุปกรณ์');
+        }
+    }
+
+    /**
+     * ลบอุปกรณ์
+     */
+    public function removeDevice(Request $request)
+    {
+        try {
+            $deviceId = $request->input('device_id');
+            DB::table('user_devices')->where('id', $deviceId)->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'ลบอุปกรณ์เรียบร้อยแล้ว'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการลบอุปกรณ์'
+            ]);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | IP Management Methods
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * แสดงหน้า IP Management
@@ -212,7 +269,45 @@ class SecurityController extends Controller
         $ipRestrictions = $this->ipManagementService->getRestrictions();
         $statistics = $this->ipManagementService->getStatistics();
 
-        return view('admin.security.ip-management', compact('ipRestrictions', 'statistics'));
+        return view('admin.security.ip.index', compact('ipRestrictions', 'statistics'));
+    }
+
+    /**
+     * จัดเก็บ IP restriction ใหม่
+     */
+    public function storeIpRestriction(Request $request)
+    {
+        $request->validate([
+            'ip_address' => 'required|ip',
+            'type' => 'required|in:blacklist,whitelist',
+            'reason' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'expires_at' => 'nullable|date|after:now'
+        ]);
+
+        try {
+            if ($request->type === 'blacklist') {
+                $ipRecord = $this->ipManagementService->addToBlacklist(
+                    $request->ip_address,
+                    $request->reason,
+                    $request->description,
+                    $request->expires_at ? \Carbon\Carbon::parse($request->expires_at) : null
+                );
+                $message = "เพิ่ม IP {$request->ip_address} ลง blacklist เรียบร้อยแล้ว";
+            } else {
+                $ipRecord = $this->ipManagementService->addToWhitelist(
+                    $request->ip_address,
+                    $request->reason,
+                    $request->description
+                );
+                $message = "เพิ่ม IP {$request->ip_address} ลง whitelist เรียบร้อยแล้ว";
+            }
+
+            return back()->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Error storing IP restriction: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาดในการเพิ่ม IP restriction');
+        }
     }
 
     /**
@@ -276,6 +371,35 @@ class SecurityController extends Controller
     }
 
     /**
+     * แสดงรายละเอียด IP สำหรับ modal (AJAX)
+     */
+    public function showIpDetails($id)
+    {
+        try {
+            $ipRecord = IpRestriction::findOrFail($id);
+            
+            // อัปเดตข้อมูลทางภูมิศาสตร์
+            $this->ipManagementService->updateGeographicInfo($ipRecord);
+            
+            // ดึงข้อมูลเพิ่มเติม
+            $relatedData = [
+                'recent_attempts' => DB::table('users')
+                    ->where('last_login_ip', $ipRecord->ip_address)
+                    ->where('last_failed_login_at', '>=', now()->subDays(30))
+                    ->count(),
+                'successful_logins' => DB::table('users')
+                    ->where('last_login_ip', $ipRecord->ip_address)
+                    ->where('last_login_at', '>=', now()->subDays(30))
+                    ->count()
+            ];
+
+            return view('admin.security.ip-details-modal', compact('ipRecord', 'relatedData'));
+        } catch (\Exception $e) {
+            return response('<div class="alert alert-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>', 500);
+        }
+    }
+
+    /**
      * ดูรายละเอียด IP
      */
     public function ipDetails(string $ip)
@@ -331,7 +455,7 @@ class SecurityController extends Controller
 
         $statistics = $this->suspiciousLoginService->getDetectionStatistics();
 
-        return view('admin.security.suspicious-logins', compact('suspiciousLogins', 'statistics'));
+        return view('admin.security.suspicious.index', compact('suspiciousLogins', 'statistics'));
     }
 
     /**
@@ -439,5 +563,166 @@ class SecurityController extends Controller
         ]);
 
         return back()->with('success', 'ดำเนินการเรียบร้อยแล้ว: ' . implode(', ', $actions));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Additional IP Management Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * อนุญาต IP ที่ถูกบล็อก
+     */
+    public function allowIp($ipId)
+    {
+        try {
+            $ipRecord = IpRestriction::findOrFail($ipId);
+            
+            $ipRecord->update([
+                'type' => 'whitelist',
+                'updated_at' => now()
+            ]);
+
+            Log::info('IP moved to whitelist', [
+                'ip_address' => $ipRecord->ip_address,
+                'performed_by' => auth()->user()->email
+            ]);
+
+            return back()->with('success', "IP {$ipRecord->ip_address} ได้ถูกย้ายไป Whitelist แล้ว");
+        } catch (\Exception $e) {
+            Log::error('Error allowing IP: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาดในการอนุญาต IP');
+        }
+    }
+
+    /**
+     * บล็อก IP ที่อนุญาต
+     */
+    public function blockIp($ipId)
+    {
+        try {
+            $ipRecord = IpRestriction::findOrFail($ipId);
+            
+            $ipRecord->update([
+                'type' => 'blacklist',
+                'updated_at' => now()
+            ]);
+
+            Log::info('IP moved to blacklist', [
+                'ip_address' => $ipRecord->ip_address,
+                'performed_by' => auth()->user()->email
+            ]);
+
+            return back()->with('success', "IP {$ipRecord->ip_address} ได้ถูกย้ายไป Blacklist แล้ว");
+        } catch (\Exception $e) {
+            Log::error('Error blocking IP: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาดในการบล็อก IP');
+        }
+    }
+
+    /**
+     * ลบ IP restriction
+     */
+    public function destroyIp($ipId)
+    {
+        try {
+            $ipRecord = IpRestriction::findOrFail($ipId);
+            $ipAddress = $ipRecord->ip_address;
+            
+            $ipRecord->delete();
+
+            Log::info('IP restriction deleted', [
+                'ip_address' => $ipAddress,
+                'performed_by' => auth()->user()->email
+            ]);
+
+            return back()->with('success', "ลบ IP restriction สำหรับ {$ipAddress} เรียบร้อยแล้ว");
+        } catch (\Exception $e) {
+            Log::error('Error deleting IP restriction: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาดในการลบ IP restriction');
+        }
+    }
+
+    /**
+     * ส่งออกข้อมูล IP Rules
+     */
+    public function exportIpRules(Request $request)
+    {
+        $format = $request->input('format', 'csv');
+        
+        try {
+            $ipRestrictions = IpRestriction::orderBy('created_at', 'desc')->get();
+            
+            if ($format === 'csv') {
+                return $this->exportAsCsv($ipRestrictions);
+            } elseif ($format === 'pdf') {
+                return $this->exportAsPdf($ipRestrictions);
+            }
+            
+            return back()->with('error', 'รูปแบบการส่งออกไม่ถูกต้อง');
+        } catch (\Exception $e) {
+            Log::error('Error exporting IP rules: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาดในการส่งออกข้อมูล');
+        }
+    }
+
+    /**
+     * ส่งออกเป็น CSV
+     */
+    private function exportAsCsv($ipRestrictions)
+    {
+        $filename = 'ip-restrictions-' . now()->format('Y-m-d-H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function() use ($ipRestrictions) {
+            $file = fopen('php://output', 'w');
+            
+            // Header row
+            fputcsv($file, [
+                'IP Address',
+                'Type',
+                'Reason',
+                'Description',
+                'Country',
+                'City',
+                'Created At',
+                'Expires At',
+                'Status'
+            ]);
+
+            // Data rows
+            foreach ($ipRestrictions as $ip) {
+                fputcsv($file, [
+                    $ip->ip_address,
+                    $ip->type,
+                    $ip->reason,
+                    $ip->description,
+                    $ip->country,
+                    $ip->city,
+                    $ip->created_at->format('Y-m-d H:i:s'),
+                    $ip->expires_at ? $ip->expires_at->format('Y-m-d H:i:s') : 'Permanent',
+                    $ip->is_active ? 'Active' : 'Inactive'
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * ส่งออกเป็น PDF (placeholder)
+     */
+    private function exportAsPdf($ipRestrictions)
+    {
+        // สำหรับตอนนี้ให้ส่งกลับเป็น CSV แทน
+        // จะต้องติดตั้ง package เพิ่มเติมสำหรับ PDF generation
+        return $this->exportAsCsv($ipRestrictions);
     }
 }
