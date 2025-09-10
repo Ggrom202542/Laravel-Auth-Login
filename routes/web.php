@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\{DashboardController as AdminDashboard, UserManag
 use App\Http\Controllers\SuperAdmin\{DashboardController as SuperAdminDashboard, SessionController as SuperAdminSessionController};
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,6 +99,47 @@ Route::group(['middleware' => ['auth']], function () {
     
     // Test route (development only)
     Route::post('/notifications/test', [NotificationController::class, 'testNotification'])->name('notifications.test');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Activity Log Routes (สำหรับประวัติกิจกรรม)
+|--------------------------------------------------------------------------
+*/
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/activities', [App\Http\Controllers\ActivityController::class, 'index'])->name('activities.index');
+    Route::get('/activities/{activity}', [App\Http\Controllers\ActivityController::class, 'show'])->name('activities.show');
+    Route::get('/activities/export', [App\Http\Controllers\ActivityController::class, 'export'])->name('activities.export');
+    
+    // API Routes for AJAX
+    Route::get('/api/activities/recent', [App\Http\Controllers\ActivityController::class, 'getRecentActivities'])->name('activities.recent');
+    Route::get('/activities/chart-data', [App\Http\Controllers\ActivityController::class, 'getChartData'])->name('activities.chart-data');
+    
+    // Admin only routes
+    Route::group(['middleware' => 'role:admin,super_admin'], function () {
+        Route::post('/activities/{activity}/mark-suspicious', [App\Http\Controllers\ActivityController::class, 'markSuspicious'])->name('activities.mark-suspicious');
+        Route::post('/activities/{activity}/unmark-suspicious', [App\Http\Controllers\ActivityController::class, 'unmarkSuspicious'])->name('activities.unmark-suspicious');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Message Routes (สำหรับระบบข้อความภายในองค์กร)
+|--------------------------------------------------------------------------
+*/
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/create', [MessageController::class, 'create'])->name('messages.create');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+    Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{message}/reply', [MessageController::class, 'reply'])->name('messages.reply');
+    Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+    Route::post('/messages/{message}/mark-read', [MessageController::class, 'markAsRead'])->name('messages.mark-read');
+    Route::post('/messages/mark-all-read', [MessageController::class, 'markAllAsRead'])->name('messages.mark-all-read');
+    
+    // API Routes for AJAX
+    Route::get('/api/messages/recent', [MessageController::class, 'getRecentMessages'])->name('messages.recent');
+    Route::post('/api/messages/system', [MessageController::class, 'sendSystemMessage'])->name('messages.system');
 });
 
 // Redirect legacy /home route to dashboard

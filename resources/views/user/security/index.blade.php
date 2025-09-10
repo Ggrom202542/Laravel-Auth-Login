@@ -3,7 +3,7 @@
 @section('title', 'แดชบอร์ดความปลอดภัย')
 
 @section('content')
-<div class="container">
+<div class="container security-page">
     <div class="row justify-content-center">
         <div class="col-md-12">
             <!-- Header Section -->
@@ -163,7 +163,7 @@
                                     Recent Login Activity
                                 </h6>
                                 <a href="{{ route('user.security.login-history') }}" class="btn btn-sm btn-outline-primary">
-                                    View All
+                                    <i class="bi bi-eye"></i>View All
                                 </a>
                             </div>
                         </div>
@@ -212,7 +212,7 @@
                                     Trusted Devices
                                 </h6>
                                 <a href="{{ route('user.security.devices') }}" class="btn btn-sm btn-outline-primary">
-                                    Manage All
+                                    <i class="bi bi-pen"></i>Manage All
                                 </a>
                             </div>
                         </div>
@@ -382,6 +382,25 @@
 
 @push('styles')
 <style>
+    /* Fix z-index issues for this page */
+    .security-page .dropdown {
+        position: relative;
+        z-index: 1000;
+    }
+    
+    .security-page .dropdown-menu {
+        z-index: 1001 !important;
+    }
+    
+    /* Ensure topbar dropdowns stay on top */
+    .topbar .dropdown {
+        z-index: 1050 !important;
+    }
+    
+    .topbar .dropdown-menu {
+        z-index: 1051 !important;
+    }
+
     .hover-card {
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     }
@@ -476,6 +495,37 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Show live security alerts indicator
     document.getElementById('live-security-alerts').style.display = 'block';
+    
+    // Add some demo activities for testing (remove in production)
+    setTimeout(() => {
+        addActivityItem({
+            type: 'login_attempt',
+            title: 'Login Successful',
+            message: 'From 192.168.1.100 (Bangkok, Thailand)',
+            severity: 'info',
+            timestamp: new Date().toISOString()
+        });
+    }, 2000);
+    
+    setTimeout(() => {
+        addActivityItem({
+            type: 'device_registered',
+            title: 'อุปกรณ์ใหม่',
+            message: 'Chrome on Windows 11 ได้รับการลงทะเบียน',
+            severity: 'warning',
+            timestamp: new Date().toISOString()
+        });
+    }, 5000);
+    
+    setTimeout(() => {
+        addActivityItem({
+            type: 'settings_updated',
+            title: 'อัปเดตการตั้งค่า',
+            message: 'ค่ากำหนดการแจ้งเตือนความปลอดภัยได้รับการอัปเดต',
+            severity: 'info',
+            timestamp: new Date().toISOString()
+        });
+    }, 8000);
     
     // Setup SecurityNotifications integration
     if (window.SecurityNotifications) {

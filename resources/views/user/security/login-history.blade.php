@@ -114,7 +114,7 @@
                                 <tbody>
                                     @foreach($loginAttempts as $attempt)
                                     <tr class="login-row" data-status="{{ $attempt->status }}" data-date="{{ $attempt->attempted_at->format('Y-m-d') }}">
-                                        <td class="ps-4">
+                                        <td class="ps-4" style="text-align: center;">
                                             @if($attempt->status === 'success')
                                                 <span class="badge bg-success-subtle text-success">
                                                     <i class="bi bi-check-circle me-1"></i>สำเร็จ

@@ -160,6 +160,10 @@
                     <div class="chart-area">
                         <canvas id="activityChart" width="400" height="200"></canvas>
                     </div>
+                    <div id="chartFallback" class="text-center text-muted mt-3" style="display:none;">
+                        <i class="bi bi-graph-up" style="font-size:2rem;"></i>
+                        <div>ไม่มีข้อมูลกิจกรรมในช่วง 7 วันที่ผ่านมา</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -176,7 +180,7 @@
                 <div class="card-body">
                     @if(isset($recentActivities) && $recentActivities->count() > 0)
                         <div class="list-group list-group-flush">
-                            @foreach($recentActivities->take(5) as $activity)
+                            @foreach($recentActivities as $activity)
                             <div class="list-group-item border-0 px-0">
                                 <div class="d-flex w-100 justify-content-between">
                                     <div>
@@ -189,10 +193,10 @@
                             @endforeach
                         </div>
                         <div class="text-center mt-3">
-                            @if($recentActivities->count() > 5)
-                                <small class="text-muted d-block mb-2">แสดง 5 รายการล่าสุด จากทั้งหมด {{ $recentActivities->count() }} รายการ</small>
+                            @if(isset($totalActivitiesCount) && $totalActivitiesCount > 5)
+                                <small class="text-muted d-block mb-2">แสดง 5 รายการล่าสุด จากทั้งหมด {{ $totalActivitiesCount }} รายการ</small>
                             @endif
-                            <a href="#" class="btn btn-outline-primary btn-sm">ดูกิจกรรมทั้งหมด</a>
+                            <a href="#" class="btn btn-outline-primary btn-sm"><i class="bi bi-list-ul"></i>ดูกิจกรรมทั้งหมด</a>
                         </div>
                     @else
                         <div class="text-center py-4">
@@ -261,41 +265,54 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Activity Chart
     const ctx = document.getElementById('activityChart');
-    if (ctx) {
-        const activityChart = new Chart(ctx, {
+    const fallback = document.getElementById('chartFallback');
+    const labels = @json($chartData['labels'] ?? []);
+    const data = @json($chartData['data'] ?? []);
+    if (ctx && labels.length > 0 && data.length > 0 && data.some(v => v > 0)) {
+        new Chart(ctx, {
             type: 'line',
             data: {
-                labels: @json($chartData['labels'] ?? ['วันนี้']),
+                labels: labels,
                 datasets: [{
-                    label: 'กิจกรรม',
-                    data: @json($chartData['data'] ?? [0]),
-                    borderColor: 'rgba(78, 115, 223, 1)',
-                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    label: 'จำนวนกิจกรรม',
+                    data: data,
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(13, 110, 253, 1)',
+                    pointRadius: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return 'วันที่ ' + context[0].label;
+                            },
+                            label: function(context) {
+                                return 'กิจกรรม: ' + context.parsed.y + ' ครั้ง';
+                            }
                         }
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: false
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
                     }
                 }
             }
         });
+        fallback.style.display = 'none';
+    } else if (fallback) {
+        fallback.style.display = 'block';
     }
 });
 </script>

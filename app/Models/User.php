@@ -221,6 +221,48 @@ class User extends Authenticatable
     }
 
     /**
+     * Get messages sent by this user
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Get messages received by this user
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'recipient_id');
+    }
+
+    /**
+     * Get unread messages count for this user
+     */
+    public function getUnreadMessagesCountAttribute()
+    {
+        return $this->receivedMessages()->unread()->count();
+    }
+
+    /**
+     * Get activity logs for this user
+     */
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    /**
+     * Get recent activity logs for this user
+     */
+    public function recentActivityLogs($limit = 20)
+    {
+        return $this->activityLogs()
+            ->orderBy('created_at', 'desc')
+            ->limit($limit);
+    }
+
+    /**
      * Get user's full name
      */
     public function getNameAttribute()

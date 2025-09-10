@@ -124,7 +124,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{{ route('activities.index') }}">
                         <i class="bi bi-clock-history"></i>
                         <span>ประวัติกิจกรรม</span>
                     </a>
@@ -570,27 +570,37 @@
                             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" 
                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="bi bi-chat-dots"></i>
-                                <span class="badge bg-info badge-counter">2</span>
+                                @php
+                                    $unreadMessagesCount = auth()->user()->unread_messages_count ?? 0;
+                                @endphp
+                                @if($unreadMessagesCount > 0)
+                                    <span class="badge bg-info badge-counter">{{ $unreadMessagesCount }}</span>
+                                @endif
                             </a>
                             <div class="dropdown-menu dropdown-menu-end shadow" 
                                  aria-labelledby="messagesDropdown">
                                 <h6 class="dropdown-header bg-info text-white py-2 px-3 m-0">
                                     <i class="bi bi-chat-dots me-2"></i>ข้อความ
+                                    @if($unreadMessagesCount > 0)
+                                        <span class="badge bg-light text-info ms-2">{{ $unreadMessagesCount }}</span>
+                                    @endif
                                 </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image me-3">
-                                        <img class="rounded-circle" src="https://ui-avatars.com/api/?name=Admin&color=7F9CF5&background=EBF4FF" 
-                                             alt="Admin" style="width: 40px; height: 40px;">
-                                        <div class="status-indicator bg-success"></div>
+                                
+                                <div id="messages-dropdown-content">
+                                    <div class="dropdown-item text-center py-3">
+                                        <div class="spinner-border spinner-border-sm text-info" role="status">
+                                            <span class="visually-hidden">กำลังโหลด...</span>
+                                        </div>
+                                        <div class="small text-muted mt-1">กำลังโหลดข้อความ...</div>
                                     </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">ระบบส่งข้อความทดสอบ...</div>
-                                        <div class="small text-gray-500">Admin · 58 นาทีที่แล้ว</div>
-                                    </div>
-                                </a>
+                                </div>
+                                
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">
+                                <a class="dropdown-item text-center small text-gray-500" href="{{ route('messages.index') }}">
                                     <i class="bi bi-chat-square-text me-1"></i>ดูข้อความทั้งหมด
+                                </a>
+                                <a class="dropdown-item text-center small text-primary" href="{{ route('messages.create') }}">
+                                    <i class="bi bi-plus-circle me-1"></i>เขียนข้อความใหม่
                                 </a>
                             </div>
                         </li>
@@ -608,12 +618,12 @@
                                      alt="{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}">
                             </a>
                             <div class="dropdown-menu dropdown-menu-end shadow" 
-                                 aria-labelledby="userDropdown">
+                                 aria-labelledby="userDropdown" style="padding: 0">
                                 <div class="dropdown-header text-center py-3">
                                     <img class="rounded-circle mb-2" 
                                          src="{{ auth()->user()->profile_photo ? asset('storage/'.auth()->user()->profile_photo) : 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name).'&color=7F9CF5&background=EBF4FF' }}" 
                                          alt="{{ auth()->user()->name }}" style="width: 60px; height: 60px;">
-                                    <div class="fw-bold">{{ auth()->user()->name }}</div>
+                                    <div class="fw-bold text-white">{{ auth()->user()->name }}</div>
                                     <div class="small text-muted">{{ ucfirst(auth()->user()->role) }}</div>
                                 </div>
                                 <div class="dropdown-divider"></div>
@@ -736,14 +746,133 @@
             });
         }
 
+        // Messages Dropdown Management
+        function loadRecentMessages() {
+            fetch('{{ route("messages.recent") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateMessagesDropdown(data);
+            })
+            .catch(error => {
+                console.error('Error loading messages:', error);
+                updateMessagesDropdownError();
+            });
+        }
+
+        function updateMessagesDropdown(data) {
+            const container = document.getElementById('messages-dropdown-content');
+            if (!container) return;
+
+            if (data.messages && data.messages.length > 0) {
+                let html = '';
+                data.messages.forEach(message => {
+                    const readClass = message.is_read ? '' : 'bg-light';
+                    const priorityColor = {
+                        'urgent': 'text-danger',
+                        'high': 'text-warning',
+                        'normal': 'text-primary',
+                        'low': 'text-muted'
+                    }[message.priority] || 'text-primary';
+
+                    html += `
+                        <a class="dropdown-item d-flex align-items-center ${readClass}" href="/messages/${message.id}">
+                            <div class="dropdown-list-image me-3">
+                                <img class="rounded-circle" src="${message.avatar_url}" 
+                                     alt="${message.sender}" style="width: 40px; height: 40px;">
+                                ${!message.is_read ? '<div class="status-indicator bg-primary"></div>' : ''}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="font-weight-bold">
+                                    <div class="text-truncate" style="max-width: 200px;">${message.subject}</div>
+                                    <div class="small text-gray-500">
+                                        ${message.sender} (${message.sender_role}) · ${message.created_at}
+                                        <i class="bi bi-circle-fill ${priorityColor} ms-1" style="font-size: 0.5rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `
+                    <div class="dropdown-item text-center py-3">
+                        <i class="bi bi-chat-slash text-muted"></i>
+                        <div class="small text-gray-500 mt-1">ไม่มีข้อความใหม่</div>
+                    </div>
+                `;
+            }
+
+            // Update badge count
+            const badge = document.querySelector('#messagesDropdown .badge');
+            const headerBadge = document.querySelector('#messagesDropdown').closest('.dropdown').querySelector('.dropdown-header .badge');
+            
+            if (data.unread_count > 0) {
+                if (badge) {
+                    badge.textContent = data.unread_count;
+                    badge.style.display = 'inline';
+                } else {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'badge bg-info badge-counter';
+                    newBadge.textContent = data.unread_count;
+                    document.querySelector('#messagesDropdown').appendChild(newBadge);
+                }
+                
+                if (headerBadge) {
+                    headerBadge.textContent = data.unread_count;
+                    headerBadge.style.display = 'inline';
+                }
+            } else {
+                if (badge) badge.style.display = 'none';
+                if (headerBadge) headerBadge.style.display = 'none';
+            }
+        }
+
+        function updateMessagesDropdownError() {
+            const container = document.getElementById('messages-dropdown-content');
+            if (container) {
+                container.innerHTML = `
+                    <div class="dropdown-item text-center py-3">
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        <div class="small text-gray-500 mt-1">ไม่สามารถโหลดข้อความได้</div>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadRecentMessages()">
+                            <i class="bi bi-arrow-clockwise"></i> ลองใหม่
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
         // Auto-refresh notifications every 5 minutes
         setInterval(() => {
             // You can implement AJAX refresh here if needed
             // For now, we'll just show a subtle indicator
         }, 300000);
 
-        // Add visual indicators for Super Admin features
+        // Auto-refresh messages every 2 minutes
+        setInterval(() => {
+            loadRecentMessages();
+        }, 120000);
+
+        // Load messages when dropdown is shown
         document.addEventListener('DOMContentLoaded', function() {
+            // Load messages on page load
+            loadRecentMessages();
+
+            // Load messages when dropdown is shown
+            const messagesDropdown = document.getElementById('messagesDropdown');
+            if (messagesDropdown) {
+                messagesDropdown.addEventListener('show.bs.dropdown', function() {
+                    loadRecentMessages();
+                });
+            }
+
             @if(auth()->user()->role === 'super_admin')
                 // Highlight Super Admin specific menu items
                 const superAdminItems = document.querySelectorAll('.collapse-item');
