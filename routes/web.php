@@ -312,6 +312,15 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity',
             Route::post('/cleanup-expired', [App\Http\Controllers\Admin\SecurityController::class, 'cleanupExpiredIpRestrictions'])->name('cleanup-expired');
         });
     });
+
+    // Reports Routes
+    Route::group(['prefix' => 'reports', 'as' => 'reports.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('index');
+        Route::get('/users', [App\Http\Controllers\Admin\ReportsController::class, 'users'])->name('users');
+        Route::get('/activities', [App\Http\Controllers\Admin\ReportsController::class, 'activities'])->name('activities');
+        Route::get('/security', [App\Http\Controllers\Admin\ReportsController::class, 'security'])->name('security');
+        Route::get('/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('export');
+    });
 });
 
 /*

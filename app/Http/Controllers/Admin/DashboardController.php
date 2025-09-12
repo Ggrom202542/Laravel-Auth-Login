@@ -9,6 +9,7 @@ use App\Services\ApprovalNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\ActivityLog;
 use App\Models\UserActivity;
 use Carbon\Carbon;
 
@@ -48,46 +49,67 @@ class DashboardController extends Controller
         // Recent notifications
         $recentNotifications = $this->notificationService->getRecentNotifications($currentUser->id, 5);
         
-        // สถิติผู้ใช้
-        $userStats = [
-            'total_users' => User::withRole('user')->count(),
-            'active_users' => User::withRole('user')->where('status', 'active')->count(),
-            'new_users_today' => User::withRole('user')->whereDate('created_at', today())->count(),
-            'new_users_this_month' => User::withRole('user')->whereMonth('created_at', now()->month)->count(),
+        // สถิติสำหรับ Dashboard Cards - ใช้ข้อมูลจริง
+        $stats = [
+            'total_users' => User::where('role', 'user')->count(),
+            'new_users_today' => User::where('role', 'user')->whereDate('created_at', today())->count(),
+            'online_users' => $this->getOnlineUsersCount(),
+            'today_activities' => ActivityLog::whereDate('created_at', today())->count(),
+            'total_activities' => ActivityLog::count(), // เพิ่มจำนวนกิจกรรมทั้งหมด
         ];
 
-        // สถิติการใช้งานวันนี้
+        // สถิติผู้ใช้เพิ่มเติม
+        $userStats = [
+            'total_users' => User::where('role', 'user')->count(),
+            'active_users' => User::where('role', 'user')->where('status', 'active')->count(),
+            'new_users_today' => User::where('role', 'user')->whereDate('created_at', today())->count(),
+            'new_users_this_month' => User::where('role', 'user')->whereMonth('created_at', now()->month)->count(),
+        ];
+
+        // สถิติการใช้งานวันนี้ - ใช้ ActivityLog
         $todayStats = [
-            'total_logins' => UserActivity::where('action', 'login')
+            'total_logins' => ActivityLog::where('activity_type', 'login')
                                         ->whereDate('created_at', today())
                                         ->count(),
-            'active_now' => UserActivity::where('created_at', '>=', now()->subMinutes(15))
-                                      ->distinct('user_id')
-                                      ->count(),
+            'active_now' => $this->getOnlineUsersCount(),
         ];
 
-        // กิจกรรมล่าสุด 15 รายการ
-        $recentActivities = UserActivity::with('user')
+        // กิจกรรมล่าสุด 7 รายการ - ใช้ ActivityLog
+        $recentActivities = ActivityLog::with('user')
                                       ->orderBy('created_at', 'desc')
-                                      ->limit(15)
+                                      ->limit(7)
                                       ->get();
 
         // ผู้ใช้ใหม่ล่าสุด 10 รายการ
-        $recentUsers = User::withRole('user')
+        $recentUsers = User::where('role', 'user')
                           ->orderBy('created_at', 'desc')
                           ->limit(10)
                           ->get();
 
+        // สถิติ Role Distribution
+        $roleStats = [
+            'user' => User::where('role', 'user')->count(),
+            'admin' => User::where('role', 'admin')->count(),
+            'super_admin' => User::where('role', 'super_admin')->count(),
+        ];
+
         // ข้อมูลกราฟ
         $registrationData = $this->getRegistrationChartData();
+        $registrationChartData = [
+            'labels' => collect($registrationData)->pluck('date')->toArray(),
+            'data' => collect($registrationData)->pluck('count')->toArray(),
+        ];
         $approvalTrendData = $this->getApprovalTrendData();
 
         return view('admin.dashboard', compact(
+            'stats',
             'userStats',
             'todayStats', 
             'recentActivities',
             'recentUsers',
+            'roleStats',
             'registrationData',
+            'registrationChartData',
             'approvalStats',
             'recentApprovals',
             'auditStats',
@@ -96,6 +118,16 @@ class DashboardController extends Controller
             'approvalTrendData',
             'isSuperAdmin'
         ));
+    }
+
+    /**
+     * Get count of online users (users with activity in last 15 minutes)
+     */
+    private function getOnlineUsersCount(): int
+    {
+        return ActivityLog::where('created_at', '>=', now()->subMinutes(15))
+                         ->distinct('user_id')
+                         ->count('user_id');
     }
 
     /**

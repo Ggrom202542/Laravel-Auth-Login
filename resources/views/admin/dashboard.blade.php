@@ -207,7 +207,7 @@
                         <i class="bi bi-people me-2"></i>
                         ผู้ใช้งานล่าสุด
                     </h6>
-                    <a href="#" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-person-plus me-1"></i>
                         จัดการผู้ใช้
                     </a>
@@ -271,33 +271,46 @@
         <!-- System Activities -->
         <div class="col-xl-6 col-lg-5">
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="bi bi-list-check me-2"></i>
-                        กิจกรรมระบบล่าสุด
-                    </h6>
+                <div class="card-header bg-white py-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="bi bi-list-check me-2"></i>
+                            กิจกรรมระบบล่าสุด
+                        </h6>
+                        @if(isset($recentActivities) && $recentActivities->count() > 0)
+                            <small class="text-muted">
+                                แสดงรายการ {{ $recentActivities->count() }} รายการจากทั้งหมด {{ $stats['total_activities'] ?? 0 }} รายการ
+                            </small>
+                        @endif
+                    </div>
                 </div>
                 <div class="card-body">
-                    @if(isset($systemActivities) && $systemActivities->count() > 0)
+                    @if(isset($recentActivities) && $recentActivities->count() > 0)
                         <div class="list-group list-group-flush">
-                            @foreach($systemActivities as $activity)
+                            @foreach($recentActivities as $activity)
                             <div class="list-group-item border-0 px-0">
                                 <div class="d-flex w-100 justify-content-between">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            @if($activity->action === 'login')
+                                            @if($activity->activity_type === 'login')
                                                 <i class="bi bi-box-arrow-in-right text-success"></i>
-                                            @elseif($activity->action === 'logout')
+                                            @elseif($activity->activity_type === 'logout')
                                                 <i class="bi bi-box-arrow-right text-warning"></i>
-                                            @elseif($activity->action === 'register')
+                                            @elseif($activity->activity_type === 'register')
                                                 <i class="bi bi-person-plus text-primary"></i>
+                                            @elseif($activity->activity_type === 'create')
+                                                <i class="bi bi-plus-circle text-info"></i>
+                                            @elseif($activity->activity_type === 'update')
+                                                <i class="bi bi-pencil text-warning"></i>
+                                            @elseif($activity->activity_type === 'delete')
+                                                <i class="bi bi-trash text-danger"></i>
                                             @else
                                                 <i class="bi bi-circle-fill text-info"></i>
                                             @endif
                                         </div>
                                         <div>
                                             <h6 class="mb-1">{{ $activity->user ? $activity->user->name : 'ระบบ' }}</h6>
-                                            <p class="mb-1 text-muted small">{{ $activity->description ?? $activity->action }}</p>
+                                            <p class="mb-1 text-muted small">{{ $activity->description ?? $activity->activity_type }}</p>
                                             <small class="text-muted">
                                                 IP: {{ $activity->ip_address ?? 'N/A' }}
                                             </small>
@@ -309,7 +322,7 @@
                             @endforeach
                         </div>
                         <div class="text-center mt-3">
-                            <a href="#" class="btn btn-outline-primary btn-sm">ดูกิจกรรมทั้งหมด</a>
+                            <a href="{{ route('activities.index') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-list-ul"></i>ดูกิจกรรมทั้งหมด</a>
                         </div>
                     @else
                         <div class="text-center py-4">
@@ -336,7 +349,7 @@
                     <div class="row">
                         <div class="col-lg-2 col-md-4 col-6 mb-3">
                             <div class="d-grid">
-                                <a href="#" class="btn btn-outline-primary">
+                                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary">
                                     <i class="bi bi-people me-2"></i>
                                     จัดการผู้ใช้
                                 </a>

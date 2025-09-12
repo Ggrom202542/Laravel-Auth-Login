@@ -235,7 +235,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{{ route('admin.reports.index') }}">
                         <i class="bi bi-graph-up"></i>
                         <span>รายงาน</span>
                     </a>
