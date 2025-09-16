@@ -321,6 +321,30 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity',
         Route::get('/security', [App\Http\Controllers\Admin\ReportsController::class, 'security'])->name('security');
         Route::get('/export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('export');
     });
+
+    // Audit & Monitoring Routes
+    Route::group(['prefix' => 'audit', 'as' => 'audit.'], function () {
+        // Audit Logs
+        Route::get('/', [App\Http\Controllers\Admin\AuditController::class, 'index'])->name('index');
+        Route::get('/logs/{auditLog}', [App\Http\Controllers\Admin\AuditController::class, 'show'])->name('show');
+        Route::get('/statistics', [App\Http\Controllers\Admin\AuditController::class, 'statistics'])->name('statistics');
+        Route::get('/export', [App\Http\Controllers\Admin\AuditController::class, 'export'])->name('export');
+    });
+
+    // Override History Routes
+    Route::group(['prefix' => 'override', 'as' => 'override.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\OverrideController::class, 'index'])->name('index');
+        Route::get('/history/{overrideLog}', [App\Http\Controllers\Admin\OverrideController::class, 'show'])->name('show');
+        Route::get('/report', [App\Http\Controllers\Admin\OverrideController::class, 'report'])->name('report');
+        Route::get('/export', [App\Http\Controllers\Admin\OverrideController::class, 'export'])->name('export');
+    });
+
+    // Approval Statistics Routes
+    Route::group(['prefix' => 'statistics', 'as' => 'statistics.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('index');
+        Route::get('/analytics', [App\Http\Controllers\Admin\StatisticsController::class, 'analytics'])->name('analytics');
+        Route::get('/report', [App\Http\Controllers\Admin\StatisticsController::class, 'report'])->name('report');
+    });
 });
 
 /*

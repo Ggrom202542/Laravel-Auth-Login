@@ -22,6 +22,7 @@
     
     <!-- Custom SCSS/JS -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    
     @stack('styles')
 </head>
 
@@ -284,19 +285,19 @@
                     <div id="collapseAudit" class="collapse" data-bs-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">การติดตาม & ตรวจสอบ:</h6>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('admin.audit.index') }}">
                                 <i class="bi bi-clipboard-check me-2"></i>Approval Audit Logs
                             </a>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('admin.override.index') }}">
                                 <i class="bi bi-arrow-repeat me-2 text-warning"></i>Override History
                             </a>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('admin.statistics.index') }}">
                                 <i class="bi bi-graph-up me-2"></i>Approval Statistics
                             </a>
                             <a class="collapse-item" href="{{ route('notifications.index') }}">
                                 <i class="bi bi-bell me-2"></i>Notification Center
                             </a>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('admin.audit.index', ['action' => 'notification_sent']) }}">
                                 <i class="bi bi-bell-slash me-2"></i>Notification Logs
                             </a>
                         </div>
@@ -510,7 +511,7 @@
                                     <span class="badge bg-danger badge-counter">{{ $unreadCount }}</span>
                                 @endif
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end shadow" 
+                            <div class="dropdown-menu dropdown-menu-end dropdown-notifications shadow" 
                                  aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header bg-primary text-white py-2 px-3 m-0">
                                     <i class="bi bi-bell me-2"></i>การแจ้งเตือน
@@ -524,8 +525,8 @@
                                 @endphp
                                 
                                 @forelse($notifications as $notification)
-                                    <a class="dropdown-item d-flex align-items-center {{ $notification->read_at ? '' : 'bg-light' }}" href="#">
-                                        <div class="me-3">
+                                    <a class="dropdown-item d-flex align-items-start {{ $notification->read_at ? '' : 'bg-light' }}" href="#">
+                                        <div class="me-3 flex-shrink-0">
                                             @php
                                                 $notificationType = $notification->data['type'] ?? 'default';
                                             @endphp
@@ -539,24 +540,26 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <div>
-                                            <div class="small text-gray-500">{{ $notification->created_at->diffForHumans() }}</div>
-                                            <span class="font-weight-bold">{{ $notification->data['message'] ?? 'การแจ้งเตือน' }}</span>
+                                        <div class="flex-grow-1">
+                                            <div class="small text-gray-500 mb-1">{{ $notification->created_at->diffForHumans() }}</div>
+                                            <div class="font-weight-bold notification-text">
+                                                {{ $notification->data['message'] ?? 'การแจ้งเตือน' }}
+                                            </div>
                                             @if(!$notification->read_at)
-                                                <span class="badge bg-primary ms-1">ใหม่</span>
+                                                <span class="badge bg-primary ms-1 mt-1">ใหม่</span>
                                             @endif
                                         </div>
                                     </a>
                                 @empty
-                                    <div class="dropdown-item text-center py-3">
-                                        <i class="bi bi-bell-slash text-muted"></i>
-                                        <div class="small text-gray-500 mt-1">ไม่มีการแจ้งเตือน</div>
+                                    <div class="dropdown-item text-center py-3 align-items-center">
+                                        <i class="bi bi-bell-slash text-muted mt-2"></i>
+                                        <div class="small text-gray-500">ไม่มีการแจ้งเตือน</div>
                                     </div>
                                 @endforelse
                                 
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-center small text-gray-500" href="{{ route('notifications.index') }}">
-                                    <i class="bi bi-eye me-1"></i>ดูการแจ้งเตือนทั้งหมด
+                                <a class="dropdown-item text-center small text-gray-500 align-items-center" href="{{ route('notifications.index') }}">
+                                    <i class="bi bi-eye mt-2"></i><span>ดูการแจ้งเตือนทั้งหมด</span>
                                 </a>
                                 @if($unreadCount > 0)
                                     <a class="dropdown-item text-center small text-primary" href="#" onclick="markAllNotificationsRead()">
@@ -577,7 +580,7 @@
                                     <span class="badge bg-info badge-counter">{{ $unreadMessagesCount }}</span>
                                 @endif
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end shadow" 
+                            <div class="dropdown-menu dropdown-menu-end dropdown-messages shadow" 
                                  aria-labelledby="messagesDropdown">
                                 <h6 class="dropdown-header bg-info text-white py-2 px-3 m-0">
                                     <i class="bi bi-chat-dots me-2"></i>ข้อความ
@@ -596,11 +599,11 @@
                                 </div>
                                 
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-center small text-gray-500" href="{{ route('messages.index') }}">
-                                    <i class="bi bi-chat-square-text me-1"></i>ดูข้อความทั้งหมด
+                                <a class="dropdown-item text-center small text-gray-500 align-items-center" href="{{ route('messages.index') }}">
+                                    <i class="bi bi-chat-square-text mt-2"></i><span>ดูข้อความทั้งหมด</span>
                                 </a>
-                                <a class="dropdown-item text-center small text-primary" href="{{ route('messages.create') }}">
-                                    <i class="bi bi-plus-circle me-1"></i>เขียนข้อความใหม่
+                                <a class="dropdown-item text-center small text-primary align-items-center" href="{{ route('messages.create') }}">
+                                    <i class="bi bi-plus-circle mt-2"></i><span>เขียนข้อความใหม่</span>
                                 </a>
                             </div>
                         </li>
@@ -781,7 +784,7 @@
                     }[message.priority] || 'text-primary';
 
                     html += `
-                        <a class="dropdown-item d-flex align-items-center ${readClass}" href="/messages/${message.id}">
+                        <a class="dropdown-item d-flex align-items-start ${readClass}" href="/messages/${message.id}">
                             <div class="dropdown-list-image me-3">
                                 <img class="rounded-circle" src="${message.avatar_url}" 
                                      alt="${message.sender}" style="width: 40px; height: 40px;">
@@ -789,8 +792,8 @@
                             </div>
                             <div class="flex-grow-1">
                                 <div class="font-weight-bold">
-                                    <div class="text-truncate" style="max-width: 200px;">${message.subject}</div>
-                                    <div class="small text-gray-500">
+                                    <div class="message-text">${message.subject}</div>
+                                    <div class="small text-gray-500 mt-1">
                                         ${message.sender} (${message.sender_role}) · ${message.created_at}
                                         <i class="bi bi-circle-fill ${priorityColor} ms-1" style="font-size: 0.5rem;"></i>
                                     </div>
