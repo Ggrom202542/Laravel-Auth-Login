@@ -55,7 +55,7 @@ body {
    ========================================================================== */
 
 .sidebar {
-    min-width: 280px;
+    min-width: 120px;
     max-width: 480px;
     min-height: 100vh;
     background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
@@ -741,7 +741,7 @@ body {
 
 .sidebar-toggled .content-wrapper,
 .sidebar-toggled #content-wrapper {
-    margin-left: 6.5rem;
+    /* margin-left: 6.5rem; */
 }
 
 /* ==========================================================================

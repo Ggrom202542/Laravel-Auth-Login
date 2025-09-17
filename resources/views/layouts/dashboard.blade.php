@@ -323,10 +323,10 @@
                             <a class="collapse-item" href="{{ route('super-admin.users.sessions') }}">
                                 <i class="bi bi-people-fill me-2"></i>Active Sessions
                             </a>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('super-admin.roles.index') }}">
                                 <i class="bi bi-shield-check me-2"></i>บทบาท & สิทธิ์
                             </a>
-                            <a class="collapse-item" href="#">
+                            <a class="collapse-item" href="{{ route('super-admin.settings.index') }}">
                                 <i class="bi bi-gear me-2"></i>ตั้งค่าระบบ
                             </a>
                         </div>

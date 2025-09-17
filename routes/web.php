@@ -387,6 +387,39 @@ Route::group(['middleware' => ['auth', 'super.admin', 'log.activity'], 'prefix' 
         Route::get('/', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'index'])->name('index');
         Route::get('/create', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'create'])->name('create');
         Route::post('/', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'store'])->name('store');
+        
+        // Session management routes - ต้องอยู่ก่อน /{id} routes
+        Route::get('/sessions', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'sessions'])->name('sessions');
+        
+        // Test route for debugging
+        Route::get('/sessions-test', function() {
+            return view('admin.super-admin.users.sessions-simple', [
+                'sessions' => new \Illuminate\Pagination\LengthAwarePaginator(
+                    collect([
+                        (object) [
+                            'id' => 1,
+                            'user' => (object) [
+                                'name' => 'Test User',
+                                'email' => 'test@example.com',
+                                'role' => 'super_admin',
+                                'profile_image' => null
+                            ],
+                            'ip_address' => '127.0.0.1',
+                            'user_agent' => 'Test Browser',
+                            'status' => 'active',
+                            'created_at' => now(),
+                            'last_activity' => now()->format('Y-m-d H:i:s'),
+                        ]
+                    ]),
+                    1,
+                    20,
+                    1,
+                    ['path' => request()->url(), 'pageName' => 'page']
+                )
+            ]);
+        })->name('sessions-test');
+        
+        // Dynamic routes with {id} parameter - ต้องอยู่หลัง specific routes
         Route::get('/{id}', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'edit'])->name('edit');
         Route::put('/{id}', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'update'])->name('update');
@@ -398,8 +431,16 @@ Route::group(['middleware' => ['auth', 'super.admin', 'log.activity'], 'prefix' 
         Route::post('/{id}/promote-role', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'promoteRole'])->name('promote-role');
         Route::post('/{id}/terminate-sessions', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'terminateSessions'])->name('terminate-sessions');
         
-        // Session management routes
-        Route::get('/sessions', [App\Http\Controllers\Admin\SuperAdminUserController::class, 'sessions'])->name('sessions');
+    });
+
+    // Role & Permission Management Routes (Super Admin Only)
+    Route::group(['prefix' => 'roles', 'as' => 'roles.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\RolePermissionController::class, 'index'])->name('index');
+        Route::get('/permissions', [App\Http\Controllers\Admin\RolePermissionController::class, 'permissions'])->name('permissions');
+        Route::get('/history', [App\Http\Controllers\Admin\RolePermissionController::class, 'roleHistory'])->name('history');
+        Route::put('/{user}/update-role', [App\Http\Controllers\Admin\RolePermissionController::class, 'updateRole'])->name('update-role');
+        Route::post('/bulk-update', [App\Http\Controllers\Admin\RolePermissionController::class, 'bulkUpdate'])->name('bulk-update');
+        Route::get('/api/statistics', [App\Http\Controllers\Admin\RolePermissionController::class, 'roleStatistics'])->name('api.statistics');
     });
     
     // Advanced Security Management Routes (Super Admin Only)
@@ -421,6 +462,24 @@ Route::group(['middleware' => ['auth', 'super.admin', 'log.activity'], 'prefix' 
         Route::post('/cleanup-expired', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'cleanupExpired'])->name('cleanup-expired');
         Route::post('/force-logout-all', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'forceLogoutAll'])->name('force-logout-all');
         Route::post('/block-ip', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'blockIP'])->name('block-ip');
+    });
+    
+    // System Settings Routes (Super Admin Only)
+    Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('index');
+        Route::get('/general', [App\Http\Controllers\Admin\SystemSettingsController::class, 'general'])->name('general');
+        Route::put('/general', [App\Http\Controllers\Admin\SystemSettingsController::class, 'updateGeneral'])->name('update-general');
+        Route::get('/security', [App\Http\Controllers\Admin\SystemSettingsController::class, 'security'])->name('security');
+        Route::put('/security', [App\Http\Controllers\Admin\SystemSettingsController::class, 'updateSecurity'])->name('update-security');
+        Route::get('/email', [App\Http\Controllers\Admin\SystemSettingsController::class, 'email'])->name('email');
+        Route::put('/email', [App\Http\Controllers\Admin\SystemSettingsController::class, 'updateEmail'])->name('update-email');
+        Route::post('/email/test', [App\Http\Controllers\Admin\SystemSettingsController::class, 'testEmail'])->name('test-email');
+        Route::get('/notifications', [App\Http\Controllers\Admin\SystemSettingsController::class, 'notifications'])->name('notifications');
+        Route::put('/notifications', [App\Http\Controllers\Admin\SystemSettingsController::class, 'updateNotifications'])->name('update-notifications');
+        Route::get('/backup', [App\Http\Controllers\Admin\SystemSettingsController::class, 'backup'])->name('backup');
+        Route::post('/backup/create', [App\Http\Controllers\Admin\SystemSettingsController::class, 'createBackup'])->name('create-backup');
+        Route::post('/cache/clear', [App\Http\Controllers\Admin\SystemSettingsController::class, 'clearCache'])->name('clear-cache');
+        Route::post('/optimize', [App\Http\Controllers\Admin\SystemSettingsController::class, 'optimize'])->name('optimize');
     });
     
     // System Management Routes สำหรับ Super Admin

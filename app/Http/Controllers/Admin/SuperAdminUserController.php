@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 
 class SuperAdminUserController extends Controller
@@ -731,35 +732,56 @@ class SuperAdminUserController extends Controller
      */
     public function sessions(Request $request)
     {
-        $query = AdminSession::with('user')
-                            ->where('status', 'active');
+        try {
+            // ดึงข้อมูล sessions จริงจากฐานข้อมูล
+            $query = AdminSession::with(['user'])
+                ->where('status', 'active')
+                ->orderBy('last_activity', 'desc');
 
-        // ตัวกรอง
-        if ($request->filled('user_role')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('role', $request->user_role);
-            });
-        }
+            // Filter by user role if specified
+            if ($request->filled('role')) {
+                $query->whereHas('user', function($q) use ($request) {
+                    $q->where('role', $request->role);
+                });
+            }
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            })->orWhere('ip_address', 'like', "%{$search}%");
-        }
+            // Search functionality
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('ip_address', 'LIKE', "%{$search}%")
+                      ->orWhere('user_agent', 'LIKE', "%{$search}%")
+                      ->orWhereHas('user', function($userQuery) use ($search) {
+                          $userQuery->where('first_name', 'LIKE', "%{$search}%")
+                                   ->orWhere('last_name', 'LIKE', "%{$search}%")
+                                   ->orWhere('email', 'LIKE', "%{$search}%");
+                      });
+                });
+            }
 
-        $sessions = $query->orderBy('last_activity', 'desc')
-                         ->paginate(20);
+            $sessions = $query->paginate(20);
 
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'html' => view('admin.super-admin.users.sessions-table', compact('sessions'))->render(),
-                'pagination' => $sessions->appends($request->all())->render()
+            return view('admin.super-admin.users.sessions-simple', compact('sessions'));
+            
+        } catch (\Exception $e) {
+            // Log error for debugging
+            Log::error('Super Admin Sessions Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'user_id' => auth()->id()
             ]);
+            
+            // Return empty collection with error message
+            $sessions = new \Illuminate\Pagination\LengthAwarePaginator(
+                collect([]),
+                0,
+                20,
+                1,
+                ['path' => request()->url(), 'pageName' => 'page']
+            );
+            
+            return view('admin.super-admin.users.sessions-simple', compact('sessions'))
+                ->with('error', 'ไม่สามารถโหลดข้อมูล Sessions ได้ในขณะนี้');
         }
-
-        return view('admin.super-admin.users.sessions', compact('sessions'));
     }
 }
