@@ -26,7 +26,7 @@
             <tr>
                 <td class="text-muted">สถานะ:</td>
                 <td>
-                    @if($ipRecord->is_active)
+                    @if($ipRecord->status === 'active' && ($ipRecord->expires_at === null || $ipRecord->expires_at > now()))
                         <span class="badge bg-success">ใช้งาน</span>
                     @else
                         <span class="badge bg-secondary">ไม่ใช้งาน</span>

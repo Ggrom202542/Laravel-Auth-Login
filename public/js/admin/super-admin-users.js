@@ -34,12 +34,12 @@ $(document).ready(function() {
     // Form submissions
     setupFormHandlers();
     
-    // Auto-refresh every 30 seconds for active sessions
-    setInterval(function() {
-        $('.badge:contains("0"), .badge:contains("1"), .badge:contains("2"), .badge:contains("3"), .badge:contains("4"), .badge:contains("5")')
-            .closest('tr').find('[onclick*="terminateUserSessions"]').length > 0 && 
-            window.location.reload();
-    }, 30000);
+    // Auto-refresh disabled to prevent modal interruption
+    // setInterval(function() {
+    //     $('.badge:contains("0"), .badge:contains("1"), .badge:contains("2"), .badge:contains("3"), .badge:contains("4"), .badge:contains("5")')
+    //         .closest('tr').find('[onclick*="terminateUserSessions"]').length > 0 && 
+    //         window.location.reload();
+    // }, 30000);
 });
 
 /**

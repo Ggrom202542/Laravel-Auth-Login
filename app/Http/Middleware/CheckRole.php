@@ -39,12 +39,22 @@ class CheckRole
         // ตรวจสอบบทบาท
         foreach ($roles as $role) {
             // ตรวจสอบผ่าน role column ในตาราง users
-            if ($user->role === $role) {
+            // รองรับทั้ง super-admin และ super_admin
+            if ($user->role === $role || 
+                ($role === 'super-admin' && $user->role === 'super_admin') ||
+                ($role === 'super_admin' && $user->role === 'super-admin')) {
                 return $next($request);
             }
         }
 
         // ไม่มีสิทธิ์เข้าถึง
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'คุณไม่มีสิทธิ์เข้าถึง บทบาทของคุณ: ' . $user->role
+            ], 403);
+        }
+        
         abort(403, 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้ บทบาทของคุณ: ' . $user->role);
     }
 }

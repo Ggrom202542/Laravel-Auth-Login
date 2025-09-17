@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid">
     <!-- Header Section -->
-    <div class="row mb-4">
+    <div class="row mb-4 security-header-wrapper">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
@@ -15,22 +15,26 @@
                     </h2>
                     <p class="text-muted mb-0">ระบบควบคุมและติดตามความปลอดภัยระดับองค์กรสำหรับ Super Admin</p>
                 </div>
-                <div>
+                <div class="d-flex align-items-center">
                     <button class="btn btn-outline-primary me-2" id="refreshStats">
                         <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรช
                     </button>
-                    <div class="dropdown d-inline">
-                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <div class="dropdown security-dropdown">
+                        <button class="btn btn-primary dropdown-toggle" 
+                                type="button" 
+                                id="securityDropdown"
+                                aria-expanded="false">
                             <i class="bi bi-gear me-1"></i> การจัดการ
                         </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="runSystemScan()">
+                        <ul class="dropdown-menu dropdown-menu-end" 
+                            aria-labelledby="securityDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); runSystemScan();">
                                 <i class="bi bi-search me-2"></i>สแกนระบบความปลอดภัย
                             </a></li>
-                            <li><a class="dropdown-item" href="#" onclick="cleanupExpiredLocks()">
+                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); cleanupExpiredLocks();">
                                 <i class="bi bi-trash3 me-2"></i>ลบข้อมูลล็อกที่หมดอายุ
                             </a></li>
-                            <li><a class="dropdown-item" href="#" onclick="forceLogoutAll()">
+                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); forceLogoutAll();">
                                 <i class="bi bi-box-arrow-right me-2"></i>บังคับ Logout ทั้งหมด
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -365,12 +369,156 @@
         width: 35px;
         height: 35px;
     }
+    
+    /* Reset และ Override dropdown styles สำหรับหน้า security dashboard */
+    .security-dropdown {
+        position: relative !important;
+        z-index: 10050 !important;
+    }
+    
+    .security-dropdown .dropdown-menu {
+        /* Reset all previous styles */
+        all: unset;
+        
+        /* Apply new styles */
+        display: none;
+        position: absolute !important;
+        top: 100% !important;
+        right: 0 !important;
+        left: auto !important;
+        z-index: 10051 !important;
+        
+        min-width: 250px !important;
+        max-width: 300px !important;
+        
+        background: #ffffff !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
+        
+        padding: 0.5rem 0 !important;
+        margin-top: 0.25rem !important;
+        
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+        transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+        
+        /* Override any inherited properties */
+        font-family: inherit !important;
+        font-size: 1rem !important;
+        color: #212529 !important;
+        text-align: left !important;
+        list-style: none !important;
+        background-clip: padding-box !important;
+        backdrop-filter: none !important;
+        animation: none !important;
+    }
+    
+    .security-dropdown .dropdown-menu.show {
+        display: block !important;
+        opacity: 1 !important;
+        transform: translateY(0) scale(1) !important;
+    }
+    
+    .security-dropdown .dropdown-item {
+        /* Reset all previous styles */
+        all: unset;
+        
+        /* Apply new styles */
+        display: block !important;
+        width: 100% !important;
+        padding: 0.75rem 1.25rem !important;
+        clear: both !important;
+        font-weight: 400 !important;
+        font-size: 0.9rem !important;
+        color: #374151 !important;
+        text-align: inherit !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        background-color: transparent !important;
+        border: 0 !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease-in-out !important;
+        
+        /* เอา animation ของ dashboard.css ออก */
+        animation: none !important;
+        backdrop-filter: none !important;
+    }
+    
+    .security-dropdown .dropdown-item:hover,
+    .security-dropdown .dropdown-item:focus {
+        background-color: #f8f9fa !important;
+        color: #1f2937 !important;
+        text-decoration: none !important;
+        transform: none !important;
+    }
+    
+    .security-dropdown .dropdown-item:active {
+        background-color: #e9ecef !important;
+        color: #1f2937 !important;
+    }
+    
+    .security-dropdown .dropdown-item i {
+        display: inline-block !important;
+        width: 16px !important;
+        margin-right: 0.5rem !important;
+        color: #6b7280 !important;
+        font-size: 0.875rem !important;
+        text-align: center !important;
+        transition: color 0.15s ease-in-out !important;
+    }
+    
+    .security-dropdown .dropdown-item:hover i {
+        color: #374151 !important;
+    }
+    
+    .security-dropdown .dropdown-divider {
+        height: 0 !important;
+        margin: 0.5rem 0 !important;
+        overflow: hidden !important;
+        border-top: 1px solid #e5e7eb !important;
+        opacity: 1 !important;
+    }
+    
+    /* ป้องกัน container overflow และ z-index conflicts */
+    .container-fluid,
+    .card,
+    .card-body,
+    .card-header {
+        overflow: visible !important;
+    }
+    
+    /* เพิ่ม space สำหรับ dropdown */
+    .security-header-wrapper {
+        position: relative !important;
+        z-index: 10050 !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    @media (max-width: 768px) {
+        .security-dropdown .dropdown-menu {
+            min-width: 200px !important;
+            max-width: 250px !important;
+            right: 0 !important;
+            left: auto !important;
+        }
+    }
 </style>
 @endpush
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Global SweetAlert2 configuration
+Swal.mixin({
+    customClass: {
+        confirmButton: 'btn btn-primary me-2',
+        cancelButton: 'btn btn-secondary'
+    },
+    buttonsStyling: false
+});
+
 // Security Level Chart
 const securityLevelCtx = document.getElementById('securityLevelChart').getContext('2d');
 const securityLevel = {{ $systemHealth['security_level'] }};
@@ -408,57 +556,174 @@ function refreshStats() {
 }
 
 function runSystemScan() {
-    if (confirm('ต้องการเริ่มการสแกนระบบความปลอดภัยหรือไม่?')) {
-        fetch('{{ route("super-admin.security.system-scan") }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToast('เริ่มการสแกนระบบแล้ว', 'success');
-                setTimeout(() => window.location.reload(), 3000);
+    Swal.fire({
+        title: 'สแกนระบบความปลอดภัย',
+        text: 'ต้องการเริ่มการสแกนระบบความปลอดภัยหรือไม่?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-search me-1"></i>เริ่มสแกน',
+        cancelButtonText: '<i class="bi bi-x-lg me-1"></i>ยกเลิก',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return fetch('{{ route("super-admin.security.system-scan") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (result.value && result.value.success) {
+                Swal.fire({
+                    title: 'เริ่มการสแกนแล้ว!',
+                    text: 'ระบบกำลังสแกนความปลอดภัย กรุณารอสักครู่...',
+                    icon: 'success',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
             } else {
-                showToast('เกิดข้อผิดพลาดในการสแกน', 'error');
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'ไม่สามารถเริ่มการสแกนระบบได้',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
             }
-        });
-    }
+        }
+    });
 }
 
 function cleanupExpiredLocks() {
-    if (confirm('ต้องการลบข้อมูลล็อกที่หมดอายุหรือไม่?')) {
-        fetch('{{ route("super-admin.security.cleanup-expired") }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    Swal.fire({
+        title: 'ลบข้อมูลล็อกที่หมดอายุ',
+        text: 'ต้องการลบข้อมูลล็อกที่หมดอายุหรือไม่?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#fd7e14',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-trash3 me-1"></i>ลบข้อมูล',
+        cancelButtonText: '<i class="bi bi-x-lg me-1"></i>ยกเลิก',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return fetch('{{ route("super-admin.security.cleanup-expired") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (result.value && result.value.success) {
+                Swal.fire({
+                    title: 'ลบข้อมูลสำเร็จ!',
+                    text: result.value.message || 'ลบข้อมูลล็อกที่หมดอายุเรียบร้อยแล้ว',
+                    icon: 'success',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: result.value?.message || 'ไม่สามารถลบข้อมูลได้',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            showToast(data.message, data.success ? 'success' : 'error');
-            if (data.success) {
-                setTimeout(() => window.location.reload(), 2000);
-            }
-        });
-    }
+        }
+    });
 }
 
 function forceLogoutAll() {
-    if (confirm('ต้องการบังคับ logout ผู้ใช้ทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้')) {
-        fetch('{{ route("super-admin.security.force-logout-all") }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    Swal.fire({
+        title: 'บังคับ Logout ผู้ใช้ทั้งหมด',
+        html: `
+            <div class="text-start">
+                <p class="mb-2">การกระทำนี้จะ:</p>
+                <ul class="list-unstyled ms-3">
+                    <li><i class="bi bi-exclamation-triangle text-warning me-2"></i>บังคับให้ผู้ใช้ทั้งหมดออกจากระบบ</li>
+                    <li><i class="bi bi-arrow-clockwise text-info me-2"></i>ต้องเข้าสู่ระบบใหม่</li>
+                    <li><i class="bi bi-shield-check text-danger me-2"></i>ไม่สามารถยกเลิกได้</li>
+                </ul>
+                <p class="text-danger fw-bold mb-0">ต้องการดำเนินการต่อหรือไม่?</p>
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-box-arrow-right me-1"></i>บังคับ Logout',
+        cancelButtonText: '<i class="bi bi-x-lg me-1"></i>ยกเลิก',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return fetch('{{ route("super-admin.security.force-logout-all") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (result.value && result.value.success) {
+                Swal.fire({
+                    title: 'บังคับ Logout สำเร็จ!',
+                    text: result.value.message || 'บังคับให้ผู้ใช้ทั้งหมดออกจากระบบเรียบร้อยแล้ว',
+                    icon: 'success',
+                    confirmButtonText: 'ตกลง'
+                });
+            } else {
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: result.value?.message || 'ไม่สามารถบังคับ logout ได้',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            showToast(data.message, data.success ? 'success' : 'error');
-        });
-    }
+        }
+    });
 }
 
 function investigateActivity(activityId) {
@@ -466,55 +731,234 @@ function investigateActivity(activityId) {
 }
 
 function blockIP(ipAddress) {
-    if (confirm(`ต้องการบล็อก IP ${ipAddress} หรือไม่?`)) {
-        fetch('{{ route("super-admin.security.block-ip") }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ ip_address: ipAddress })
-        })
-        .then(response => response.json())
-        .then(data => {
-            showToast(data.message, data.success ? 'success' : 'error');
-            if (data.success) {
-                setTimeout(() => window.location.reload(), 2000);
+    Swal.fire({
+        title: 'บล็อก IP Address',
+        html: `
+            <div class="text-start">
+                <p class="mb-3">ต้องการบล็อก IP Address นี้หรือไม่?</p>
+                <div class="bg-light p-3 rounded mb-3">
+                    <code class="fs-5 text-danger">${ipAddress}</code>
+                </div>
+                <div class="form-group">
+                    <label for="blockReason" class="form-label fw-bold">เหตุผล (ไม่บังคับ):</label>
+                    <input type="text" id="blockReason" class="form-control" placeholder="ระบุเหตุผลในการบล็อก...">
+                </div>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-ban me-1"></i>บล็อก IP',
+        cancelButtonText: '<i class="bi bi-x-lg me-1"></i>ยกเลิก',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            const reason = document.getElementById('blockReason').value;
+            return fetch('{{ route("super-admin.security.block-ip") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    ip_address: ipAddress,
+                    reason: reason || 'บล็อกโดย Super Admin'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`เกิดข้อผิดพลาด: ${error.message}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (result.value && result.value.success) {
+                Swal.fire({
+                    title: 'บล็อก IP สำเร็จ!',
+                    html: `
+                        <div class="text-center">
+                            <p class="mb-3">บล็อก IP Address เรียบร้อยแล้ว</p>
+                            <div class="bg-light p-3 rounded">
+                                <code class="fs-6 text-danger">${ipAddress}</code>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'success',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: result.value?.message || 'ไม่สามารถบล็อก IP ได้',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
             }
-        });
-    }
+        }
+    });
 }
 
 function suspendUser(userId) {
-    // เปิด modal สำหรับระงับผู้ใช้
-    // TODO: Implement suspend user modal
-    alert('ฟีเจอร์ระงับผู้ใช้จะเปิดใช้งานในขั้นตอนถัดไป');
+    Swal.fire({
+        title: 'ระงับผู้ใช้',
+        text: 'ฟีเจอร์ระงับผู้ใช้จะเปิดใช้งานในขั้นตอนถัดไป',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-info-circle me-1"></i>รับทราب',
+        cancelButtonText: '<i class="bi bi-x-lg me-1"></i>ปิด',
+        footer: '<small class="text-muted">ฟีเจอร์นี้จะพร้อมใช้งานในอนาคต</small>'
+    });
+}
+
+function revokeAllSuspiciousDevices() {
+    Swal.fire({
+        title: 'เพิกถอนอุปกรณ์ที่น่าสงสัย',
+        text: 'ฟีเจอร์นี้จะเปิดใช้งานในขั้นตอนถัดไป',
+        icon: 'info',
+        confirmButtonText: '<i class="bi bi-info-circle me-1"></i>รับทราบ',
+        footer: '<small class="text-muted">ฟีเจอร์นี้จะพร้อมใช้งานในอนาคต</small>'
+    });
+}
+
+function blockSuspiciousIPs() {
+    Swal.fire({
+        title: 'บล็อก IP น่าสงสัย',
+        text: 'ฟีเจอร์นี้จะเปิดใช้งานในขั้นตอนถัดไป',
+        icon: 'info',
+        confirmButtonText: '<i class="bi bi-info-circle me-1"></i>รับทราบ',
+        footer: '<small class="text-muted">ฟีเจอร์นี้จะพร้อมใช้งานในอนาคต</small>'
+    });
 }
 
 function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
-    toast.style.top = '20px';
-    toast.style.right = '20px';
-    toast.style.zIndex = '9999';
-    toast.innerHTML = message;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 5000);
+    // ใช้ SweetAlert2 Toast แทน
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
+    let icon = 'info';
+    if (type === 'success') icon = 'success';
+    else if (type === 'error') icon = 'error';
+    else if (type === 'warning') icon = 'warning';
+
+    Toast.fire({
+        icon: icon,
+        title: message
+    });
 }
 
-// Auto refresh every 30 seconds
-setInterval(() => {
-    fetch('{{ route("super-admin.security.stats") }}')
-        .then(response => response.json())
-        .then(data => {
-            // Update stats without full page reload
-            // TODO: Implement dynamic stats update
+// Security Dropdown Enhancement
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const securityDropdown = document.querySelector('.security-dropdown');
+        const dropdownButton = securityDropdown?.querySelector('.dropdown-toggle');
+        const dropdownMenu = securityDropdown?.querySelector('.dropdown-menu');
+        
+        if (!securityDropdown || !dropdownButton || !dropdownMenu) {
+            console.warn('Security Dashboard: Dropdown elements not found');
+            return;
+        }
+        
+        // เพิ่ม event listener สำหรับการคลิก
+        dropdownButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Toggle dropdown
+            const isShown = dropdownMenu.classList.contains('show');
+            
+            // ปิด dropdown อื่นๆ ก่อน
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                if (menu !== dropdownMenu) {
+                    menu.classList.remove('show');
+                }
+            });
+            
+            // Toggle dropdown ปัจจุบัน
+            if (isShown) {
+                dropdownMenu.classList.remove('show');
+                dropdownButton.setAttribute('aria-expanded', 'false');
+            } else {
+                dropdownMenu.classList.add('show');
+                dropdownButton.setAttribute('aria-expanded', 'true');
+            }
         });
-}, 30000);
+        
+        // ปิด dropdown เมื่อคลิกข้างนอก
+        document.addEventListener('click', function(e) {
+            if (!securityDropdown.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+                dropdownButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+        
+        // ปิด dropdown เมื่อ escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                dropdownMenu.classList.remove('show');
+                dropdownButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+        
+        // Setup refresh button
+        const refreshButton = document.getElementById('refreshStats');
+        if (refreshButton) {
+            refreshButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                try {
+                    location.reload();
+                } catch (error) {
+                    console.error('Error refreshing page:', error);
+                }
+            });
+        }
+        
+    } catch (error) {
+        console.error('Security Dashboard: Error setting up dropdown:', error);
+    }
+});
+
+// Auto refresh every 30 seconds with error handling
+try {
+    setInterval(() => {
+        fetch('{{ route("super-admin.security.stats") }}')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update stats without full page reload
+                // TODO: Implement dynamic stats update
+            })
+            .catch(error => {
+                console.warn('Failed to fetch security stats:', error);
+            });
+    }, 30000);
+} catch (error) {
+    console.error('Error setting up auto refresh:', error);
+}
 </script>
 @endpush
 @endsection

@@ -8,7 +8,9 @@ use App\Models\User;
 use App\Models\IpRestriction;
 use App\Models\LoginAttempt;
 use App\Models\AdminSession;
+use App\Models\UserSession;
 use App\Models\SystemSetting;
+use App\Models\SecurityLog;
 use App\Services\AccountLockoutService;
 use App\Services\IpManagementService;
 use App\Services\SuspiciousLoginService;
@@ -37,20 +39,20 @@ class SuperAdminSecurityController extends Controller
      */
     public function index()
     {
-        // สถิติความปลอดภัยระดับระบบ
+        // สถิติความปลอดภัยระด��บระบบ
         $securityStats = [
             'total_users' => User::count(),
             'active_users' => User::where('status', 'active')->count(),
-            'locked_accounts' => User::where('account_locked', true)->count(),
+            'locked_accounts' => User::where('locked_until', '>', now())->count(),
             'admin_accounts' => User::whereIn('role', ['admin', 'super_admin'])->count(),
             'suspicious_logins_today' => LoginAttempt::where('is_suspicious', true)
                 ->whereDate('attempted_at', today())->count(),
             'failed_attempts_today' => LoginAttempt::where('status', 'failed')
                 ->whereDate('attempted_at', today())->count(),
             'blocked_ips' => IpRestriction::where('type', 'blacklist')
-                ->where('is_active', true)->count(),
+                ->active()->count(),
             'whitelisted_ips' => IpRestriction::where('type', 'whitelist')
-                ->where('is_active', true)->count(),
+                ->active()->count(),
         ];
 
         // กิจกรรมล่าสุดที่มีความเสี่ยงสูง
@@ -82,26 +84,26 @@ class SuperAdminSecurityController extends Controller
     {
         // สถิติอุปกรณ์ระดับระบบ
         $deviceStats = [
-            'total_devices' => AdminSession::count(),
-            'trusted_devices' => AdminSession::where('is_trusted', true)->count(),
-            'suspicious_devices' => AdminSession::where('is_suspicious', true)->count(),
-            'active_devices' => AdminSession::where('last_activity', '>', now()->subHours(24))->count(),
+            'total' => UserSession::count(),
+            'trusted' => UserSession::where('is_trusted', true)->count(),
+            'suspicious' => UserSession::where('is_suspicious', true)->count(),
+            'online' => UserSession::where('last_activity', '>', now()->subHours(1))->count(),
         ];
 
         // รายการอุปกรณ์ทั้งหมดในระบบ
-        $allDevices = AdminSession::with('user')
+        $devices = UserSession::with('user')
             ->orderBy('last_activity', 'desc')
             ->paginate(20);
 
         // อุปกรณ์ที่น่าสงสัย
-        $suspiciousDevices = AdminSession::where('is_suspicious', true)
+        $suspiciousDevices = UserSession::where('is_suspicious', true)
             ->with('user')
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('admin.super-admin.security.devices', compact(
             'deviceStats', 
-            'allDevices', 
+            'devices', 
             'suspiciousDevices'
         ));
     }
@@ -115,9 +117,9 @@ class SuperAdminSecurityController extends Controller
         $ipStats = [
             'total_restrictions' => IpRestriction::count(),
             'active_blacklist' => IpRestriction::where('type', 'blacklist')
-                ->where('is_active', true)->count(),
+                ->active()->count(),
             'active_whitelist' => IpRestriction::where('type', 'whitelist')
-                ->where('is_active', true)->count(),
+                ->active()->count(),
             'recent_blocks' => IpRestriction::where('created_at', '>', now()->subDays(7))->count(),
         ];
 
@@ -149,8 +151,8 @@ class SuperAdminSecurityController extends Controller
         $suspiciousStats = [
             'high_risk_attempts' => LoginAttempt::where('risk_score', '>', 80)->count(),
             'medium_risk_attempts' => LoginAttempt::whereBetween('risk_score', [50, 80])->count(),
-            'flagged_users' => User::where('security_alerts', '>', 0)->count(),
-            'automated_blocks' => IpRestriction::where('is_automatic', true)->count(),
+            'flagged_users' => User::where('suspicious_login_count', '>', 5)->count(),
+            'automated_blocks' => IpRestriction::where('auto_generated', true)->count(),
         ];
 
         // กิจกรรมน่าสงสัยล่าสุด
@@ -180,8 +182,8 @@ class SuperAdminSecurityController extends Controller
             'session_timeout' => config('session.lifetime'),
             'max_login_attempts' => config('auth.max_attempts', 5),
             'lockout_duration' => config('auth.lockout_duration', 900),
-            'ip_restriction_enabled' => SystemSetting::getValue('ip_restriction_enabled', true),
-            'suspicious_login_detection' => SystemSetting::getValue('suspicious_login_detection', true),
+            'ip_restriction_enabled' => SystemSetting::get('ip_restriction_enabled', true),
+            'suspicious_login_detection' => SystemSetting::get('suspicious_login_detection', true),
         ];
 
         return view('admin.super-admin.security.policies', compact('policies'));
@@ -193,30 +195,32 @@ class SuperAdminSecurityController extends Controller
     public function updateSecurityPolicies(Request $request)
     {
         $request->validate([
-            'max_login_attempts' => 'required|integer|min:3|max:10',
-            'lockout_duration' => 'required|integer|min:300|max:3600',
-            'session_timeout' => 'required|integer|min:15|max:480',
-            'password_min_length' => 'required|integer|min:6|max:32',
-            'password_require_uppercase' => 'boolean',
-            'password_require_lowercase' => 'boolean',
-            'password_require_numbers' => 'boolean',
-            'password_require_symbols' => 'boolean',
+            'session_timeout' => 'required|integer|min:5|max:1440',
+            'max_login_attempts' => 'required|integer|min:1|max:20',
+            'lockout_duration' => 'required|integer|min:60|max:3600',
+            'ip_restriction_enabled' => 'boolean',
+            'suspicious_login_detection' => 'boolean',
         ]);
 
         // อัปเดตการตั้งค่าความปลอดภัย
         $policies = $request->only([
-            'max_login_attempts', 'lockout_duration', 'session_timeout',
-            'password_min_length', 'password_require_uppercase',
-            'password_require_lowercase', 'password_require_numbers',
-            'password_require_symbols', 'ip_restriction_enabled',
+            'session_timeout',
+            'max_login_attempts', 
+            'lockout_duration',
+            'ip_restriction_enabled',
             'suspicious_login_detection'
         ]);
 
         foreach ($policies as $key => $value) {
-            SystemSetting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value, 'type' => is_bool($value) ? 'boolean' : 'string']
-            );
+            // จัดการ boolean values สำหรับ checkboxes
+            if (in_array($key, ['ip_restriction_enabled', 'suspicious_login_detection'])) {
+                $value = $request->has($key) ? true : false;
+                $type = 'boolean';
+            } else {
+                $type = 'integer';
+            }
+            
+            SystemSetting::set($key, $value, $type);
         }
 
         // บันทึก audit log
@@ -301,7 +305,7 @@ class SuperAdminSecurityController extends Controller
         $score = 100;
         
         // ลดคะแนนตามจำนวนบัญชีที่ถูกล็อก
-        $lockedAccounts = User::where('account_locked', true)->count();
+        $lockedAccounts = User::where('locked_until', '>', now())->count();
         $score -= min($lockedAccounts * 5, 30);
         
         // ลดคะแนนตามกิจกรรมน่าสงสัย
@@ -382,7 +386,7 @@ class SuperAdminSecurityController extends Controller
         $stats = [
             'total_users' => User::count(),
             'active_users' => User::where('status', 'active')->count(),
-            'locked_accounts' => User::where('account_locked', true)->count(),
+            'locked_accounts' => User::where('locked_until', '>', now())->count(),
             'suspicious_logins_today' => LoginAttempt::where('is_suspicious', true)
                 ->whereDate('attempted_at', today())->count(),
             'security_level' => $this->calculateSystemSecurityLevel(),
@@ -407,7 +411,7 @@ class SuperAdminSecurityController extends Controller
                 'suspicious_activities' => LoginAttempt::where('is_suspicious', true)
                     ->whereDate('attempted_at', today())->count(),
                 'blocked_ips' => IpRestriction::where('type', 'blacklist')
-                    ->where('is_active', true)->count(),
+                    ->active()->count(),
             ];
 
             Log::info('Security system scan completed', [
@@ -513,7 +517,7 @@ class SuperAdminSecurityController extends Controller
                 [
                     'type' => 'blacklist',
                     'reason' => $request->reason ?? 'Blocked by Super Admin',
-                    'is_active' => true,
+                    'status' => 'active',
                     'created_by' => auth()->id(),
                     'expires_at' => null // Permanent block
                 ]
@@ -535,6 +539,363 @@ class SuperAdminSecurityController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'เกิดข้อผิดพลาดในการบล็อก IP'
+            ]);
+        }
+    }
+
+    /**
+     * เพิกถอนอุปกรณ์ที่น่าสงสัยทั้งหมด
+     */
+    public function revokeAllSuspiciousDevices(Request $request)
+    {
+        try {
+            // หาอุปกรณ์ที่น่าสงสัยทั้งหมด
+            $suspiciousDevices = AdminSession::suspicious()->get();
+            $count = $suspiciousDevices->count();
+
+            if ($count == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ไม่พบอุปกรณ์ที่น่าสงสัย',
+                    'count' => 0
+                ]);
+            }
+
+            // เพิกถอนการไว้วางใจและบังคับให้ออกจากระบบ
+            foreach ($suspiciousDevices as $device) {
+                $securityFlags = $device->security_flags ?? [];
+                $securityFlags['is_trusted'] = false;
+                $securityFlags['is_suspicious'] = true;
+                $securityFlags['revoked_at'] = now()->toISOString();
+                $securityFlags['revoked_by'] = auth()->id();
+                $securityFlags['revoked_reason'] = 'Mass revocation of suspicious devices';
+
+                $device->update([
+                    'security_flags' => $securityFlags,
+                    'is_active' => false
+                ]);
+
+                // Log การกระทำ
+                SecurityLog::create([
+                    'type' => 'device_revoked',
+                    'user_id' => $device->user_id,
+                    'admin_id' => auth()->id(),
+                    'ip_address' => $request->ip(),
+                    'details' => [
+                        'device_id' => $device->id,
+                        'action' => 'mass_revoke_suspicious',
+                        'device_info' => [
+                            'device_name' => $device->device_name,
+                            'ip_address' => $device->ip_address
+                        ]
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "เพิกถอนอุปกรณ์ที่น่าสงสัยเรียบร้อยแล้ว",
+                'count' => $count
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Mass device revocation failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการเพิกถอนอุปกรณ์',
+                'count' => 0
+            ]);
+        }
+    }
+
+    /**
+     * บังคับออกจากระบบทุกอุปกรณ์
+     */
+    public function forceLogoutAllDevices(Request $request)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:500'
+        ]);
+
+        try {
+            // ยกเลิก session ทั้งหมดยกเว้น Super Admin ปัจจุบัน
+            $currentSessionId = session()->getId();
+            $affectedSessions = AdminSession::where('session_id', '!=', $currentSessionId)->get();
+            $count = $affectedSessions->count();
+
+            foreach ($affectedSessions as $session) {
+                $session->update(['is_active' => false]);
+
+                // Log การกระทำ
+                SecurityLog::create([
+                    'type' => 'forced_logout',
+                    'user_id' => $session->user_id,
+                    'admin_id' => auth()->id(),
+                    'ip_address' => $request->ip(),
+                    'details' => [
+                        'device_id' => $session->id,
+                        'action' => 'mass_logout',
+                        'reason' => $request->reason,
+                        'device_info' => [
+                            'device_name' => $session->device_name,
+                            'ip_address' => $session->ip_address
+                        ]
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "บังคับออกจากระบบทุกอุปกรณ์เรียบร้อยแล้ว",
+                'count' => $count,
+                'reason' => $request->reason
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Mass logout failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการบังคับออกจากระบบ'
+            ]);
+        }
+    }
+
+    /**
+     * ล้างอุปกรณ์เก่า
+     */
+    public function cleanupOldDevices(Request $request)
+    {
+        $request->validate([
+            'days' => 'required|integer|min:1|max:365',
+            'include_suspicious' => 'boolean',
+            'include_untrusted' => 'boolean'
+        ]);
+
+        try {
+            $cutoffDate = now()->subDays($request->days);
+            $query = AdminSession::where('last_activity', '<', $cutoffDate);
+
+            // เพิ่มเงื่อนไขตามที่เลือก
+            if ($request->include_suspicious) {
+                $query->orWhere(function($q) use ($cutoffDate) {
+                    $q->suspicious()->where('last_activity', '<', $cutoffDate);
+                });
+            }
+
+            if ($request->include_untrusted) {
+                $query->orWhere(function($q) use ($cutoffDate) {
+                    $q->whereJsonContains('security_flags->is_trusted', false)
+                      ->where('last_activity', '<', $cutoffDate);
+                });
+            }
+
+            $oldDevices = $query->get();
+            $count = $oldDevices->count();
+
+            if ($count == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ไม่พบอุปกรณ์เก่าที่ตรงตามเงื่อนไข',
+                    'count' => 0
+                ]);
+            }
+
+            // ลบอุปกรณ์เก่า
+            foreach ($oldDevices as $device) {
+                // Log ก่อนลบ
+                SecurityLog::create([
+                    'type' => 'device_cleaned',
+                    'user_id' => $device->user_id,
+                    'admin_id' => auth()->id(),
+                    'ip_address' => $request->ip(),
+                    'details' => [
+                        'device_id' => $device->id,
+                        'action' => 'cleanup_old_device',
+                        'criteria' => [
+                            'days_inactive' => $request->days,
+                            'include_suspicious' => $request->include_suspicious,
+                            'include_untrusted' => $request->include_untrusted
+                        ],
+                        'device_info' => [
+                            'device_name' => $device->device_name,
+                            'ip_address' => $device->ip_address,
+                            'last_activity' => $device->last_activity
+                        ]
+                    ]
+                ]);
+
+                $device->delete();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "ล้างอุปกรณ์เก่าเรียบร้อยแล้ว",
+                'count' => $count,
+                'criteria' => [
+                    'days' => $request->days,
+                    'include_suspicious' => $request->include_suspicious,
+                    'include_untrusted' => $request->include_untrusted
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Device cleanup failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการล้างอุปกรณ์เก่า'
+            ]);
+        }
+    }
+
+    /**
+     * ไว้วางใจอุปกรณ์
+     */
+    public function trustDevice(Request $request, $deviceId)
+    {
+        try {
+            $device = AdminSession::findOrFail($deviceId);
+            
+            $securityFlags = $device->security_flags ?? [];
+            $securityFlags['is_trusted'] = true;
+            $securityFlags['is_suspicious'] = false;
+            $securityFlags['trusted_at'] = now()->toISOString();
+            $securityFlags['trusted_by'] = auth()->id();
+
+            $device->update(['security_flags' => $securityFlags]);
+
+            SecurityLog::create([
+                'type' => 'device_trusted',
+                'user_id' => $device->user_id,
+                'admin_id' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'details' => [
+                    'device_id' => $device->id,
+                    'action' => 'trust_device',
+                    'device_info' => [
+                        'device_name' => $device->device_name,
+                        'ip_address' => $device->ip_address
+                    ]
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'อุปกรณ์ได้รับการไว้วางใจแล้ว'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Device trust failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการไว้วางใจอุปกรณ์'
+            ]);
+        }
+    }
+
+    /**
+     * ทำเครื่องหมายอุปกรณ์ว่าน่าสงสัย
+     */
+    public function suspectDevice(Request $request, $deviceId)
+    {
+        $request->validate([
+            'reason' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $device = AdminSession::findOrFail($deviceId);
+            
+            $securityFlags = $device->security_flags ?? [];
+            $securityFlags['is_suspicious'] = true;
+            $securityFlags['is_trusted'] = false;
+            $securityFlags['suspected_at'] = now()->toISOString();
+            $securityFlags['suspected_by'] = auth()->id();
+            $securityFlags['suspect_reason'] = $request->reason ?? 'ไม่ระบุเหตุผล';
+
+            $device->update(['security_flags' => $securityFlags]);
+
+            SecurityLog::create([
+                'type' => 'device_suspected',
+                'user_id' => $device->user_id,
+                'admin_id' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'details' => [
+                    'device_id' => $device->id,
+                    'action' => 'mark_suspicious',
+                    'reason' => $request->reason ?? 'ไม่ระบุเหตุผล',
+                    'device_info' => [
+                        'device_name' => $device->device_name,
+                        'ip_address' => $device->ip_address
+                    ]
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'อุปกรณ์ถูกทำเครื่องหมายว่าน่าสงสัยแล้ว',
+                'reason' => $request->reason ?? 'ไม่ระบุเหตุผล'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Device suspect failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการทำเครื่องหมายอุปกรณ์'
+            ]);
+        }
+    }
+
+    /**
+     * บล็อกอุปกรณ์
+     */
+    public function blockDevice(Request $request, $deviceId)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:500'
+        ]);
+
+        try {
+            $device = AdminSession::findOrFail($deviceId);
+            
+            $securityFlags = $device->security_flags ?? [];
+            $securityFlags['is_blocked'] = true;
+            $securityFlags['is_trusted'] = false;
+            $securityFlags['is_suspicious'] = true;
+            $securityFlags['blocked_at'] = now()->toISOString();
+            $securityFlags['blocked_by'] = auth()->id();
+            $securityFlags['block_reason'] = $request->reason;
+
+            $device->update([
+                'security_flags' => $securityFlags,
+                'is_active' => false
+            ]);
+
+            SecurityLog::create([
+                'type' => 'device_blocked',
+                'user_id' => $device->user_id,
+                'admin_id' => auth()->id(),
+                'ip_address' => $request->ip(),
+                'details' => [
+                    'device_id' => $device->id,
+                    'action' => 'block_device',
+                    'reason' => $request->reason,
+                    'device_info' => [
+                        'device_name' => $device->device_name,
+                        'ip_address' => $device->ip_address
+                    ]
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'อุปกรณ์ถูกบล็อกแล้ว',
+                'reason' => $request->reason
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Device block failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการบล็อกอุปกรณ์'
             ]);
         }
     }

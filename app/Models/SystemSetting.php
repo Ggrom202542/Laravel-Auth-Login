@@ -42,6 +42,14 @@ class SystemSetting extends Model
     }
 
     /**
+     * Alias for get() method for backward compatibility.
+     */
+    public static function getValue($key, $default = null)
+    {
+        return static::get($key, $default);
+    }
+
+    /**
      * Set a setting value.
      */
     public static function set($key, $value, $type = 'string', $description = null)

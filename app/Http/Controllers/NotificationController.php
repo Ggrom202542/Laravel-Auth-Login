@@ -105,4 +105,34 @@ class NotificationController extends Controller
             'unread_count' => $user->unreadNotifications()->count()
         ]);
     }
+
+    /**
+     * Get unread security notifications for the authenticated user.
+     */
+    public function getUnreadSecurityNotifications(): JsonResponse
+    {
+        try {
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            
+            // Get unread security-related notifications
+            $securityNotifications = $user->unreadNotifications()
+                ->where('type', 'LIKE', '%Security%')
+                ->orWhere('data->type', 'security')
+                ->get();
+            
+            return response()->json([
+                'success' => true,
+                'notifications' => $securityNotifications,
+                'count' => $securityNotifications->count()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ไม่สามารถดึงข้อมูลการแจ้งเตือนความปลอดภัยได้',
+                'notifications' => [],
+                'count' => 0
+            ]);
+        }
+    }
 }

@@ -96,6 +96,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
     Route::get('/api/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+    Route::get('/notifications/security/unread', [NotificationController::class, 'getUnreadSecurityNotifications'])->name('notifications.security.unread');
     
     // Test route (development only)
     Route::post('/notifications/test', [NotificationController::class, 'testNotification'])->name('notifications.test');
@@ -464,6 +465,16 @@ Route::group(['middleware' => ['auth', 'super.admin', 'log.activity'], 'prefix' 
         Route::post('/block-ip', [App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'blockIP'])->name('block-ip');
     });
     
+    // System Reports Routes (Super Admin Only)
+    Route::group(['prefix' => 'reports', 'as' => 'reports.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\SystemReportsController::class, 'index'])->name('index');
+        Route::get('/users', [App\Http\Controllers\Admin\SystemReportsController::class, 'users'])->name('users');
+        Route::get('/sessions', [App\Http\Controllers\Admin\SystemReportsController::class, 'sessions'])->name('sessions');
+        Route::get('/security', [App\Http\Controllers\Admin\SystemReportsController::class, 'security'])->name('security');
+        Route::get('/performance', [App\Http\Controllers\Admin\SystemReportsController::class, 'performance'])->name('performance');
+        Route::get('/export', [App\Http\Controllers\Admin\SystemReportsController::class, 'export'])->name('export');
+    });
+    
     // System Settings Routes (Super Admin Only)
     Route::group(['prefix' => 'settings', 'as' => 'settings.'], function () {
         Route::get('/', [App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('index');
@@ -510,4 +521,37 @@ if (app()->environment('local')) {
 Route::middleware(['auth'])->group(function () {
     Route::get('/api/password/status', [App\Http\Controllers\PasswordStatusController::class, 'getStatus'])
         ->name('api.password.status');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Super Admin Device Management AJAX Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:super_admin'])->prefix('api/admin')->group(function () {
+    // Revoke all suspicious devices
+    Route::post('/devices/revoke-suspicious', [\App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'revokeAllSuspiciousDevices'])
+        ->name('api.admin.devices.revoke-suspicious');
+    
+    // Force logout all devices
+    Route::post('/devices/force-logout-all', [\App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'forceLogoutAllDevices'])
+        ->name('api.admin.devices.force-logout-all');
+    
+    // Cleanup old devices
+    Route::post('/devices/cleanup-old', [\App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'cleanupOldDevices'])
+        ->name('api.admin.devices.cleanup-old');
+        
+    // Individual device management
+    Route::post('/devices/{deviceId}/trust', [\App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'trustDevice'])
+        ->name('api.admin.devices.trust');
+        
+    Route::post('/devices/{deviceId}/suspect', [\App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'suspectDevice'])
+        ->name('api.admin.devices.suspect');
+        
+    Route::post('/devices/{deviceId}/block', [\App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'blockDevice'])
+        ->name('api.admin.devices.block');
+
+    // Block IP Address
+    Route::post('/block-ip', [\App\Http\Controllers\Admin\SuperAdminSecurityController::class, 'blockIP'])
+        ->name('api.admin.block-ip');
 });

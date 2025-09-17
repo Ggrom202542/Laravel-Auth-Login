@@ -401,10 +401,35 @@
 
                 <!-- Reports and Analytics -->
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports" 
+                       aria-expanded="false" aria-controls="collapseReports">
                         <i class="bi bi-graph-up"></i>
                         <span>รายงานระบบ</span>
                     </a>
+                    <div id="collapseReports" class="collapse" data-bs-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">รายงานและการวิเคราะห์:</h6>
+                            <a class="collapse-item" href="{{ route('super-admin.reports.index') }}">
+                                <i class="bi bi-speedometer2 me-2"></i>ภาพรวมระบบ
+                            </a>
+                            <a class="collapse-item" href="{{ route('super-admin.reports.users') }}">
+                                <i class="bi bi-people me-2"></i>รายงานผู้ใช้งาน
+                            </a>
+                            <a class="collapse-item" href="{{ route('super-admin.reports.sessions') }}">
+                                <i class="bi bi-laptop me-2"></i>รายงาน Sessions
+                            </a>
+                            <a class="collapse-item" href="{{ route('super-admin.reports.security') }}">
+                                <i class="bi bi-shield-lock me-2"></i>รายงานความปลอดภัย
+                            </a>
+                            <a class="collapse-item" href="{{ route('super-admin.reports.performance') }}">
+                                <i class="bi bi-speedometer me-2"></i>รายงาน Performance
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="collapse-item" href="{{ route('super-admin.reports.export', ['type' => 'users', 'format' => 'pdf']) }}">
+                                <i class="bi bi-download me-2 text-primary"></i>Export รายงาน
+                            </a>
+                        </div>
+                    </div>
                 </li>
 
             @endif

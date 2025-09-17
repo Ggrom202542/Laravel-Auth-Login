@@ -1,15 +1,31 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
-// Initialize Echo with Pusher
+// Initialize Echo with Pusher - Temporarily disabled to prevent errors
 window.Pusher = Pusher;
 
+// Disable WebSocket connection temporarily
+/*
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: process.env.MIX_PUSHER_APP_KEY || 'your-pusher-key',
     cluster: process.env.MIX_PUSHER_APP_CLUSTER || 'mt1',
     forceTLS: true
 });
+*/
+
+// Mock Echo for compatibility
+window.Echo = {
+    channel: () => ({
+        listen: () => {},
+        stopListening: () => {}
+    }),
+    private: () => ({
+        listen: () => {},
+        stopListening: () => {}
+    }),
+    disconnect: () => {}
+};
 
 class SecurityNotificationManager {
     constructor() {
@@ -359,13 +375,17 @@ class SecurityNotificationManager {
             }
         })
         .then(response => response.json())
-        .then(notifications => {
-            notifications.forEach(notification => {
-                this.notifications.push(notification);
-            });
-            this.updateNotificationBadge();
+        .then(data => {
+            if (data.success && data.notifications) {
+                data.notifications.forEach(notification => {
+                    this.notifications.push(notification);
+                });
+                this.updateNotificationBadge();
+            }
         })
-        .catch(console.error);
+        .catch(error => {
+            console.error('Failed to load security notifications:', error);
+        });
     }
 
     getEventTitle(type) {

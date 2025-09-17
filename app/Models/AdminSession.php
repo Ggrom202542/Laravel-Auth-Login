@@ -157,6 +157,54 @@ class AdminSession extends Model
     }
 
     /**
+     * Check if session is trusted
+     */
+    public function isTrusted()
+    {
+        return ($this->security_flags['is_trusted'] ?? false) === true;
+    }
+
+    /**
+     * Check if session is suspicious
+     */
+    public function isSuspicious()
+    {
+        return ($this->security_flags['is_suspicious'] ?? false) === true;
+    }
+
+    /**
+     * Check if session is blocked
+     */
+    public function isBlocked()
+    {
+        return ($this->security_flags['is_blocked'] ?? false) === true;
+    }
+
+    /**
+     * Scope for trusted sessions
+     */
+    public function scopeTrusted($query)
+    {
+        return $query->whereJsonContains('security_flags->is_trusted', true);
+    }
+
+    /**
+     * Scope for suspicious sessions
+     */
+    public function scopeSuspicious($query)
+    {
+        return $query->whereJsonContains('security_flags->is_suspicious', true);
+    }
+
+    /**
+     * Scope for blocked sessions
+     */
+    public function scopeBlocked($query)
+    {
+        return $query->whereJsonContains('security_flags->is_blocked', true);
+    }
+
+    /**
      * Add security flag
      */
     public function addSecurityFlag($flag)

@@ -87,62 +87,70 @@ const Dashboard = {
     // Auto-hide Alerts
     initAlerts: function() {
         const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                alert.style.opacity = '0';
-                alert.style.transform = 'translateY(-20px)';
+        if (alerts && alerts.length > 0) {
+            alerts.forEach(alert => {
                 setTimeout(() => {
-                    alert.remove();
-                }, 300);
-            }, 5000);
-        });
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, 5000);
+            });
+        }
 
         // Manual close alert functionality
         const closeButtons = document.querySelectorAll('.alert .btn-close');
-        closeButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const alert = this.closest('.alert');
-                alert.style.opacity = '0';
-                alert.style.transform = 'translateY(-20px)';
-                setTimeout(() => {
-                    alert.remove();
-                }, 300);
+        if (closeButtons && closeButtons.length > 0) {
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const alert = this.closest('.alert');
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                });
             });
-        });
+        }
     },
 
     // Form Enhancement
     initForms: function() {
         // Add loading state to forms
         const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    submitBtn.disabled = true;
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>กำลังประมวลผล...';
-                    
-                    // Re-enable after 5 seconds as fallback
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
-                    }, 5000);
-                }
+        if (forms && forms.length > 0) {
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        submitBtn.disabled = true;
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>กำลังประมวลผล...';
+                        
+                        // Re-enable after 5 seconds as fallback
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        }, 5000);
+                    }
+                });
             });
-        });
+        }
 
         // Form validation enhancement
         const inputs = document.querySelectorAll('.form-control, .form-select');
-        inputs.forEach(input => {
-            input.addEventListener('blur', function() {
-                this.classList.add('was-validated');
+        if (inputs && inputs.length > 0) {
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    this.classList.add('was-validated');
+                });
+                
+                input.addEventListener('focus', function() {
+                    this.classList.remove('is-invalid');
+                });
             });
-            
-            input.addEventListener('focus', function() {
-                this.classList.remove('is-invalid');
-            });
-        });
+        }
     },
 
     // Initialize Bootstrap Tooltips
