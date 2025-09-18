@@ -57,8 +57,28 @@ class ActivityController extends Controller
             $query->where('is_suspicious', true);
         }
         
-        // จัดเรียงตามวันที่ล่าสุด
-        $activities = $query->orderBy('created_at', 'desc')->paginate(20);
+        // จัดเรียงข้อมูล
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        // กำหนดคอลัมน์ที่สามารถเรียงลำดับได้
+        $allowedSortColumns = [
+            'id', 'created_at', 'activity_type', 'ip_address', 'is_suspicious'
+        ];
+        
+        // ตรวจสอบความถูกต้องของการเรียงลำดับ
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'created_at';
+        }
+        
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+        
+        // เพิ่มการเรียงลำดับตาม ID เป็นอันดับสอง เพื่อให้ผลลัพธ์สม่ำเสมอ
+        $activities = $query->orderBy($sortBy, $sortOrder)
+                          ->orderBy('id', 'desc')
+                          ->paginate(10);
         
         // รับรายการประเภทกิจกรรมสำหรับ filter
         $activityTypes = ActivityLog::select('activity_type')

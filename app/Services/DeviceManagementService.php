@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\UserDevice;
 use App\Models\User;
+use App\Helpers\IpHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Log, Hash, Cache};
 use Illuminate\Support\Str;
@@ -50,7 +51,7 @@ class DeviceManagementService
         return [
             'device_fingerprint' => $this->generateDeviceFingerprint($request),
             'user_agent' => $userAgent,
-            'ip_address' => $request->ip(),
+            'ip_address' => IpHelper::getRealIpAddress(),
             'device_type' => $deviceInfo['device_type'] ?? null,
             'browser_name' => $deviceInfo['browser_name'] ?? null,
             'browser_version' => $deviceInfo['browser_version'] ?? null,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\IpHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -182,7 +183,7 @@ class ActivityLog extends Model
         // เพิ่มข้อมูลเพิ่มเติมจาก request หากไม่ได้ระบุ
         if (request()) {
             $data = array_merge([
-                'ip_address' => request()->ip(),
+                'ip_address' => IpHelper::getRealIpAddress(),
                 'user_agent' => request()->userAgent(),
                 'url' => request()->fullUrl(),
                 'method' => request()->method(),

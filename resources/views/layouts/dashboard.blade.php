@@ -124,6 +124,15 @@
                     </a>
                 </li>
 
+                <!-- Device Management (Alternative Interface) -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.devices.index') }}">
+                        <i class="bi bi-phone-flip"></i>
+                        <span>จัดการอุปกรณ์ขั้นสูง</span>
+                        <span class="badge bg-secondary ms-auto">Beta</span>
+                    </a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('activities.index') }}">
                         <i class="bi bi-clock-history"></i>
@@ -233,6 +242,14 @@
                             </a>
                         </div>
                     </div>
+                </li>
+
+                <!-- IP Information & Security -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.ip-info.index') }}">
+                        <i class="bi bi-globe2"></i>
+                        <span>ข้อมูล IP & Security</span>
+                    </a>
                 </li>
 
                 <li class="nav-item">
@@ -533,7 +550,7 @@
                                     $unreadCount = auth()->user()->unreadNotifications()->count() ?? 0;
                                 @endphp
                                 @if($unreadCount > 0)
-                                    <span class="badge bg-danger badge-counter">{{ $unreadCount }}</span>
+                                    <span class="badge badge-counter">{{ $unreadCount }}</span>
                                 @endif
                             </a>
                             <div class="dropdown-menu dropdown-menu-end dropdown-notifications shadow" 
@@ -602,7 +619,7 @@
                                     $unreadMessagesCount = auth()->user()->unread_messages_count ?? 0;
                                 @endphp
                                 @if($unreadMessagesCount > 0)
-                                    <span class="badge bg-info badge-counter">{{ $unreadMessagesCount }}</span>
+                                    <span class="badge badge-counter">{{ $unreadMessagesCount }}</span>
                                 @endif
                             </a>
                             <div class="dropdown-menu dropdown-menu-end dropdown-messages shadow" 
@@ -610,7 +627,7 @@
                                 <h6 class="dropdown-header bg-info text-white py-2 px-3 m-0">
                                     <i class="bi bi-chat-dots me-2"></i>ข้อความ
                                     @if($unreadMessagesCount > 0)
-                                        <span class="badge bg-light text-info ms-2">{{ $unreadMessagesCount }}</span>
+                                        <span class="badge bg-light ms-2">{{ $unreadMessagesCount }}</span>
                                     @endif
                                 </h6>
                                 

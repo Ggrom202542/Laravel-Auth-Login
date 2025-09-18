@@ -148,6 +148,25 @@
                            placeholder="ค้นหา IP" value="{{ request('ip_address') }}">
                 </div>
                 
+                <div class="col-md-2 mb-3">
+                    <label for="sort_by" class="form-label">เรียงลำดับตาม</label>
+                    <select name="sort_by" id="sort_by" class="form-select">
+                        <option value="created_at" {{ request('sort_by', 'created_at') == 'created_at' ? 'selected' : '' }}>วันที่</option>
+                        <option value="id" {{ request('sort_by') == 'id' ? 'selected' : '' }}>รหัสกิจกรรม</option>
+                        <option value="activity_type" {{ request('sort_by') == 'activity_type' ? 'selected' : '' }}>ประเภท</option>
+                        <option value="ip_address" {{ request('sort_by') == 'ip_address' ? 'selected' : '' }}>IP Address</option>
+                        <option value="is_suspicious" {{ request('sort_by') == 'is_suspicious' ? 'selected' : '' }}>สถานะ</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2 mb-3">
+                    <label for="sort_order" class="form-label">ลำดับ</label>
+                    <select name="sort_order" id="sort_order" class="form-select">
+                        <option value="desc" {{ request('sort_order', 'desc') == 'desc' ? 'selected' : '' }}>ล่าสุดก่อน</option>
+                        <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>เก่าสุดก่อน</option>
+                    </select>
+                </div>
+                
                 <div class="col-12">
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" name="suspicious" value="1" 
@@ -173,10 +192,35 @@
 
 <!-- รายการกิจกรรม -->
 <div class="card shadow mb-4">
-    <div class="card-header py-3">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">
             <i class="bi bi-list-ul me-2"></i>รายการประวัติกิจกรรม
+            <small class="text-muted ms-2">
+                (คลิกหัวตารางเพื่อเรียงลำดับ)
+            </small>
         </h6>
+        @if($activities->total() > 0)
+            <div class="d-flex align-items-center">
+                <span class="badge bg-light text-dark me-2">
+                    <i class="bi bi-collection me-1"></i>{{ number_format($activities->total()) }} รายการ
+                </span>
+                <span class="badge bg-primary">
+                    <i class="bi bi-file-earmark-text me-1"></i>หน้า {{ $activities->currentPage() }}/{{ $activities->lastPage() }}
+                </span>
+                @if(request('sort_by'))
+                    <span class="badge bg-success ms-2">
+                        <i class="bi bi-sort-down me-1"></i>
+                        เรียงตาม: {{ 
+                            request('sort_by') == 'created_at' ? 'วันที่' : 
+                            (request('sort_by') == 'id' ? 'รหัส' : 
+                            (request('sort_by') == 'activity_type' ? 'ประเภท' : 
+                            (request('sort_by') == 'ip_address' ? 'IP' : 'สถานะ')))
+                        }}
+                        ({{ request('sort_order', 'desc') == 'desc' ? 'ล่าสุดก่อน' : 'เก่าสุดก่อน' }})
+                    </span>
+                @endif
+            </div>
+        @endif
     </div>
     <div class="card-body">
         @if($activities->count() > 0)
@@ -184,15 +228,55 @@
                 <table class="table table-bordered" id="activitiesTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th width="5%">#</th>
-                            <th width="12%">วันที่/เวลา</th>
+                            <th width="5%">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'id', 'sort_order' => request('sort_by') == 'id' && request('sort_order', 'desc') == 'desc' ? 'asc' : 'desc']) }}" 
+                                   class="text-decoration-none text-dark d-flex align-items-center">
+                                    #
+                                    @if(request('sort_by') == 'id')
+                                        <i class="bi bi-chevron-{{ request('sort_order', 'desc') == 'desc' ? 'down' : 'up' }} ms-1"></i>
+                                    @endif
+                                </a>
+                            </th>
+                            <th width="12%">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'created_at', 'sort_order' => request('sort_by') == 'created_at' && request('sort_order', 'desc') == 'desc' ? 'asc' : 'desc']) }}" 
+                                   class="text-decoration-none text-dark d-flex align-items-center">
+                                    วันที่/เวลา
+                                    @if(request('sort_by', 'created_at') == 'created_at')
+                                        <i class="bi bi-chevron-{{ request('sort_order', 'desc') == 'desc' ? 'down' : 'up' }} ms-1"></i>
+                                    @endif
+                                </a>
+                            </th>
                             @if($canViewAll)
                             <th width="15%">ผู้ใช้</th>
                             @endif
-                            <th width="15%">ประเภท</th>
+                            <th width="15%">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'activity_type', 'sort_order' => request('sort_by') == 'activity_type' && request('sort_order', 'desc') == 'desc' ? 'asc' : 'desc']) }}" 
+                                   class="text-decoration-none text-dark d-flex align-items-center">
+                                    ประเภท
+                                    @if(request('sort_by') == 'activity_type')
+                                        <i class="bi bi-chevron-{{ request('sort_order', 'desc') == 'desc' ? 'down' : 'up' }} ms-1"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th width="25%">คำอธิบาย</th>
-                            <th width="12%">IP Address</th>
-                            <th width="8%">สถานะ</th>
+                            <th width="12%">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'ip_address', 'sort_order' => request('sort_by') == 'ip_address' && request('sort_order', 'desc') == 'desc' ? 'asc' : 'desc']) }}" 
+                                   class="text-decoration-none text-dark d-flex align-items-center">
+                                    IP Address
+                                    @if(request('sort_by') == 'ip_address')
+                                        <i class="bi bi-chevron-{{ request('sort_order', 'desc') == 'desc' ? 'down' : 'up' }} ms-1"></i>
+                                    @endif
+                                </a>
+                            </th>
+                            <th width="8%">
+                                <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'is_suspicious', 'sort_order' => request('sort_by') == 'is_suspicious' && request('sort_order', 'desc') == 'desc' ? 'asc' : 'desc']) }}" 
+                                   class="text-decoration-none text-dark d-flex align-items-center">
+                                    สถานะ
+                                    @if(request('sort_by') == 'is_suspicious')
+                                        <i class="bi bi-chevron-{{ request('sort_order', 'desc') == 'desc' ? 'down' : 'up' }} ms-1"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th width="8%">จัดการ</th>
                         </tr>
                     </thead>
@@ -284,15 +368,114 @@
                 </table>
             </div>
             
-            <!-- Pagination -->
-            <div class="d-flex justify-content-center">
-                {{ $activities->withQueryString()->links() }}
+            <!-- Pagination และข้อมูลสถิติ -->
+            <div class="pagination-container mt-4">
+                <div class="pagination-info">
+                    <span class="text-muted">
+                        <i class="bi bi-info-circle me-2"></i>
+                        แสดง {{ $activities->firstItem() ?? 0 }} ถึง {{ $activities->lastItem() ?? 0 }} 
+                        จากทั้งหมด {{ number_format($activities->total()) }} รายการ
+                    </span>
+                </div>
+                
+                @if($activities->hasPages())
+                    <div class="pagination-nav">
+                        <nav aria-label="กิจกรรม pagination">
+                            <ul class="pagination pagination-sm mb-0">
+                                {{-- Previous Page Link --}}
+                                @if ($activities->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $activities->previousPageUrl() }}" rel="prev">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                {{-- Pagination Elements --}}
+                                @php
+                                    $currentPage = $activities->currentPage();
+                                    $lastPage = $activities->lastPage();
+                                    $startPage = max(1, $currentPage - 2);
+                                    $endPage = min($lastPage, $currentPage + 2);
+                                @endphp
+
+                                {{-- First page --}}
+                                @if($startPage > 1)
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $activities->url(1) }}">1</a>
+                                    </li>
+                                    @if($startPage > 2)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                @endif
+
+                                {{-- Page numbers --}}
+                                @for($page = $startPage; $page <= $endPage; $page++)
+                                    @if ($page == $currentPage)
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ $page }}</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $activities->url($page) }}">{{ $page }}</a>
+                                        </li>
+                                    @endif
+                                @endfor
+
+                                {{-- Last page --}}
+                                @if($endPage < $lastPage)
+                                    @if($endPage < $lastPage - 1)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $activities->url($lastPage) }}">{{ $lastPage }}</a>
+                                    </li>
+                                @endif
+
+                                {{-- Next Page Link --}}
+                                @if ($activities->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $activities->nextPageUrl() }}" rel="next">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                @endif
             </div>
         @else
             <div class="text-center py-5">
-                <i class="bi bi-inbox display-1 text-muted"></i>
-                <h5 class="text-muted mt-3">ไม่พบประวัติกิจกรรม</h5>
-                <p class="text-muted">ลองปรับเปลี่ยนเงื่อนไขการค้นหา</p>
+                <div class="d-flex flex-column align-items-center">
+                    <i class="bi bi-inbox display-1 text-muted mb-3" style="font-size: 4rem;"></i>
+                    <h5 class="text-muted mt-3">ไม่พบประวัติกิจกรรม</h5>
+                    <p class="text-muted mb-4">ลองปรับเปลี่ยนเงื่อนไขการค้นหา หรือสร้างกิจกรรมใหม่</p>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('activities.index') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-clockwise me-1"></i>รีเฟรชหน้า
+                        </a>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('filterForm').reset();">
+                            <i class="bi bi-funnel me-1"></i>ล้างตัวกรอง
+                        </button>
+                    </div>
+                </div>
             </div>
         @endif
     </div>
@@ -340,6 +523,8 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 let dailyChart, typeChart;
 
@@ -353,52 +538,144 @@ function exportActivities() {
 
 @if($canViewAll)
 function markSuspicious(activityId) {
-    const reason = prompt('กรุณาระบุเหตุผลที่ทำเครื่องหมายว่าน่าสงสัย:');
-    if (reason === null) return;
-    
-    fetch(`/activities/${activityId}/mark-suspicious`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json',
+    Swal.fire({
+        title: 'ทำเครื่องหมายว่าน่าสงสัย',
+        input: 'textarea',
+        inputLabel: 'กรุณาระบุเหตุผล',
+        inputPlaceholder: 'ระบุเหตุผลที่ทำเครื่องหมายว่าน่าสงสัย...',
+        inputAttributes: {
+            'aria-label': 'ระบุเหตุผลที่ทำเครื่องหมายว่าน่าสงสัย'
         },
-        body: JSON.stringify({ reason: reason })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถดำเนินการได้'));
+        showCancelButton: true,
+        confirmButtonColor: '#f39c12',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-exclamation-triangle"></i> ทำเครื่องหมาย',
+        cancelButtonText: '<i class="bi bi-x-circle"></i> ยกเลิก',
+        reverseButtons: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return 'กรุณาระบุเหตุผล'
+            }
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // แสดง loading
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                html: 'กรุณารอสักครู่',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            fetch(`/activities/${activityId}/mark-suspicious`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reason: result.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'ทำเครื่องหมายกิจกรรมว่าน่าสงสัยเรียบร้อยแล้ว',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: data.message || 'ไม่สามารถดำเนินการได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+            });
+        }
     });
 }
 
 function unmarkSuspicious(activityId) {
-    if (!confirm('คุณต้องการยกเลิกการทำเครื่องหมายว่าน่าสงสัยใช่หรือไม่?')) return;
-    
-    fetch(`/activities/${activityId}/unmark-suspicious`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json',
+    Swal.fire({
+        title: 'ยกเลิกการทำเครื่องหมาย',
+        text: 'คุณต้องการยกเลิกการทำเครื่องหมายว่าน่าสงสัยใช่หรือไม่?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-check-circle"></i> ยกเลิกเครื่องหมาย',
+        cancelButtonText: '<i class="bi bi-x-circle"></i> ยกเลิก',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // แสดง loading
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                html: 'กรุณารอสักครู่',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            fetch(`/activities/${activityId}/unmark-suspicious`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'ยกเลิกการทำเครื่องหมายเรียบร้อยแล้ว',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: data.message || 'ไม่สามารถดำเนินการได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+            });
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถดำเนินการได้'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
     });
 }
 
@@ -498,5 +775,294 @@ setInterval(() => {
         location.reload();
     }
 }, 300000);
+
+// เพิ่ม loading state เมื่อคลิก pagination
+document.querySelectorAll('.pagination .page-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        if (!this.closest('.page-item').classList.contains('active') && 
+            !this.closest('.page-item').classList.contains('disabled')) {
+            
+            // แสดง loading
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+            this.style.pointerEvents = 'none';
+            
+            // Reset หลังจาก 3 วินาที ในกรณีที่หน้าไม่ reload
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.style.pointerEvents = 'auto';
+            }, 3000);
+        }
+    });
+});
+
+// เพิ่ม loading state เมื่อคลิกหัวตารางเพื่อเรียงลำดับ
+document.querySelectorAll('.table thead th a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        // แสดง loading overlay
+        const overlay = document.createElement('div');
+        overlay.innerHTML = `
+            <div class="d-flex justify-content-center align-items-center" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999;">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">กำลังโหลด...</span>
+                    </div>
+                    <div class="mt-2">กำลังเรียงลำดับข้อมูล...</div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay.firstElementChild);
+        
+        // Remove overlay หลังจาก 5 วินาที ในกรณีที่หน้าไม่ reload
+        setTimeout(() => {
+            const loadingOverlay = document.querySelector('[style*="position: fixed"]');
+            if (loadingOverlay) {
+                loadingOverlay.remove();
+            }
+        }, 5000);
+    });
+});
+
+// Smooth scroll เมื่อเปลี่ยนหน้า
+if (window.location.hash) {
+    document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+}
 </script>
+@endpush
+
+@push('styles')
+<style>
+/* SweetAlert2 Custom Styles */
+.swal2-popup {
+    border-radius: 10px !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+}
+
+.swal2-html-container {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+}
+
+.swal2-input, .swal2-textarea {
+    border-radius: 6px !important;
+    border: 1px solid #ced4da !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 8px 20px !important;
+}
+
+.swal2-icon {
+    border: none !important;
+}
+
+.swal2-icon.swal2-warning {
+    border-color: #f39c12 !important;
+    color: #f39c12 !important;
+}
+
+.swal2-icon.swal2-success {
+    border-color: #28a745 !important;
+    color: #28a745 !important;
+}
+
+.swal2-icon.swal2-error {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.swal2-icon.swal2-question {
+    border-color: #17a2b8 !important;
+    color: #17a2b8 !important;
+}
+
+/* Table styling improvements */
+.table-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+/* Sortable table headers */
+.table thead th a {
+    color: #495057 !important;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.table thead th a:hover {
+    color: #4e73df !important;
+    text-decoration: none !important;
+}
+
+.table thead th a .bi {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    vertical-align: middle;
+    position: relative;
+}
+
+.table thead th:hover {
+    background-color: #e9ecef;
+}
+
+/* Active sort indicator */
+.table thead th a:has(.bi-chevron-down),
+.table thead th a:has(.bi-chevron-up) {
+    color: #4e73df !important;
+}
+
+.table thead th a .bi-chevron-down,
+.table thead th a .bi-chevron-up {
+    opacity: 1;
+    color: #4e73df !important;
+}
+
+/* Card shadow improvements */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+/* Pagination Styling */
+.pagination {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination .page-item .page-link {
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    padding: 10px 15px;
+    margin: 0 2px;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+    min-width: 45px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+    color: #495057;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(78, 115, 223, 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #adb5bd;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+.pagination .page-item:first-child .page-link {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.pagination .page-item:last-child .page-link {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* Page info styling */
+.text-muted .bi-info-circle {
+    color: #4e73df !important;
+}
+
+/* Responsive pagination */
+@media (max-width: 576px) {
+    .pagination .page-item .page-link {
+        padding: 8px 10px;
+        font-size: 0.875rem;
+        min-width: 38px;
+        height: 36px;
+        margin: 0 1px;
+    }
+    
+    .pagination {
+        justify-content: center;
+    }
+    
+    /* ซ่อนหมายเลขหน้าบางส่วนในมือถือ */
+    .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .pagination .page-item .page-link {
+        min-width: 40px;
+        height: 38px;
+        padding: 9px 12px;
+    }
+}
+
+/* เพิ่ม spacing และ alignment */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pagination-info {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.pagination-nav {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+    min-width: 250px;
+}
+</style>
 @endpush

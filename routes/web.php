@@ -223,6 +223,18 @@ Route::group(['middleware' => ['auth', 'role:user', 'log.activity', 'password.ex
         Route::post('/devices/{device}/trust', [App\Http\Controllers\User\SecurityController::class, 'trustDevice'])->name('devices.trust');
         Route::delete('/devices/{device}', [App\Http\Controllers\User\SecurityController::class, 'removeDevice'])->name('devices.remove');
     });
+    
+    // User Device Management Routes (Alternative Interface)
+    Route::group(['prefix' => 'devices', 'as' => 'devices.'], function () {
+        Route::get('/', [App\Http\Controllers\User\DeviceController::class, 'index'])->name('index');
+        Route::get('/{device}', [App\Http\Controllers\User\DeviceController::class, 'show'])->name('show');
+        Route::delete('/{device}', [App\Http\Controllers\User\DeviceController::class, 'destroy'])->name('destroy');
+        Route::post('/{device}/trust', [App\Http\Controllers\User\DeviceController::class, 'toggleTrust'])->name('trust');
+        Route::post('/{device}/untrust', [App\Http\Controllers\User\DeviceController::class, 'untrustDevice'])->name('untrust');
+        Route::post('/trust-current', [App\Http\Controllers\User\DeviceController::class, 'trustCurrentDevice'])->name('trust-current');
+        Route::post('/register-current', [App\Http\Controllers\User\DeviceController::class, 'registerCurrentDevice'])->name('register-current');
+        Route::post('/logout-all', [App\Http\Controllers\User\DeviceController::class, 'logoutAllDevices'])->name('logout-all');
+    });
 });
 
 /*
@@ -345,6 +357,19 @@ Route::group(['middleware' => ['auth', 'role:admin,super_admin', 'log.activity',
         Route::get('/', [App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('index');
         Route::get('/analytics', [App\Http\Controllers\Admin\StatisticsController::class, 'analytics'])->name('analytics');
         Route::get('/report', [App\Http\Controllers\Admin\StatisticsController::class, 'report'])->name('report');
+    });
+
+    // IP Information and Restrictions Routes
+    Route::group(['prefix' => 'ip-info', 'as' => 'ip-info.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\IpInformationController::class, 'index'])->name('index');
+        Route::get('/debug', [App\Http\Controllers\Admin\IpInformationController::class, 'debug'])->name('debug');
+    });
+
+    Route::group(['prefix' => 'ip-restrictions', 'as' => 'ip-restrictions.'], function () {
+        Route::post('/block', [App\Http\Controllers\Admin\IpInformationController::class, 'testBlock'])->name('block');
+        Route::delete('/unblock', [App\Http\Controllers\Admin\IpInformationController::class, 'testUnblock'])->name('unblock');
+        Route::get('/check', [App\Http\Controllers\Admin\IpInformationController::class, 'checkStatus'])->name('check');
+        Route::delete('/{id}', [App\Http\Controllers\Admin\IpInformationController::class, 'destroy'])->name('destroy');
     });
 });
 

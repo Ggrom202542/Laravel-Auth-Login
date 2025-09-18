@@ -165,7 +165,7 @@
                 <div id="deviceInfo" class="bg-light p-3 rounded"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>ยกเลิก</button>
                 <button type="button" class="btn btn-danger" id="confirmRemoveBtn">
                     <i class="bi bi-trash me-1"></i>ลบอุปกรณ์
                 </button>
@@ -207,7 +207,7 @@ function refreshDevices() {
 }
 
 function toggleTrust(deviceId, trusted) {
-    fetch(`{{ route('user.security.devices') }}/${deviceId}/trust`, {
+    fetch(`{{ route('user.security.devices.trust', ':device') }}`.replace(':device', deviceId), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

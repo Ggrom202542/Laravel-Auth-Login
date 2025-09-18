@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Services\SessionManagementService;
 use App\Models\UserSession;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class SessionController extends Controller
 {
@@ -60,16 +62,44 @@ class SessionController extends Controller
      */
     public function logoutOtherDevices(Request $request)
     {
+        $request->validate([
+            'password' => 'required|string'
+        ]);
+
         $user = Auth::user();
         $currentSessionId = session()->getId();
         
-        $count = $this->sessionService->terminateOtherSessions(
-            $user->id, 
-            $currentSessionId, 
-            'Logged out from other devices by user'
-        );
+        try {
+            // ตรวจสอบรหัสผ่าน
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'รหัสผ่านไม่ถูกต้อง'
+                ], 400);
+            }
 
-        return back()->with('success', "ออกจากระบบจาก {$count} อุปกรณ์อื่นเรียบร้อยแล้ว");
+            $count = $this->sessionService->terminateOtherSessions(
+                $user->id, 
+                $currentSessionId, 
+                'Logged out from other devices by user'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => "ออกจากระบบจาก {$count} อุปกรณ์อื่นเรียบร้อยแล้ว"
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Logout other devices failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการออกจากระบบอุปกรณ์อื่น'
+            ], 500);
+        }
     }
 
     /**
@@ -84,28 +114,51 @@ class SessionController extends Controller
         $user = Auth::user();
         $sessionId = $request->session_id;
         
-        // ตรวจสอบว่า session นี้เป็นของผู้ใช้คนนี้
-        $session = \App\Models\UserSession::where('session_id', $sessionId)
-                                          ->where('user_id', $user->id)
-                                          ->where('is_active', true)
-                                          ->first();
+        try {
+            // ตรวจสอบว่า session นี้เป็นของผู้ใช้คนนี้
+            $session = \App\Models\UserSession::where('session_id', $sessionId)
+                                              ->where('user_id', $user->id)
+                                              ->where('is_active', true)
+                                              ->first();
 
-        if (!$session) {
-            return back()->with('error', 'ไม่พบ session ที่ระบุ');
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ไม่พบ session ที่ระบุ'
+                ], 404);
+            }
+
+            // ไม่ให้ logout session ปัจจุบัน
+            if ($sessionId === session()->getId()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ไม่สามารถออกจากระบบ session ปัจจุบันได้'
+                ], 400);
+            }
+
+            $this->sessionService->terminateSession(
+                $sessionId, 
+                'Terminated by user', 
+                $user->id
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'ออกจากระบบจากอุปกรณ์ดังกล่าวเรียบร้อยแล้ว'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Session termination failed', [
+                'user_id' => $user->id,
+                'session_id' => $sessionId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการออกจากระบบ'
+            ], 500);
         }
-
-        // ไม่ให้ logout session ปัจจุบัน
-        if ($sessionId === session()->getId()) {
-            return back()->with('error', 'ไม่สามารถออกจากระบบ session ปัจจุบันได้');
-        }
-
-        $this->sessionService->terminateSession(
-            $sessionId, 
-            'Terminated by user', 
-            $user->id
-        );
-
-        return back()->with('success', 'ออกจากระบบจากอุปกรณ์ดังกล่าวเรียบร้อยแล้ว');
     }
 
     /**
@@ -118,17 +171,38 @@ class SessionController extends Controller
         ]);
 
         $user = Auth::user();
-        $session = \App\Models\UserSession::where('session_id', $request->session_id)
-                                          ->where('user_id', $user->id)
-                                          ->first();
+        
+        try {
+            $session = \App\Models\UserSession::where('session_id', $request->session_id)
+                                              ->where('user_id', $user->id)
+                                              ->first();
 
-        if (!$session) {
-            return back()->with('error', 'ไม่พบ session ที่ระบุ');
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ไม่พบ session ที่ระบุ'
+                ], 404);
+            }
+
+            $session->update(['is_trusted' => true]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'ทำเครื่องหมายอุปกรณ์เป็นที่เชื่อถือได้แล้ว'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Device trust failed', [
+                'user_id' => $user->id,
+                'session_id' => $request->session_id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'เกิดข้อผิดพลาดในการเชื่อถืออุปกรณ์'
+            ], 500);
         }
-
-        $session->update(['is_trusted' => true]);
-
-        return back()->with('success', 'ทำเครื่องหมายอุปกรณ์เป็นที่เชื่อถือได้แล้ว');
     }
 
     /**

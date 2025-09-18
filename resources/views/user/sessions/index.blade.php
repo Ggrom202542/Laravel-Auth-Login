@@ -91,7 +91,14 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="font-monospace">{{ $session->ip_address }}</span>
+                                        <div class="d-flex align-items-center">
+                                            <span class="font-monospace">{{ $session->ip_address }}</span>
+                                            @if(App\Helpers\IpHelper::isPrivateIp($session->ip_address))
+                                                <span class="badge bg-warning ms-2" title="Private/Local IP - อาจไม่ใช่ IP ที่แท้จริงของผู้ใช้">
+                                                    <i class="bi bi-exclamation-triangle"></i> Local
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
                                         <span title="{{ $session->login_at->format('d/m/Y H:i:s') }}">
@@ -185,7 +192,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i>ยกเลิก</button>
                 <button type="button" class="btn btn-danger" onclick="submitLogoutOtherDevices()">
                     <i class="bi bi-box-arrow-right me-1"></i>ออกจากอุปกรณ์อื่น
                 </button>
@@ -197,64 +204,182 @@
 @endsection
 
 @push('scripts')
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function terminateSession(sessionId) {
-    if (confirm('คุณต้องการออกจากระบบ session นี้หรือไม่?')) {
-        fetch('{{ route("user.sessions.terminate") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                session_id: sessionId
+    Swal.fire({
+        title: 'ออกจากระบบ',
+        text: 'คุณต้องการออกจากระบบ session นี้หรือไม่?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-box-arrow-right"></i> ออกจากระบบ',
+        cancelButtonText: '<i class="bi bi-x-circle"></i> ยกเลิก',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // แสดง loading
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                html: 'กรุณารอสักครู่',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            fetch('{{ route("user.sessions.terminate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('เกิดข้อผิดพลาด: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
-        });
-    }
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'ออกจากระบบ session เรียบร้อยแล้ว',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: data.message || 'ไม่สามารถออกจากระบบได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+            });
+        }
+    });
 }
 
 function trustDevice(sessionId) {
-    if (confirm('คุณต้องการเชื่อถืออุปกรณ์นี้หรือไม่?')) {
-        fetch('{{ route("user.sessions.trust") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                session_id: sessionId
+    Swal.fire({
+        title: 'เชื่อถืออุปกรณ์',
+        text: 'คุณต้องการเชื่อถืออุปกรณ์นี้หรือไม่?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-shield-check"></i> เชื่อถืออุปกรณ์',
+        cancelButtonText: '<i class="bi bi-x-circle"></i> ยกเลิก',
+        reverseButtons: true,
+        html: `
+            <p>การเชื่อถืออุปกรณ์จะทำให้:</p>
+            <ul class="text-start" style="margin: 0 auto; display: inline-block;">
+                <li>ไม่ต้องยืนยันตัวตนเพิ่มเติม</li>
+                <li>สามารถเข้าใช้งานได้อย่างรวดเร็ว</li>
+                <li>ระบบจะจดจำอุปกรณ์นี้</li>
+            </ul>
+        `
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // แสดง loading
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                html: 'กรุณารอสักครู่',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            fetch('{{ route("user.sessions.trust") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('เกิดข้อผิดพลาด: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
-        });
-    }
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'เชื่อถืออุปกรณ์เรียบร้อยแล้ว',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: data.message || 'ไม่สามารถเชื่อถืออุปกรณ์ได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+            });
+        }
+    });
 }
 
 function submitLogoutOtherDevices() {
     const form = document.getElementById('logoutOtherDevicesForm');
     const formData = new FormData(form);
+    const password = formData.get('password');
+    
+    // ตรวจสอบรหัสผ่าน
+    if (!password || password.trim() === '') {
+        Swal.fire({
+            title: 'ข้อมูลไม่ครบ!',
+            text: 'กรุณาใส่รหัสผ่านเพื่อยืนยันการดำเนินการ',
+            icon: 'warning',
+            confirmButtonText: 'ตกลง'
+        });
+        return;
+    }
+
+    // แสดง loading
+    Swal.fire({
+        title: 'กำลังดำเนินการ...',
+        html: 'กำลังออกจากอุปกรณ์อื่นทั้งหมด',
+        icon: 'info',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading()
+        }
+    });
     
     fetch('{{ route("user.sessions.logout-others") }}', {
         method: 'POST',
@@ -266,22 +391,87 @@ function submitLogoutOtherDevices() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // ปิด modal
             bootstrap.Modal.getInstance(document.getElementById('logoutOtherDevicesModal')).hide();
-            location.reload();
+            
+            Swal.fire({
+                title: 'สำเร็จ!',
+                text: 'ออกจากอุปกรณ์อื่นทั้งหมดเรียบร้อยแล้ว',
+                icon: 'success',
+                timer: 2500,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
         } else {
-            alert('เกิดข้อผิดพลาด: ' + data.message);
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด!',
+                text: data.message || 'ไม่สามารถออกจากอุปกรณ์อื่นได้',
+                icon: 'error',
+                confirmButtonText: 'ตกลง'
+            });
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        Swal.fire({
+            title: 'เกิดข้อผิดพลาด!',
+            text: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+            icon: 'error',
+            confirmButtonText: 'ตกลง'
+        });
     });
 }
 
-// Auto refresh every 5 minutes
-setInterval(function() {
-    location.reload();
-}, 300000);
+// Auto refresh every 5 minutes with notification
+let autoRefreshTimer;
+let refreshCountdown = 300; // 5 minutes in seconds
+
+function startAutoRefresh() {
+    autoRefreshTimer = setInterval(function() {
+        refreshCountdown--;
+        
+        // แสดงการแจ้งเตือนเมื่อเหลือ 30 วินาที
+        if (refreshCountdown === 30) {
+            showAutoRefreshNotice();
+        }
+        
+        // รีเฟรชเมื่อหมดเวลา
+        if (refreshCountdown <= 0) {
+            location.reload();
+        }
+    }, 1000);
+}
+
+function showAutoRefreshNotice() {
+    const notice = document.createElement('div');
+    notice.className = 'auto-refresh-notice';
+    notice.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>หน้าจะรีเฟรชอัตโนมัติใน 30 วินาที';
+    document.body.appendChild(notice);
+    
+    // ลบ notice หลังจาก 3 วินาที
+    setTimeout(() => {
+        if (notice && notice.parentNode) {
+            notice.parentNode.removeChild(notice);
+        }
+    }, 3000);
+}
+
+// เริ่ม auto refresh
+startAutoRefresh();
+
+// หยุด auto refresh เมื่อผู้ใช้ปฏิสัมพันธ์กับหน้า
+document.addEventListener('click', function() {
+    clearInterval(autoRefreshTimer);
+    refreshCountdown = 300;
+    startAutoRefresh();
+});
+
+document.addEventListener('keydown', function() {
+    clearInterval(autoRefreshTimer);
+    refreshCountdown = 300;
+    startAutoRefresh();
+});
 </script>
 @endpush
 
@@ -309,6 +499,76 @@ setInterval(function() {
 
 .table td {
     vertical-align: middle;
+}
+
+/* SweetAlert2 Custom Styles */
+.swal2-popup {
+    border-radius: 10px !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+}
+
+.swal2-html-container {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 8px 20px !important;
+}
+
+.swal2-icon {
+    border: none !important;
+}
+
+.swal2-icon.swal2-warning {
+    border-color: #f39c12 !important;
+    color: #f39c12 !important;
+}
+
+.swal2-icon.swal2-success {
+    border-color: #28a745 !important;
+    color: #28a745 !important;
+}
+
+.swal2-icon.swal2-error {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.swal2-icon.swal2-question {
+    border-color: #17a2b8 !important;
+    color: #17a2b8 !important;
+}
+
+/* Loading animation enhancement */
+.swal2-loading .swal2-icon {
+    border-color: #007bff !important;
+}
+
+/* Auto refresh notification */
+.auto-refresh-notice {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 123, 255, 0.9);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    z-index: 1000;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
 }
 </style>
 @endpush

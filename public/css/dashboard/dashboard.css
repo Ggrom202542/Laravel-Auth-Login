@@ -56,7 +56,7 @@ body {
 
 .sidebar {
     min-width: 120px;
-    max-width: 480px;
+    max-width: 340px;
     min-height: 100vh;
     background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
     transition: all 0.3s ease;
@@ -109,7 +109,7 @@ body {
 .sidebar .nav-link {
     display: flex;
     align-items: center;
-    padding: 1rem 1.25rem;
+    padding: 0.875rem 1.25rem;
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     border-radius: 0.5rem;
@@ -122,9 +122,8 @@ body {
 .sidebar .nav-link:hover {
     color: #fff;
     background: rgba(255, 255, 255, 0.1);
-    transform: translateX(5px);
+    transform: translateX(3px);
     border-color: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
 }
 
 .sidebar .nav-link.active {
@@ -132,7 +131,6 @@ body {
     background: rgba(255, 255, 255, 0.2);
     font-weight: 600;
     border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 .sidebar .nav-link i {
@@ -219,14 +217,13 @@ body {
 .collapse-item:hover {
     color: #667eea;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
-    transform: translateX(8px);
+    transform: translateX(4px);
     text-decoration: none;
-    box-shadow: 0 0.25rem 1rem rgba(102, 126, 234, 0.15);
     border-left: 3px solid #667eea;
 }
 
 .collapse-item:active {
-    transform: translateX(5px);
+    transform: translateX(2px);
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.1) 100%);
 }
 
@@ -240,7 +237,6 @@ body {
 
 .collapse-item:hover i {
     color: #667eea;
-    transform: scale(1.1);
 }
 
 /* Sidebar Toggle Button */
@@ -260,19 +256,11 @@ body {
     background: rgba(255, 255, 255, 0.3);
     color: #fff;
     border-color: rgba(255, 255, 255, 0.5);
-    transform: scale(1.05);
 }
 
 #sidebarToggle:focus {
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
-}
-
-#sidebarToggle:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: scale(1.05);
 }
 
 /* ==========================================================================
@@ -314,8 +302,6 @@ body {
 .topbar .navbar-nav .nav-item .nav-link:hover {
     color: #667eea;
     background: rgba(102, 126, 234, 0.1);
-    transform: translateY(-2px);
-    box-shadow: 0 0.25rem 1rem rgba(102, 126, 234, 0.15);
 }
 
 .topbar .navbar-nav .nav-item .nav-link:focus {
@@ -335,52 +321,95 @@ body {
 
 .topbar .img-profile:hover {
     border-color: #667eea;
-    transform: scale(1.1);
-    box-shadow: 0 0.5rem 1rem rgba(102, 126, 234, 0.3);
 }
 
 /* Notification Badge Enhancement */
-.navbar-nav .nav-item .badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: linear-gradient(45deg, #e74a3b, #dc3545);
-    color: white;
-    font-size: 0.6rem;
-    padding: 0.25rem 0.4rem;
-    border-radius: 50px;
-    border: 2px solid white;
-    box-shadow: 0 0.25rem 0.5rem rgba(231, 74, 59, 0.3);
-    animation: pulse 2s infinite;
+.navbar-nav .nav-item {
+    position: relative;
 }
 
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
+.navbar-nav .nav-item .nav-link {
+    position: relative;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Badge Positioning - แยกการแสดงผลแต่ละประเภท */
+.navbar-nav .nav-item .badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: linear-gradient(135deg, #e74a3b 0%, #dc3545 100%);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50px;
+    border: 2px solid white;
+    box-shadow: 0 0.25rem 0.5rem rgba(231, 74, 59, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* สำหรับ badge ประเภทต่างๆ */
+.navbar-nav .nav-item .badge.bg-danger {
+    background: linear-gradient(135deg, #e74a3b 0%, #dc3545 100%) !important;
+}
+
+.navbar-nav .nav-item .badge.bg-info {
+    background: linear-gradient(135deg, #36b9cc 0%, #2E8B95 100%) !important;
+}
+
+.navbar-nav .nav-item .badge.bg-warning {
+    background: linear-gradient(135deg, #f6c23e 0%, #E5A500 100%) !important;
+    color: #fff !important;
 }
 
 /* ==========================================================================
    BADGE & DROPDOWN STYLING
    ========================================================================== */
 
-/* Enhanced Badge Styling */
+/* Enhanced Badge Styling - แก้ไขปัญหาการซ้อนทับ */
 .badge-counter {
     position: absolute;
-    transform: scale(0.7);
-    transform-origin: top right;
-    right: -0.25rem;
-    top: -0.25rem;
-    font-size: 0.6rem;
+    top: -8px;
+    right: -8px;
+    font-size: 0.7rem;
     font-weight: 600;
-    padding: 0.25rem 0.4rem;
-    border-radius: 50px;
+    padding: 0.2rem 0.45rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid white;
+    z-index: 10;
+    background: #dc3545;
+    color: white;
+}
+
+/* ปรับตำแหน่งให้ไม่ซ้อนกัน */
+#alertsDropdown .badge-counter {
+    background: #dc3545;
+    right: -6px;
+    top: -6px;
+}
+
+#messagesDropdown .badge-counter {
+    background: #17a2b8;
+    right: -6px;
+    top: -6px;
 }
 
 /* Enhanced Dropdown Styling */
@@ -739,10 +768,10 @@ body {
     justify-content: center;
 }
 
-.sidebar-toggled .content-wrapper,
+/* .sidebar-toggled .content-wrapper,
 .sidebar-toggled #content-wrapper {
-    /* margin-left: 6.5rem; */
-}
+    margin-left: 6.5rem;
+} */
 
 /* ==========================================================================
    ANIMATIONS & TRANSITIONS
@@ -903,22 +932,79 @@ body {
     z-index: 1;
 }
 
-/* Badge Counter Enhanced */
-.badge-counter {
+/* Badge Counter Enhanced - ปรับปรุงการแสดงผล */
+.navbar-nav .nav-item .badge-counter {
     position: absolute;
-    top: -4px;
+    top: -6px;
     right: -8px;
     font-size: 0.65rem;
-    padding: 0.125rem 0.375rem;
-    min-width: 1.25rem;
-    height: 1.25rem;
+    padding: 0.15rem 0.4rem;
+    min-width: 1.3rem;
+    height: 1.3rem;
     border-radius: 50px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
     border: 2px solid white;
+    z-index: 15;
+    animation: badgeGlow 2s infinite alternate;
+}
+
+/* แยกสีและตำแหน่งสำหรับแต่ละประเภท */
+#alertsDropdown .badge-counter {
+    background: linear-gradient(135deg, #e74a3b 0%, #dc3545 100%);
+    right: -8px;
+    top: -6px;
+}
+
+#messagesDropdown .badge-counter {
+    background: linear-gradient(135deg, #36b9cc 0%, #2E8B95 100%);
+    right: -10px;
+    top: -6px;
+}
+
+@keyframes badgeGlow {
+    0% {
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
+    }
+    100% {
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25), 0 0 1rem rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* Responsive Badge Styling */
+@media (max-width: 768px) {
+    .navbar-nav .nav-item .badge-counter {
+        top: -4px;
+        right: -6px;
+        font-size: 0.6rem;
+        min-width: 1.1rem;
+        height: 1.1rem;
+        padding: 0.1rem 0.3rem;
+    }
+    
+    #alertsDropdown .badge-counter,
+    #messagesDropdown .badge-counter {
+        right: -6px;
+        top: -4px;
+    }
+}
+
+/* Badge สำหรับ sidebar */
+.sidebar .nav-item .badge {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #e74a3b 0%, #dc3545 100%);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 5;
 }
 
 /* Dropdown Header Enhanced */
