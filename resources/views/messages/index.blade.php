@@ -74,7 +74,7 @@
                                         <th width="50">สถานะ</th>
                                         <th>{{ $tab === 'sent' ? 'ผู้รับ' : 'ผู้ส่ง' }}</th>
                                         <th>หัวข้อ</th>
-                                        <th width="100">ความสำคัญ</th>
+                                        <th width="150">ความสำคัญ</th>
                                         <th width="150">วันที่</th>
                                         <th width="100">การดำเนินการ</th>
                                     </tr>
@@ -141,7 +141,7 @@
                                                     <i class="bi bi-circle-fill"></i> {{ $priorityText }}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td style="text-align: center;">
                                                 <small class="text-muted">
                                                     {{ $message->created_at->diffForHumans() }}
                                                 </small>
